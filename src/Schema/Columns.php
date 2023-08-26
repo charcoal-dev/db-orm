@@ -199,7 +199,7 @@ class Columns implements \IteratorAggregate
     /**
      * @param string $col
      */
-    public function primaryKey(string $col): void
+    public function setPrimaryKey(string $col): void
     {
         /** @var AbstractColumn $column */
         $column = $this->columns[$col] ?? null;
