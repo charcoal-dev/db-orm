@@ -1,0 +1,28 @@
+{
+  "name": "charcoal-dev/db-orm",
+  "description": "ORM for Charcoal Database lib",
+  "type": "library",
+  "homepage": "https://github.com/charcoal-dev/db-orm",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Furqan A. Siddiqui",
+      "email": "hello@furqansiddiqui.com",
+      "homepage": "https://www.furqansiddiqui.com",
+      "role": "Author"
+    }
+  ],
+  "require": {
+    "php": "^8.1",
+    "charcoal-dev/database": "dev-main",
+    "charcoal-dev/events-base": "dev-main"
+  },
+  "autoload": {
+    "psr-4": {
+      "Charcoal\\Datbase\\ORM\\": [
+        "src"
+      ]
+    }
+  },
+  "minimum-stability": "dev"
+}
