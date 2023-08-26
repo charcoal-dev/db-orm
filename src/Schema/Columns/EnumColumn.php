@@ -31,7 +31,7 @@ class EnumColumn extends AbstractColumn
      * @param string ...$opts
      * @return EnumColumn
      */
-    public function options(string ...$opts): self
+    public function options(string ...$opts): static
     {
         $this->options = $opts;
         return $this;
@@ -41,7 +41,7 @@ class EnumColumn extends AbstractColumn
      * @param string $opt
      * @return EnumColumn
      */
-    public function default(string $opt): self
+    public function default(string $opt): static
     {
         if (!in_array($opt, $this->options)) {
             throw new \OutOfBoundsException(

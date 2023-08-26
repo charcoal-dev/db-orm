@@ -15,35 +15,26 @@ declare(strict_types=1);
 namespace Charcoal\Database\ORM\Schema\Traits;
 
 /**
- * Trait LengthValueTrait
+ * Trait NumericValueTrait
  * @package Charcoal\Database\ORM\Schema\Traits
  */
-trait LengthValueTrait
+trait NumericValueTrait
 {
     /**
-     * @param int $length
      * @return $this
      */
-    public function length(int $length): static
+    final public function signed(): static
     {
-        if ($length < static::LENGTH_MIN || $length > static::LENGTH_MAX) {
-            throw new \OutOfRangeException(
-                sprintf('Maximum length for col "%s" cannot exceed %d', $this->name, static::LENGTH_MAX)
-            );
-        }
-
-        $this->length = $length;
+        $this->attributes["unsigned"] = 0;
         return $this;
     }
 
     /**
-     * @param int $length
      * @return $this
      */
-    public function fixed(int $length): static
+    final public function unSigned(): static
     {
-        $this->length($length);
-        $this->fixed = true;
+        $this->attributes["unsigned"] = 1;
         return $this;
     }
 }

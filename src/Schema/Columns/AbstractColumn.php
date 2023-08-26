@@ -53,7 +53,7 @@ abstract class AbstractColumn
      * @param int|string|float|null $value
      * @return $this
      */
-    protected function setDefaultValue(null|int|string|float $value): self
+    protected function setDefaultValue(null|int|string|float $value): static
     {
         if (is_null($value) && !$this->nullable) {
             throw new \InvalidArgumentException(
