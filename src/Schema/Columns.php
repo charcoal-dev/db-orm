@@ -78,6 +78,26 @@ class Columns implements \IteratorAggregate
     }
 
     /**
+     * @param string $key
+     * @return \Charcoal\Database\ORM\Schema\Columns\AbstractColumn|null
+     */
+    public function search(string $key): ?AbstractColumn
+    {
+        if (isset($this->columns[$key])) {
+            return $this->columns[$key];
+        }
+
+        /** @var AbstractColumn $column */
+        foreach ($this->columns as $column) {
+            if ($key === $column->attributes->modelProperty) {
+                return $column;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @return int
      */
     public function count(): int

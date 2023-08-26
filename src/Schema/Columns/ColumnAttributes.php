@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace Charcoal\Database\ORM\Schema\Columns;
 
 use Charcoal\Database\ORM\Schema\Charset;
+use Charcoal\OOP\CaseStyles;
 
 /**
  * Class ColumnAttributes
@@ -29,10 +30,58 @@ class ColumnAttributes
     public ?Charset $charset = null;
     public int|float|string|null $defaultValue = null;
 
+    public readonly string $modelProperty;
+    private string|\Closure|null $modelValueResolver = null;
+    private \Closure|null $modelValueDissolve = null;
+
     /**
      * @param string $name
      */
-    public function __construct(public readonly string $name)
+    public function __construct(
+        public readonly string $name
+    )
     {
+        $this->modelProperty = str_contains($this->name, "_") ? CaseStyles::camelCase($this->name) : $this->name;
+    }
+
+    /**
+     * @param mixed $value
+     * @return mixed
+     */
+    public function getResolvedModelProperty(mixed $value): mixed
+    {
+        if (!$this->modelValueResolver) {
+            return $value; // No changes, return as-is
+        }
+
+        if (is_string($this->modelValueResolver)) {
+            return new $this->modelValueResolver($value); // Encapsulate value in class
+        }
+
+        return call_user_func_array($this->modelValueResolver, [$value]);
+    }
+
+    /**
+     * @param mixed $value
+     * @return mixed
+     */
+    public function getDissolvedModelProperty(mixed $value): mixed
+    {
+        if (!$this->modelValueDissolve) {
+            return $value; // No changes, return as-is
+        }
+
+        return call_user_func_array($this->modelValueDissolve, [$value]);
+    }
+
+    /**
+     * Provide a classname or resolver callback function to resolve this column's values when mapped to a model
+     * @param string|\Closure $resolver
+     * @return $this
+     */
+    public function setModelsValueResolver(string|\Closure $resolver): static
+    {
+        $this->modelValueResolver = $resolver;
+        return $this;
     }
 }
