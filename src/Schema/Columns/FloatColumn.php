@@ -19,20 +19,22 @@ use Charcoal\Database\ORM\Schema\Traits\NumericValueTrait;
 use Charcoal\Database\ORM\Schema\Traits\PrecisionValueTrait;
 
 /**
- * Class DecimalColumn
+ * Class FloatColumn
  * @package Charcoal\Database\ORM\Schema\Columns
  */
-class DecimalColumn extends AbstractColumn
+class FloatColumn extends AbstractColumn
 {
     /** @var string */
-    public const PRIMITIVE_TYPE = "string";
+    public const PRIMITIVE_TYPE = "double";
     /** @var int */
     protected const MAX_DIGITS = 65;
     /** @var int */
     protected const MAX_SCALE = 30;
 
+    /** @var string */
+    protected string $type;
     /** @var int */
-    private int $digits = 0;
+    private int $digits = 10;
     /** @var int */
     private int $scale = 0;
 
@@ -45,19 +47,16 @@ class DecimalColumn extends AbstractColumn
     public function __construct(string $name)
     {
         parent::__construct($name);
+        $this->type = "float";
         $this->setDefaultValue("0");
     }
 
     /**
-     * @param string $value
-     * @return DecimalColumn
+     * @param float|int $value
+     * @return $this
      */
-    public function default(string $value = "0"): static
+    public function default(float|int $value = 0): static
     {
-        if (!preg_match('/^-?[0-9]+(\.[0-9]+)?$/', $value)) {
-            throw new \InvalidArgumentException(sprintf('Bad default decimal value for col "%s"', $this->name));
-        }
-
         $this->setDefaultValue($value);
         return $this;
     }
@@ -69,7 +68,7 @@ class DecimalColumn extends AbstractColumn
     public function getColumnSQL(DbDriver $driver): ?string
     {
         return match ($driver->value) {
-            "mysql" => sprintf('decimal(%d,%d)', $this->digits, $this->scale),
+            "mysql" => sprintf('%s(%d,%d)', $this->type, $this->digits, $this->scale),
             "sqlite" => "REAL",
             default => null,
         };
