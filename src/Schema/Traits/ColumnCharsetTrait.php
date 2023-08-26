@@ -26,7 +26,7 @@ trait ColumnCharsetTrait
      */
     final public function charset(string $charset): static
     {
-        $this->attributes["charset"] = $charset;
+        $this->attributes->charset = $charset;
         return $this;
     }
 
@@ -36,7 +36,7 @@ trait ColumnCharsetTrait
      */
     final public function collation(string $collate): static
     {
-        $this->attributes["collation"] = $collate;
+        $this->attributes->charsetCollation = $collate;
         return $this;
     }
 }

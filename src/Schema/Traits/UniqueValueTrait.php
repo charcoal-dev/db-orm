@@ -25,7 +25,7 @@ trait UniqueValueTrait
      */
     public function unique(): static
     {
-        $this->attributes["unique"] = 1;
+        $this->attributes->unique = true;
         return $this;
     }
 }

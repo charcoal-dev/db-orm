@@ -28,7 +28,7 @@ trait LengthValueTrait
     {
         if ($length < static::LENGTH_MIN || $length > static::LENGTH_MAX) {
             throw new \OutOfRangeException(
-                sprintf('Maximum length for col "%s" cannot exceed %d', $this->name, static::LENGTH_MAX)
+                sprintf('Maximum length for col "%s" cannot exceed %d', $this->attributes->name, static::LENGTH_MAX)
             );
         }
 

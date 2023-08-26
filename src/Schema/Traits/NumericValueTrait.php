@@ -25,7 +25,7 @@ trait NumericValueTrait
      */
     final public function signed(): static
     {
-        $this->attributes["unsigned"] = 0;
+        $this->attributes->unSigned = false;
         return $this;
     }
 
@@ -34,7 +34,7 @@ trait NumericValueTrait
      */
     final public function unSigned(): static
     {
-        $this->attributes["unsigned"] = 1;
+        $this->attributes->unSigned = true;
         return $this;
     }
 }

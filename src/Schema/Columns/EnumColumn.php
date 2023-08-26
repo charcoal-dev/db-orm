@@ -45,7 +45,7 @@ class EnumColumn extends AbstractColumn
     {
         if (!in_array($opt, $this->options)) {
             throw new \OutOfBoundsException(
-                sprintf('Default value for "%s" must be from defined options', $this->name)
+                sprintf('Default value for "%s" must be from defined options', $this->attributes->name)
             );
         }
 
@@ -65,7 +65,7 @@ class EnumColumn extends AbstractColumn
 
         return match ($driver->value) {
             "mysql" => sprintf('enum(%s)', $options),
-            "sqlite" => sprintf('TEXT CHECK(%s in (%s))', $this->name, $options),
+            "sqlite" => sprintf('TEXT CHECK(%s in (%s))', $this->attributes->name, $options),
             default => null,
         };
     }

@@ -41,7 +41,7 @@ class IntegerColumn extends AbstractColumn
     public function __construct(string $name)
     {
         parent::__construct($name);
-        $this->attributes["unsigned"] = 0;
+        $this->attributes->unSigned = true;
     }
 
     /**

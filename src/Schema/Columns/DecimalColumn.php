@@ -55,7 +55,7 @@ class DecimalColumn extends AbstractColumn
     public function default(string $value = "0"): static
     {
         if (!preg_match('/^-?[0-9]+(\.[0-9]+)?$/', $value)) {
-            throw new \InvalidArgumentException(sprintf('Bad default decimal value for col "%s"', $this->name));
+            throw new \InvalidArgumentException(sprintf('Bad default decimal value for col "%s"', $this->attributes->name));
         }
 
         $this->setDefaultValue($value);

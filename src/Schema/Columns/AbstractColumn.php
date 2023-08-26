@@ -24,20 +24,14 @@ abstract class AbstractColumn
 {
     public const PRIMITIVE_TYPE = null;
 
-    /** @var int|float|string|null */
-    protected int|float|string|null $defaultValue = null;
-    /** @var array */
-    protected array $attributes = [];
+    public readonly ColumnAttributes $attributes;
 
     /**
      * @param string $name
-     * @param bool $nullable
      */
-    public function __construct(
-        public readonly string $name,
-        public bool            $nullable = false,
-    )
+    public function __construct(string $name)
     {
+        $this->attributes = new ColumnAttributes($name);
     }
 
     /**
@@ -45,7 +39,7 @@ abstract class AbstractColumn
      */
     public function isNullable(): static
     {
-        $this->nullable = true;
+        $this->attributes->nullable = true;
         return $this;
     }
 
@@ -55,13 +49,13 @@ abstract class AbstractColumn
      */
     protected function setDefaultValue(null|int|string|float $value): static
     {
-        if (is_null($value) && !$this->nullable) {
+        if (is_null($value) && !$this->attributes->nullable) {
             throw new \InvalidArgumentException(
-                sprintf('Default value for col "%s" cannot be NULL; Column is not nullable', $this->name)
+                sprintf('Default value for col "%s" cannot be NULL; Column is not nullable', $this->attributes->name)
             );
         }
 
-        $this->defaultValue = $value;
+        $this->attributes->defaultValue = $value;
         return $this;
     }
 
