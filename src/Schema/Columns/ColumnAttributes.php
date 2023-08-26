@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\ORM\Schema\Columns;
 
+use Charcoal\Database\ORM\Schema\Charset;
+
 /**
  * Class ColumnAttributes
  * @package Charcoal\Database\ORM\Schema\Columns
@@ -24,8 +26,7 @@ class ColumnAttributes
     public ?bool $unSigned = null;
     public ?bool $unique = null;
     public ?bool $autoIncrement = null;
-    public ?string $charset = null;
-    public ?string $charsetCollation = null;
+    public ?Charset $charset = null;
     public int|float|string|null $defaultValue = null;
 
     /**

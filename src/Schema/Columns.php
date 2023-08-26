@@ -35,10 +35,8 @@ class Columns implements \IteratorAggregate
     private array $columns = [];
     /** @var int */
     private int $count = 0;
-    /** @var string */
-    private string $defaultCharset = "utf8mb4";
-    /** @var string */
-    private string $defaultCollate = "utf8mb4_unicode_ci";
+    /** @var \Charcoal\Database\ORM\Schema\Charset */
+    private Charset $defaultCharset = Charset::ASCII;
     /** @var null|string */
     private ?string $primaryKey = null;
 
@@ -51,20 +49,12 @@ class Columns implements \IteratorAggregate
     }
 
     /**
-     * @param string|null $charset
-     * @param string|null $collate
+     * @param \Charcoal\Database\ORM\Schema\Charset|null $charset
      * @return $this
      */
-    public function defaults(?string $charset = null, ?string $collate = null): static
+    public function setDefaultCharset(Charset $charset = null): static
     {
-        if (is_string($charset) && $charset) {
-            $this->defaultCharset = $charset;
-        }
-
-        if (is_string($collate) && $collate) {
-            $this->defaultCollate = $collate;
-        }
-
+        $this->defaultCharset = $charset;
         return $this;
     }
 
@@ -114,8 +104,7 @@ class Columns implements \IteratorAggregate
     {
         $col = new StringColumn($name);
         $this->append($col);
-        return $col->charset($this->defaultCharset)
-            ->collation($this->defaultCollate);
+        return $col->charset($this->defaultCharset);
     }
 
     /**
@@ -137,8 +126,7 @@ class Columns implements \IteratorAggregate
     {
         $col = new TextColumn($name);
         $this->append($col);
-        return $col->charset($this->defaultCharset)
-            ->collation($this->defaultCollate);
+        return $col->charset($this->defaultCharset);
     }
 
     /**

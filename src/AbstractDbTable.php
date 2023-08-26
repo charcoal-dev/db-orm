@@ -12,24 +12,13 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\ORM\Schema\Traits;
-
-use Charcoal\Database\ORM\Schema\Charset;
+namespace Charcoal\Database\ORM;
 
 /**
- * Trait ColumnCharsetTrait
- * @package Charcoal\Database\ORM\Schema\Traits
+ * Class AbstractDbTable
+ * @package Charcoal\Database\ORM
  */
-trait ColumnCharsetTrait
+abstract class AbstractDbTable
 {
-    /**
-     * @param \Charcoal\Database\ORM\Schema\Charset $charset
-     * @return $this
-     */
-    final public function charset(Charset $charset): static
-    {
-        $this->attributes->charset = $charset;
-        return $this;
-    }
+    public const TABLE_NAME = null;
 }
-

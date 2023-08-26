@@ -12,24 +12,25 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\ORM\Schema\Traits;
-
-use Charcoal\Database\ORM\Schema\Charset;
+namespace Charcoal\Database\ORM\Schema;
 
 /**
- * Trait ColumnCharsetTrait
- * @package Charcoal\Database\ORM\Schema\Traits
+ * Class Charset
+ * @package Charcoal\Database\ORM\Schema
  */
-trait ColumnCharsetTrait
+enum Charset: string
 {
+    case ASCII = "ascii";
+    case UTF8MB4 = "utf8mb4";
+
     /**
-     * @param \Charcoal\Database\ORM\Schema\Charset $charset
-     * @return $this
+     * @return string
      */
-    final public function charset(Charset $charset): static
+    public function getCollation(): string
     {
-        $this->attributes->charset = $charset;
-        return $this;
+        return match ($this) {
+            Charset::ASCII => "ascii_general_ci",
+            Charset::UTF8MB4 => "utf8mb4_unicode_ci"
+        };
     }
 }
-
