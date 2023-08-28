@@ -21,6 +21,7 @@ use Charcoal\Database\ORM\Exception\OrmQueryError;
 use Charcoal\Database\ORM\Exception\OrmQueryException;
 use Charcoal\Database\ORM\Schema\Columns;
 use Charcoal\Database\ORM\Schema\Constraints;
+use Charcoal\Database\ORM\Schema\Migrations;
 use Charcoal\Database\Queries\DbExecutedQuery;
 use Charcoal\Database\Queries\SortFlag;
 use Charcoal\OOP\Traits\NoDumpTrait;
@@ -42,8 +43,8 @@ abstract class AbstractDbTable
     /** @var Constraints */
     public readonly Constraints $constraints;
 
-    /** @var \Charcoal\Database\Database|null */
     protected ?Database $dbInstance = null;
+    protected ?Migrations $migrations = null;
 
     use NoDumpTrait;
     use NotCloneableTrait;
@@ -68,6 +69,10 @@ abstract class AbstractDbTable
 
         // Callback schema method for table structure
         $this->structure($this->columns, $this->constraints);
+
+        // Callback schema method to set all migrations
+        $this->migrations = new Migrations($this);
+        $this->migrations($this->migrations);
     }
 
     /**
@@ -79,7 +84,8 @@ abstract class AbstractDbTable
             "name" => $this->name,
             "columns" => $this->columns,
             "constraints" => $this->constraints,
-            "dbInstance" => null
+            "dbInstance" => null,
+            "migrations" => null,
         ];
     }
 
@@ -92,6 +98,11 @@ abstract class AbstractDbTable
         $this->name = $object["name"];
         $this->columns = $object["columns"];
         $this->constraints = $object["constraints"];
+        $this->dbInstance = null;
+
+        // Re-run method that sets all migrations callbacks
+        $this->migrations = new Migrations($this);
+        $this->migrations($this->migrations);
     }
 
     /**
@@ -108,10 +119,26 @@ abstract class AbstractDbTable
     abstract public function structure(Columns $cols, Constraints $constraints): void;
 
     /**
+     * Use this method to define migrations in ascending order
+     * @param \Charcoal\Database\ORM\Schema\Migrations $migrations
+     * @return void
+     */
+    abstract public function migrations(Migrations $migrations): void;
+
+    /**
      * This method should return a blank new model object, OR null
      * @return object|null
      */
     abstract public function newModelObject(): object|null;
+
+    /**
+     * @param \Charcoal\Database\Database $db
+     * @return array
+     */
+    public function getMigrations(Database $db): array
+    {
+        return $this->migrations->getAll($db);
+    }
 
     /**
      * @param string $whereQuery
