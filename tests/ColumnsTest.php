@@ -12,6 +12,8 @@
 
 declare(strict_types=1);
 
+require_once "TestModels.php";
+
 /**
  * Class ColumnsTest
  */
@@ -102,7 +104,7 @@ class ColumnsTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals("\0\0\0\0\0\0\0\0\0\0\0\0charcoal", $value1->raw());
 
         $value2 = $col2->attributes->getResolvedModelProperty("");
-        $this->assertInstanceOf(\Charcoal\Buffers\Buffer::class, $value2, "Is Buffer not Bytes20");
+        $this->assertInstanceOf(\Charcoal\Buffers\Buffer::class, $value2, "Is Buffer, not Bytes20");
         $this->assertNotInstanceOf(\Charcoal\Buffers\AbstractFixedLenBuffer::class, $col2, "Not a frame because its var-length");
 
         $value3 = $col3->attributes->getResolvedModelProperty("");
@@ -110,5 +112,90 @@ class ColumnsTest extends \PHPUnit\Framework\TestCase
 
         $null1 = $col1->attributes->getResolvedModelProperty(null);
         $this->assertNull($null1);
+    }
+
+    /**
+     * @return void
+     * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
+     */
+    public function testEnum(): void
+    {
+        $columns = new \Charcoal\Database\ORM\Schema\Columns();
+        $enumStr = $columns->enum("role1", enumClass: null)->options("user", "mod");
+        $enumClass = $columns->enum("role2", enumClass: \Charcoal\Tests\ORM\UserRole::class)
+            ->options("user", "mod")->default("user");
+        $thirdEnum = $columns->enum("something", enumClass: \Charcoal\Tests\ORM\TestEnum::class)
+            ->options("case_a1", "case_b2", "case_c3");
+
+        $value1 = $enumStr->attributes->getResolvedModelProperty("mod");
+        $this->assertIsString($value1);
+        $this->assertEquals("mod", $value1);
+
+        $value2a = $enumClass->attributes->getResolvedModelProperty("user");
+        $value2b = $enumClass->attributes->getResolvedModelProperty("mod");
+        $this->assertInstanceOf(\Charcoal\Tests\ORM\UserRole::class, $value2a);
+        $this->assertEquals("user", $value2a->value);
+        $this->assertInstanceOf(\Charcoal\Tests\ORM\UserRole::class, $value2b);
+        $this->assertEquals("mod", $value2b->value);
+
+        $back1 = $enumStr->attributes->getDissolvedModelProperty($value1, $enumStr);
+        $this->assertEquals("mod", $back1);
+        $back2a = $enumClass->attributes->getDissolvedModelProperty($value2a, $enumClass);
+        $back2b = $enumClass->attributes->getDissolvedModelProperty($value2b, $enumClass);
+        $this->assertEquals("user", $back2a);
+        $this->assertEquals("mod", $back2b);
+
+        $value3 = $thirdEnum->attributes->getResolvedModelProperty("case_b2");
+        $this->assertInstanceOf(\Charcoal\Tests\ORM\TestEnum::class, $value3);
+        $this->assertEquals(\Charcoal\Tests\ORM\TestEnum::CASE2, $value3);
+    }
+
+    /**
+     * @return void
+     * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
+     */
+    public function testSerializeColumn(): void
+    {
+        $cols[] = (new \Charcoal\Database\ORM\Schema\Columns\IntegerColumn("id"))->bytes(2)->unSigned();
+        $cols[] = (new \Charcoal\Database\ORM\Schema\Columns\FrameColumn("frame1"))->fixed(20);
+        $cols[] = (new \Charcoal\Database\ORM\Schema\Columns\EnumObjectColumn("opt1", \Charcoal\Tests\ORM\UserRole::class))
+            ->options("user", "mod");
+        $cols[] = (new \Charcoal\Database\ORM\Schema\Columns\EnumObjectColumn("opt2", \Charcoal\Tests\ORM\TestEnum::class))
+            ->options("case_a1", "case_b2", "case_c3");
+
+        $serialized = serialize($cols);
+        unset($cols);
+
+        $columns = unserialize($serialized);
+        /** @var \Charcoal\Database\ORM\Schema\Columns\IntegerColumn $intCol */
+        $intCol = $columns[0];
+        /** @var \Charcoal\Database\ORM\Schema\Columns\FrameColumn $frameCol */
+        $frameCol = $columns[1];
+        /** @var \Charcoal\Database\ORM\Schema\Columns\EnumObjectColumn $opts1Col */
+        $opts1Col = $columns[2];
+        /** @var \Charcoal\Database\ORM\Schema\Columns\EnumObjectColumn $opts2Col */
+        $opts2Col = $columns[3];
+
+        $value1 = $intCol->attributes->getResolvedModelProperty(0xfe);
+        $this->assertEquals(254, $intCol->attributes->getDissolvedModelProperty($value1, $intCol));
+        unset($value1a);
+
+        $value2 = $frameCol->attributes->getResolvedModelProperty("charcoal");
+        $this->assertInstanceOf(\Charcoal\Buffers\Frames\Bytes20::class, $value2);
+        $this->assertEquals("\0\0\0\0\0\0\0\0\0\0\0\0charcoal", $value2->raw());
+        $this->assertEquals("charcoal", trim($frameCol->attributes->getDissolvedModelProperty($value2, $frameCol)));
+        unset($value2);
+
+        $value3 = $opts1Col->attributes->getResolvedModelProperty("user");
+        $this->assertInstanceOf(\Charcoal\Tests\ORM\UserRole::class, $value3);
+        $this->assertEquals(\Charcoal\Tests\ORM\UserRole::USER, $value3);
+        $this->assertEquals("user", $opts1Col->attributes->getDissolvedModelProperty($value3, $opts1Col));
+        unset($value3);
+
+        $value4 = $opts2Col->attributes->getResolvedModelProperty("case_c3");
+        $this->assertNotInstanceOf(\Charcoal\Tests\ORM\UserRole::class, $value4);
+        $this->assertInstanceOf(\Charcoal\Tests\ORM\TestEnum::class, $value4);
+        $this->assertEquals(\Charcoal\Tests\ORM\TestEnum::CASE3, $value4);
+        $this->assertEquals(\Charcoal\Tests\ORM\TestEnum::CASE3->value, $opts2Col->attributes->getDissolvedModelProperty($value4, $opts2Col));
     }
 }
