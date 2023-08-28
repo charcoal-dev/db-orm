@@ -13,6 +13,7 @@
 declare(strict_types=1);
 
 require_once "models/User.php";
+require_once "models/User2.php";
 require_once "models/UsersTable.php";
 require_once "models/UserRole.php";
 require_once "models/TestEnum.php";

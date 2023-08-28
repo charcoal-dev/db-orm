@@ -16,10 +16,10 @@ namespace Charcoal\Tests\ORM;
 
 use Charcoal\Database\Database;
 use Charcoal\Database\ORM\AbstractOrmTable;
+use Charcoal\Database\ORM\Migrations;
 use Charcoal\Database\ORM\Schema\Charset;
 use Charcoal\Database\ORM\Schema\Columns;
 use Charcoal\Database\ORM\Schema\Constraints;
-use Charcoal\Database\ORM\Schema\Migrations;
 use Charcoal\Database\Queries\DbExecutedQuery;
 
 /**
@@ -28,14 +28,17 @@ use Charcoal\Database\Queries\DbExecutedQuery;
  */
 class UsersTable extends AbstractOrmTable
 {
+    public const TABLE = "users";
+    public string $modelClass = User::class;
+
     protected function structure(Columns $cols, Constraints $constraints): void
     {
         $cols->setDefaultCharset(Charset::ASCII);
 
         $cols->int("id")->bytes(4)->unSigned()->autoIncrement();
         $cols->enum("status")->options("active", "frozen", "disabled")->default("active");
-        $cols->enum("role")->options("user", "mod")->default("active");
-        $cols->binary("checksum")->fixed(20);
+        $cols->enum("role", enumClass: UserRole::class)->options("user", "mod")->default("user");
+        $cols->binaryFrame("checksum")->fixed(20);
         $cols->string("username")->length(16)->unique();
         $cols->string("email")->length(32)->unique();
         $cols->string("first_name")->charset(Charset::UTF8MB4)->length(32)->isNullable();
@@ -47,14 +50,14 @@ class UsersTable extends AbstractOrmTable
 
     protected function migrations(Migrations $migrations): void
     {
-        $migrations->add(0, function (Database $db, self $table): string {
-            return implode("", Migrations::createTable($db, $table, true,
+        $migrations->add(0, function (Database $db, self $table): array {
+            return [implode("", Migrations::createTable($db, $table, true,
                 "id", "status", "role", "checksum", "username", "email", "first_name", "last_name", "joined_on"
-            ));
+            ))];
         });
 
-        $migrations->add(1, function (Database $db, self $table): string {
-            return Migrations::alterTableAddColumn($db, $table, "country", previous: "last_name");
+        $migrations->add(1, function (Database $db, self $table): array {
+            return [Migrations::alterTableAddColumn($db, $table, "country", previous: "last_name")];
         });
     }
 
@@ -62,15 +65,15 @@ class UsersTable extends AbstractOrmTable
     {
     }
 
-    public function newModelObject(): object|null
+    public function newModelObject(array $row): object|null
     {
-        return new User();
+        return new $this->modelClass();
     }
 
     /**
      * @param int $userId
      * @return \Charcoal\Tests\ORM\User
-     * @throws \Charcoal\Database\ORM\Exception\OrmModelNotFoundException
+     * @throws \Charcoal\Database\ORM\Exception\OrmException
      * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
      */
     public function findById(int $userId): User

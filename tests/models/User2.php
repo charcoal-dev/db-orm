@@ -14,23 +14,11 @@ declare(strict_types=1);
 
 namespace Charcoal\Tests\ORM;
 
-use Charcoal\Buffers\Frames\Bytes20;
-
-/**
- * Class User
- * @package Charcoal\Tests\ORM
- */
-class User
+class User2 extends User
 {
-    public int $id;
-    public string $status;
-    public UserRole $role;
-    public Bytes20 $checksum;
-    public string $username;
-    public string $email;
-    public ?string $firstName = null;
-    public ?string $lastName = null;
-    public string $country;
-    public int $joinedOn;
+    public array $unmapped;
+    public bool $someThingElse = true;
 }
+
+
 
