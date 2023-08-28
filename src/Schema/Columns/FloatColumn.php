@@ -52,6 +52,31 @@ class FloatColumn extends AbstractColumn
     }
 
     /**
+     * @return array
+     */
+    public function __serialize(): array
+    {
+        $data = parent::__serialize();
+        $data["type"] = $this->type;
+        $data["digits"] = $this->digits;
+        $data["scale"] = $this->scale;
+        return $data;
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->type = $data["type"];
+        $this->digits = $data["digits"];
+        $this->scale = $data["scale"];
+        unset($data["type"], $data["digits"], $data["scale"]);
+        parent::__unserialize($data);
+    }
+
+    /**
      * @param float|int $value
      * @return $this
      */

@@ -30,7 +30,7 @@ class EnumObjectColumn extends EnumColumn
     }
 
     /**
-     * @return array|\Charcoal\Database\ORM\Schema\Columns\ColumnAttributes[]
+     * @return array
      */
     public function __serialize(): array
     {

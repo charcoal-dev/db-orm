@@ -34,6 +34,27 @@ class TextColumn extends AbstractColumn
     use BigStringSizeTrait;
 
     /**
+     * @return array
+     */
+    public function __serialize(): array
+    {
+        $data = parent::__serialize();
+        $data["size"] = $this->size;
+        return $data;
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->size = $data["size"];
+        unset($data["size"]);
+        parent::__unserialize($data);
+    }
+
+    /**
      * @param \Charcoal\Database\DbDriver $driver
      * @return string|null
      */

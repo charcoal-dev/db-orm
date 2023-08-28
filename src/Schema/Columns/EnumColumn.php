@@ -28,6 +28,27 @@ class EnumColumn extends AbstractColumn
     protected array $options = [];
 
     /**
+     * @return array
+     */
+    public function __serialize(): array
+    {
+        $data = parent::__serialize();
+        $data["options"] = $this->options;
+        return $data;
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->options = $data["options"];
+        unset($data["options"]);
+        parent::__unserialize($data);
+    }
+
+    /**
      * @param string ...$opts
      * @return EnumColumn
      */

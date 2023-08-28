@@ -32,12 +32,35 @@ class DecimalColumn extends AbstractColumn
     protected const MAX_SCALE = 30;
 
     /** @var int */
-    private int $digits = 0;
+    protected int $digits = 0;
     /** @var int */
-    private int $scale = 0;
+    protected int $scale = 0;
 
     use NumericValueTrait;
     use PrecisionValueTrait;
+
+    /**
+     * @return array
+     */
+    public function __serialize(): array
+    {
+        $data = parent::__serialize();
+        $data["digits"] = $this->digits;
+        $data["scale"] = $this->scale;
+        return $data;
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->digits = $data["digits"];
+        $this->scale = $data["scale"];
+        unset($data["digits"], $data["scale"]);
+        parent::__unserialize($data);
+    }
 
     /**
      * @param string $name

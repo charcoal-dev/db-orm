@@ -42,6 +42,29 @@ class BinaryColumn extends AbstractColumn
     use UniqueValueTrait;
 
     /**
+     * @return array
+     */
+    public function __serialize(): array
+    {
+        $data = parent::__serialize();
+        $data["length"] = $this->length;
+        $data["fixed"] = $this->fixed;
+        return $data;
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->length = $data["length"];
+        $this->fixed = $data["fixed"];
+        unset($data["length"], $data["fixed"]);
+        parent::__unserialize($data);
+    }
+
+    /**
      * @param \Charcoal\Database\DbDriver $driver
      * @return string|null
      */

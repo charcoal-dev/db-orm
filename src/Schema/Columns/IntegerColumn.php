@@ -28,8 +28,6 @@ class IntegerColumn extends AbstractColumn
     public const PRIMITIVE_TYPE = "integer";
     /** @var int */
     private int $size = 4; // Default 4 byte integer
-    /** @var bool */
-    private bool $autoIncrement = false;
 
     use NumericValueTrait;
     use UniqueValueTrait;
@@ -42,6 +40,27 @@ class IntegerColumn extends AbstractColumn
     {
         parent::__construct($name);
         $this->attributes->unSigned = true;
+    }
+
+    /**
+     * @return array
+     */
+    public function __serialize(): array
+    {
+        $data = parent::__serialize();
+        $data["size"] = $this->size;
+        return $data;
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->size = $data["size"];
+        unset($data["size"]);
+        parent::__unserialize($data);
     }
 
     /**
@@ -86,7 +105,7 @@ class IntegerColumn extends AbstractColumn
      */
     public function autoIncrement(): static
     {
-        $this->autoIncrement = true;
+        $this->attributes->autoIncrement = true;
         return $this;
     }
 
