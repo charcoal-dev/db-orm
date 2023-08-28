@@ -27,7 +27,7 @@ class BlobColumn extends AbstractColumn
     public const PRIMITIVE_TYPE = "string";
 
     /** @var string */
-    private string $size = "";
+    protected string $size = "";
 
     use BigStringSizeTrait;
 

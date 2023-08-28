@@ -25,7 +25,7 @@ class EnumColumn extends AbstractColumn
     /** @var string */
     public const PRIMITIVE_TYPE = "string";
     /** @var array */
-    private array $options = [];
+    protected array $options = [];
 
     /**
      * @param string ...$opts

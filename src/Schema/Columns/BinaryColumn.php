@@ -33,9 +33,9 @@ class BinaryColumn extends AbstractColumn
     protected const LENGTH_MAX = 0xffff;
 
     /** @var int */
-    private int $length = 255;
+    protected int $length = 255;
     /** @var bool */
-    private bool $fixed = false;
+    protected bool $fixed = false;
 
     use LengthValueTrait;
     use StringValueTrait;
