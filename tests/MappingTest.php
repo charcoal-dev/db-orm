@@ -80,6 +80,8 @@ class MappingTest extends \PHPUnit\Framework\TestCase
         $user = $mapper->mapSingle($this->getUserRow());
 
         $this->assertInstanceOf(\Charcoal\Tests\ORM\User2::class, $user);
+        $this->assertObjectHasProperty("unmapped", $user);
+        $this->assertIsArray($user->unmapped);
 
         $dissolveFn = new ReflectionMethod($table, "dissolveModelObject");
         /** @noinspection PhpExpressionResultUnusedInspection */
