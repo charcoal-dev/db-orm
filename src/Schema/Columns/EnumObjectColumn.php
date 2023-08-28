@@ -30,6 +30,27 @@ class EnumObjectColumn extends EnumColumn
     }
 
     /**
+     * @return array|\Charcoal\Database\ORM\Schema\Columns\ColumnAttributes[]
+     */
+    public function __serialize(): array
+    {
+        $data = parent::__serialize();
+        $data["enumClass"] = $this->enumClass;
+        return $data;
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->enumClass = $data["enumClass"];
+        unset($data["enumClass"]);
+        parent::__unserialize($data);
+    }
+
+    /**
      * @return void
      */
     protected function attributesCallback(): void
