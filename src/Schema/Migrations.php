@@ -65,11 +65,11 @@ class Migrations
             }
 
             if (!is_string($queryStr)) {
-                throw new \UnexpectedValueException(
+                throw new \UnexpectedValueException(sprintf(
                     'Expected value of type "string" from migrations version %d callback fn, got "%s"',
                     $version,
                     gettype($queryStr)
-                );
+                ));
             }
 
             $migrations[] = $queryStr;
