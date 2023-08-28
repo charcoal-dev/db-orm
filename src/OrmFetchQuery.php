@@ -28,11 +28,11 @@ class OrmFetchQuery extends ModelMapper
 {
     /**
      * @param \Charcoal\Database\Queries\DbFetchQuery $query
-     * @param \Charcoal\Database\ORM\AbstractDbTable $tableSchema
+     * @param \Charcoal\Database\ORM\AbstractOrmTable $tableSchema
      */
     public function __construct(
         private readonly DbFetchQuery $query,
-        AbstractDbTable               $tableSchema
+        AbstractOrmTable $tableSchema
     )
     {
         parent::__construct($tableSchema);

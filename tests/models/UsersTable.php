@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace Charcoal\Tests\ORM;
 
 use Charcoal\Database\Database;
-use Charcoal\Database\ORM\AbstractDbTable;
+use Charcoal\Database\ORM\AbstractOrmTable;
 use Charcoal\Database\ORM\Schema\Charset;
 use Charcoal\Database\ORM\Schema\Columns;
 use Charcoal\Database\ORM\Schema\Constraints;
@@ -26,7 +26,7 @@ use Charcoal\Database\Queries\DbExecutedQuery;
  * Class UsersTable
  * @package Charcoal\Tests\ORM
  */
-class UsersTable extends AbstractDbTable
+class UsersTable extends AbstractOrmTable
 {
     protected function structure(Columns $cols, Constraints $constraints): void
     {

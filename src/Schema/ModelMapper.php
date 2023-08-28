@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\ORM\Schema;
 
-use Charcoal\Database\ORM\AbstractDbTable;
+use Charcoal\Database\ORM\AbstractOrmTable;
 use Charcoal\Database\ORM\Exception\OrmModelMapException;
 use Charcoal\Database\ORM\Exception\OrmModelNotFoundException;
 
@@ -25,10 +25,10 @@ use Charcoal\Database\ORM\Exception\OrmModelNotFoundException;
 class ModelMapper
 {
     /**
-     * @param \Charcoal\Database\ORM\AbstractDbTable $tableSchema
+     * @param \Charcoal\Database\ORM\AbstractOrmTable $tableSchema
      */
     public function __construct(
-        private readonly AbstractDbTable $tableSchema
+        private readonly AbstractOrmTable $tableSchema
     )
     {
     }

@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace Charcoal\Database\ORM\Schema;
 
 use Charcoal\Database\Database;
-use Charcoal\Database\ORM\AbstractDbTable;
+use Charcoal\Database\ORM\AbstractOrmTable;
 use Charcoal\OOP\Traits\NoDumpTrait;
 use Charcoal\OOP\Traits\NotCloneableTrait;
 use Charcoal\OOP\Traits\NotSerializableTrait;
@@ -33,9 +33,9 @@ class Migrations
     use NotCloneableTrait;
 
     /**
-     * @param \Charcoal\Database\ORM\AbstractDbTable $table
+     * @param \Charcoal\Database\ORM\AbstractOrmTable $table
      */
-    public function __construct(public readonly AbstractDbTable $table)
+    public function __construct(public readonly AbstractOrmTable $table)
     {
     }
 

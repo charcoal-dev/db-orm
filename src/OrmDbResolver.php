@@ -33,7 +33,7 @@ class OrmDbResolver
      */
     public static function Bind(Database $db, string $tableClass): void
     {
-        if (!OOP::isValidClass($tableClass) || !is_subclass_of(AbstractDbTable::class, $tableClass)) {
+        if (!OOP::isValidClass($tableClass) || !is_subclass_of(AbstractOrmTable::class, $tableClass)) {
             throw new \InvalidArgumentException('Cannot bind DB instance to invalid class');
         }
 

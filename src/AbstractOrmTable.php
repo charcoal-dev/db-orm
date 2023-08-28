@@ -29,10 +29,10 @@ use Charcoal\OOP\Traits\NoDumpTrait;
 use Charcoal\OOP\Traits\NotCloneableTrait;
 
 /**
- * Class AbstractDbTable
+ * Class AbstractOrmTable
  * @package Charcoal\Database\ORM
  */
-abstract class AbstractDbTable
+abstract class AbstractOrmTable
 {
     /** @var string Table name */
     public const TABLE = null;
