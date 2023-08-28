@@ -48,16 +48,13 @@ class UsersTable extends AbstractOrmTable
     protected function migrations(Migrations $migrations): void
     {
         $migrations->add(0, function (Database $db, self $table): string {
-            return implode("", Migrations::createTable($db, $table, true));
+            return implode("", Migrations::createTable($db, $table, true,
+                "id", "status", "role", "checksum", "username", "email", "first_name", "last_name", "joined_on"
+            ));
         });
 
         $migrations->add(1, function (Database $db, self $table): string {
-            return Migrations::alterTableAddColumn(
-                $db,
-                $table,
-                $table->columns->get("country"),
-                $table->columns->get("last_name")
-            );
+            return Migrations::alterTableAddColumn($db, $table, "country", previous: "last_name");
         });
     }
 

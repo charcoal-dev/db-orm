@@ -73,11 +73,15 @@ class Columns implements \IteratorAggregate
 
     /**
      * @param string $name
-     * @return \Charcoal\Database\ORM\Schema\Columns\AbstractColumn|null
+     * @return \Charcoal\Database\ORM\Schema\Columns\AbstractColumn
      */
-    public function get(string $name): ?AbstractColumn
+    public function get(string $name): AbstractColumn
     {
-        return $this->columns[$name] ?? null;
+        if (!isset($this->columns[$name])) {
+            throw new \OutOfBoundsException(sprintf('No definition exists for column `%s`', $name));
+        }
+
+        return $this->columns[$name];
     }
 
     /**

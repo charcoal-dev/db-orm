@@ -84,19 +84,20 @@ class Migrations
     /**
      * @param \Charcoal\Database\Database $db
      * @param \Charcoal\Database\ORM\AbstractOrmTable $table
-     * @param \Charcoal\Database\ORM\Schema\Columns\AbstractColumn $col
-     * @param \Charcoal\Database\ORM\Schema\Columns\AbstractColumn $previousColumn
+     * @param string $column
+     * @param string $previous
      * @return string
      */
     public static function alterTableAddColumn(
         Database         $db,
         AbstractOrmTable $table,
-        AbstractColumn   $col,
-        AbstractColumn   $previousColumn
+        string           $column,
+        string           $previous
     ): string
     {
         return "ALERT TABLE `" . $table->name . "` ADD COLUMN " .
-            static::columnSpecSQL($db, $table, $col) . " AFTER `" . $previousColumn->attributes->name . "`;";
+            static::columnSpecSQL($db, $table, $table->columns->get($column)) .
+            " AFTER `" . $table->columns->get($previous)->attributes->name . "`;";
     }
 
     /**
@@ -112,9 +113,10 @@ class Migrations
      * @param \Charcoal\Database\Database $db
      * @param \Charcoal\Database\ORM\AbstractOrmTable $table
      * @param bool $createIfNotExists
+     * @param string ...$columns
      * @return array
      */
-    public static function createTable(Database $db, AbstractOrmTable $table, bool $createIfNotExists): array
+    public static function createTable(Database $db, AbstractOrmTable $table, bool $createIfNotExists, string ...$columns): array
     {
         $driver = $db->credentials->driver;
         $statement = [];
@@ -124,8 +126,8 @@ class Migrations
         $statement[] = $createIfNotExists ? "CREATE TABLE IF NOT EXISTS" : "CREATE TABLE";
         $statement[0] = $statement[0] . " `" . $table->name . "` (";
 
-        /** @var \Charcoal\Database\ORM\Schema\Columns\AbstractColumn $column */
-        foreach ($table->columns as $column) {
+        foreach ($columns as $colName) {
+            $column = $table->columns->get($colName);
             $columnSql = static::columnSpecSQL($db, $table, $column);
 
             // Unique
