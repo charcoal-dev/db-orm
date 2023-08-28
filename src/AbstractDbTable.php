@@ -19,6 +19,7 @@ use Charcoal\Database\Exception\DbQueryException;
 use Charcoal\Database\Exception\QueryExecuteException;
 use Charcoal\Database\ORM\Exception\OrmQueryError;
 use Charcoal\Database\ORM\Exception\OrmQueryException;
+use Charcoal\Database\ORM\Schema\Attributes;
 use Charcoal\Database\ORM\Schema\Columns;
 use Charcoal\Database\ORM\Schema\Constraints;
 use Charcoal\Database\ORM\Schema\Migrations;
@@ -36,12 +37,10 @@ abstract class AbstractDbTable
     /** @var string Table name */
     public const TABLE = null;
 
-    /** @var string */
     public readonly string $name;
-    /** @var Columns */
     public readonly Columns $columns;
-    /** @var Constraints */
     public readonly Constraints $constraints;
+    public readonly Attributes $attributes;
 
     protected ?Database $dbInstance = null;
     protected ?Migrations $migrations = null;
@@ -56,6 +55,7 @@ abstract class AbstractDbTable
     {
         $this->columns = new Columns();
         $this->constraints = new Constraints();
+        $this->attributes = new Attributes();
 
         // Get table names and engine
         $this->name = static::TABLE;
@@ -84,6 +84,7 @@ abstract class AbstractDbTable
             "name" => $this->name,
             "columns" => $this->columns,
             "constraints" => $this->constraints,
+            "attributes" => $this->attributes,
             "dbInstance" => null,
             "migrations" => null,
         ];
@@ -98,6 +99,7 @@ abstract class AbstractDbTable
         $this->name = $object["name"];
         $this->columns = $object["columns"];
         $this->constraints = $object["constraints"];
+        $this->attributes = $object["attributes"];
         $this->dbInstance = null;
 
         // Re-run method that sets all migrations callbacks
