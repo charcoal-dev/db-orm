@@ -24,6 +24,7 @@ use Charcoal\OOP\OOP;
 class OrmDbResolver
 {
     private static array $tableClasses = [];
+    private static array $dbTables = [];
 
     /**
      * @param \Charcoal\Database\Database $db
@@ -37,15 +38,27 @@ class OrmDbResolver
         }
 
         static::$tableClasses[$tableClass] = $db;
+        static::$dbTables[$db->credentials->dbName][] = $tableClass;
     }
 
     /**
+     * Returns instance of Database bound with argument table class, OR NULL
      * @param string $tableClass
      * @return \Charcoal\Database\Database|null
      */
     public static function getDbInstance(string $tableClass): ?Database
     {
         return static::$tableClasses[$tableClass] ?? null;
+    }
+
+    /**
+     * Returns list of all table classes names as indexed array bound with DB instance
+     * @param \Charcoal\Database\Database $db
+     * @return array
+     */
+    public static function getTables(Database $db): array
+    {
+        return static::$dbTables[$db->credentials->dbName] ?? [];
     }
 }
 
