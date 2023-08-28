@@ -84,4 +84,15 @@ class ColumnAttributes
         $this->modelValueResolver = $resolver;
         return $this;
     }
+
+    /**
+     * Value reversing to primitive types, this method is opposite to "setModelsValueResolver"
+     * @param \Closure $dissolveFn
+     * @return $this
+     */
+    public function setModelsValueDissolveFn(\Closure $dissolveFn): static
+    {
+        $this->modelValueDissolve = $dissolveFn;
+        return $this;
+    }
 }
