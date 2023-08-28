@@ -12,11 +12,10 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\ORM\Schema;
+namespace Charcoal\Database\ORM;
 
 use Charcoal\Database\Database;
 use Charcoal\Database\DbDriver;
-use Charcoal\Database\ORM\AbstractOrmTable;
 use Charcoal\Database\ORM\Schema\Columns\AbstractColumn;
 use Charcoal\Database\ORM\Schema\Columns\IntegerColumn;
 use Charcoal\OOP\Traits\NoDumpTrait;
@@ -25,7 +24,7 @@ use Charcoal\OOP\Traits\NotSerializableTrait;
 
 /**
  * Class Migrations
- * @package Charcoal\Database\ORM\Schema
+ * @package Charcoal\Database\ORM
  */
 class Migrations
 {
@@ -56,26 +55,34 @@ class Migrations
 
     /**
      * @param \Charcoal\Database\Database $db
+     * @param int $versionFrom
+     * @param int $versionTo
      * @return array
      */
-    public function getAll(Database $db): array
+    public function getQueries(Database $db, int $versionFrom = 0, int $versionTo = 0): array
     {
         $migrations = [];
         foreach ($this->migrations as $version => $migration) {
-            $queryStr = call_user_func_array($migration, [$db, $this->table, $version]);
-            if (is_null($queryStr)) {
+            $version = intval($version);
+            if ($version < $versionFrom) {
                 continue;
             }
 
-            if (!is_string($queryStr)) {
+            if ($version > $versionTo) {
+                break;
+            }
+
+            $queriesSet = call_user_func_array($migration, [$db, $this->table, $version]);
+            if (!is_array($queriesSet)) {
                 throw new \UnexpectedValueException(sprintf(
-                    'Expected value of type "string" from migrations version %d callback fn, got "%s"',
-                    $version,
-                    gettype($queryStr)
+                    'Unexpected value of type "%s" from "%s" migrations version %d',
+                    gettype($queriesSet),
+                    $this->table->name,
+                    $version
                 ));
             }
 
-            $migrations[] = $queryStr;
+            $migrations += $queriesSet;
         }
 
         return $migrations;

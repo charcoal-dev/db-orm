@@ -46,7 +46,7 @@ class ModelMapper
             throw new OrmModelNotFoundException();
         }
 
-        $object = $this->tableSchema->newModelObject();
+        $object = $this->tableSchema->newModelObject($row);
         if (!$object) { // No new blank object given by table, return array as-is
             return $row;
         }

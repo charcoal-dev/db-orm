@@ -22,7 +22,6 @@ use Charcoal\Database\ORM\Exception\OrmQueryException;
 use Charcoal\Database\ORM\Schema\Attributes;
 use Charcoal\Database\ORM\Schema\Columns;
 use Charcoal\Database\ORM\Schema\Constraints;
-use Charcoal\Database\ORM\Schema\Migrations;
 use Charcoal\Database\Queries\DbExecutedQuery;
 use Charcoal\Database\Queries\SortFlag;
 use Charcoal\OOP\Traits\NoDumpTrait;
@@ -122,24 +121,27 @@ abstract class AbstractOrmTable
 
     /**
      * Use this method to define migrations in ascending order
-     * @param \Charcoal\Database\ORM\Schema\Migrations $migrations
+     * @param \Charcoal\Database\ORM\Migrations $migrations
      * @return void
      */
     abstract protected function migrations(Migrations $migrations): void;
 
     /**
      * This method should return a blank new model object, OR null
+     * @param array $row
      * @return object|null
      */
-    abstract public function newModelObject(): object|null;
+    abstract public function newModelObject(array $row): object|null;
 
     /**
      * @param \Charcoal\Database\Database $db
+     * @param int $versionFrom
+     * @param int $versionTo
      * @return array
      */
-    public function getMigrations(Database $db): array
+    public function getMigrations(Database $db, int $versionFrom = 0, int $versionTo = 0): array
     {
-        return $this->migrations->getAll($db);
+        return $this->migrations->getQueries($db, $versionFrom, $versionTo);
     }
 
     /**
