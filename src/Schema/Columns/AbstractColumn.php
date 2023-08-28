@@ -32,6 +32,32 @@ abstract class AbstractColumn
     public function __construct(string $name)
     {
         $this->attributes = new ColumnAttributes($name);
+        $this->attributesCallback();
+    }
+
+    /**
+     * @return void
+     */
+    protected function attributesCallback(): void
+    {
+    }
+
+    /**
+     * @return \Charcoal\Database\ORM\Schema\Columns\ColumnAttributes[]
+     */
+    public function __serialize(): array
+    {
+        return ["attributes" => $this->attributes];
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->attributes = $data["attributes"];
+        $this->attributesCallback();
     }
 
     /**

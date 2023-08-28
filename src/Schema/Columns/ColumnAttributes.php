@@ -45,6 +45,41 @@ class ColumnAttributes
     }
 
     /**
+     * @return array
+     */
+    public function __serialize(): array
+    {
+        return [
+            "nullable" => $this->nullable,
+            "unSigned" => $this->unSigned,
+            "unique" => $this->unique,
+            "autoIncrement" => $this->autoIncrement,
+            "charset" => $this->charset,
+            "defaultValue" => $this->defaultValue,
+            "modelProperty" => $this->modelProperty,
+            "modelValueResolver" => null,
+            "modelValueDissolve" => null,
+        ];
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->nullable = $data["nullable"];
+        $this->unSigned = $data["unSigned"];
+        $this->unique = $data["unique"];
+        $this->autoIncrement = $data["autoIncrement"];
+        $this->charset = $data["charset"];
+        $this->defaultValue = $data["defaultValue"];
+        $this->modelProperty = $data["modelProperty"];
+        $this->modelValueResolver = null;
+        $this->modelValueDissolve = null;
+    }
+
+    /**
      * @param mixed $value
      * @return mixed
      */
