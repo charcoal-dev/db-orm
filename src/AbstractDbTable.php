@@ -152,7 +152,7 @@ abstract class AbstractDbTable
      * @param int $limit
      * @param bool $lock
      * @param \Charcoal\Database\Database|null $db
-     * @return \Charcoal\Database\ORM\OrmModelMapper
+     * @return \Charcoal\Database\ORM\OrmFetchQuery
      * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
      */
     protected function queryFind(
@@ -165,7 +165,7 @@ abstract class AbstractDbTable
         int       $limit = 0,
         bool      $lock = false,
         ?Database $db = null
-    ): OrmModelMapper
+    ): OrmFetchQuery
     {
         $query = $this->resolveDbInstance($db)
             ->queryBuilder()->table($this->name)->where($this->normalizeWhereClause($whereQuery), $whereData);
@@ -190,7 +190,7 @@ abstract class AbstractDbTable
         }
 
         try {
-            return new OrmModelMapper($query->fetch(), $this);
+            return new OrmFetchQuery($query->fetch(), $this);
         } catch (DbQueryException $e) {
             throw new OrmQueryException(OrmQueryError::QUERY_EXECUTE_EX, $e->getMessage(), previous: $e);
         }

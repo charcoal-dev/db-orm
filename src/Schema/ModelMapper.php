@@ -12,64 +12,25 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\ORM;
+namespace Charcoal\Database\ORM\Schema;
 
-use Charcoal\Database\Exception\DbQueryException;
+use Charcoal\Database\ORM\AbstractDbTable;
+use Charcoal\Database\ORM\Exception\OrmModelMapException;
 use Charcoal\Database\ORM\Exception\OrmModelNotFoundException;
-use Charcoal\Database\ORM\Exception\OrmQueryError;
-use Charcoal\Database\ORM\Exception\OrmQueryException;
-use Charcoal\Database\Queries\DbFetchQuery;
 
 /**
- * Class OrmModelMapper
+ * Class ModelMapper
  * @package Charcoal\Database\ORM
  */
-class OrmModelMapper
+class ModelMapper
 {
     /**
-     * @param \Charcoal\Database\Queries\DbFetchQuery $query
      * @param \Charcoal\Database\ORM\AbstractDbTable $tableSchema
      */
     public function __construct(
-        private readonly DbFetchQuery    $query,
         private readonly AbstractDbTable $tableSchema
     )
     {
-    }
-
-    /**
-     * @return object|array
-     * @throws \Charcoal\Database\ORM\Exception\OrmModelNotFoundException
-     * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
-     */
-    public function getNext(): object|array
-    {
-        try {
-            return $this->mapSingle($this->query->getNext());
-        } catch (DbQueryException $e) {
-            throw new OrmQueryException(OrmQueryError::QUERY_FETCH_EX, $e->getMessage(), previous: $e);
-        }
-    }
-
-    /**
-     * @return array
-     * @throws \Charcoal\Database\ORM\Exception\OrmModelNotFoundException
-     * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
-     */
-    public function getAll(): array
-    {
-        try {
-            $rows = $this->query->getAll();
-        } catch (DbQueryException $e) {
-            throw new OrmQueryException(OrmQueryError::QUERY_FETCH_EX, $e->getMessage(), previous: $e);
-        }
-
-        $result = [];
-        foreach ($rows as $row) {
-            $result[] = $this->mapSingle($row);
-        }
-
-        return $result;
     }
 
     /**
@@ -77,9 +38,9 @@ class OrmModelMapper
      * NOTE: Any remaining values from input array, if any, are mapped into "unmapped" prop of model class, if such property exists
      * @param bool|array|null $row
      * @return object|array
-     * @throws \Charcoal\Database\ORM\Exception\OrmModelNotFoundException
+     * @throws \Charcoal\Database\ORM\Exception\OrmException
      */
-    private function mapSingle(bool|null|array $row): object|array
+    public function mapSingle(bool|null|array $row): object|array
     {
         if (!is_array($row)) {
             throw new OrmModelNotFoundException();
@@ -92,6 +53,8 @@ class OrmModelMapper
 
         /** @var \Charcoal\Database\ORM\Schema\Columns\AbstractColumn $column */
         foreach ($this->tableSchema->columns as $column) {
+            unset($prop, $value);
+
             if (!property_exists($object, $column->attributes->modelProperty)) {
                 continue;
             }
@@ -105,7 +68,21 @@ class OrmModelMapper
                 continue;
             }
 
-            $object->$prop = $column->attributes->getResolvedModelProperty($row[$column->attributes->name]);
+            $value = $column->attributes->getResolvedModelProperty($row[$column->attributes->name]);
+
+            try {
+                $object->$prop = $value;
+            } catch (\Throwable $t) {
+                throw new OrmModelMapException(
+                    sprintf(
+                        'Cannot map value of type "%s" to column "%s"',
+                        gettype($value),
+                        $column->attributes->modelProperty
+                    ),
+                    previous: $t
+                );
+            }
+
             unset($row[$column->attributes->name]);
         }
 
