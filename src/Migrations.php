@@ -82,7 +82,18 @@ class Migrations
                 ));
             }
 
-            $migrations += $queriesSet;
+            foreach ($queriesSet as $query) {
+                if (!is_string($query)) {
+                    throw new \UnexpectedValueException(sprintf(
+                        'Unexpected value of type "%s" in one of the migrations for "%s" from version %d',
+                        gettype($queriesSet),
+                        $this->table->name,
+                        $version
+                    ));
+                }
+
+                $migrations[] = $query;
+            }
         }
 
         return $migrations;
@@ -102,7 +113,7 @@ class Migrations
         string           $previous
     ): string
     {
-        return "ALERT TABLE `" . $table->name . "` ADD COLUMN " .
+        return "ALTER TABLE `" . $table->name . "` ADD COLUMN " .
             static::columnSpecSQL($db, $table, $table->columns->get($column)) .
             " AFTER `" . $table->columns->get($previous)->attributes->name . "`;";
     }
@@ -164,7 +175,7 @@ class Migrations
         $lastIndex = count($statement);
         $statement[$lastIndex - 1] = substr($statement[$lastIndex - 1], 0, -1);
         $statement[] = match ($driver) {
-            "mysql" => sprintf(') ENGINE=%s;', $table->attributes->mysqlEngine),
+            DbDriver::MYSQL => sprintf(') ENGINE=%s;', $table->attributes->mysqlEngine),
             default => ");",
         };
 
@@ -207,7 +218,7 @@ class Migrations
             if ($col->attributes->autoIncrement) {
                 $columnSql .= match ($db->credentials->driver) {
                     DbDriver::SQLITE => " AUTOINCREMENT",
-                    default => "auto_increment",
+                    default => " auto_increment",
                 };
             }
         }
@@ -222,7 +233,7 @@ class Migrations
         // MySQL specific attributes
         if ($db->credentials->driver === DbDriver::MYSQL) {
             if ($col->attributes->charset) {
-                $columnSql .= " CHARACTER SET " . $col->attributes->charset->name;
+                $columnSql .= " CHARACTER SET " . $col->attributes->charset->value;
                 $columnSql .= " COLLATE " . $col->attributes->charset->getCollation();
             }
         }
