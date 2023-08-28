@@ -289,7 +289,7 @@ abstract class AbstractDbTable
             }
 
             $updateParams[] = "`" . $column->attributes->name . "`=:" . $column->attributes->name;
-            $updateBind[$column->attributes->name] = $column->attributes->getDissolvedModelProperty($value);
+            $updateBind[$column->attributes->name] = $column->attributes->getDissolvedModelProperty($value, $column);
         }
 
         if (!$updateBind) {
@@ -380,6 +380,7 @@ abstract class AbstractDbTable
     /**
      * @param array|object $model
      * @return array
+     * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
      */
     private function dissolveModelObject(array|object $model): array
     {
@@ -399,7 +400,7 @@ abstract class AbstractDbTable
                 continue;
             }
 
-            $data[$column->attributes->name] = $column->attributes->getDissolvedModelProperty($model->$prop);
+            $data[$column->attributes->name] = $column->attributes->getDissolvedModelProperty($model->$prop, $column);
         }
 
         return $data;

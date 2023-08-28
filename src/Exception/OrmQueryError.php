@@ -26,5 +26,6 @@ enum OrmQueryError: int
     case NO_PRIMARY_COLUMN = 0x190;
     case NO_CHANGES = 0x1f4;
     case QUERY_BUILD_ERROR = 0x258;
+    case COL_VALUE_TYPE_ERROR = 0x2bc;
 }
 
