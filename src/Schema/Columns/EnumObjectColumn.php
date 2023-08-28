@@ -22,9 +22,9 @@ class EnumObjectColumn extends EnumColumn
 {
     /**
      * @param string $name
-     * @param \BackedEnum $enumClass
+     * @param string $enumClass
      */
-    public function __construct(string $name, private readonly \BackedEnum $enumClass)
+    public function __construct(string $name, private readonly string $enumClass)
     {
         parent::__construct($name);
     }
@@ -34,15 +34,17 @@ class EnumObjectColumn extends EnumColumn
      */
     protected function attributesCallback(): void
     {
-        $this->attributes->setModelsValueResolver(function ($value) {
+        /** @var \BackedEnum $enumClass */
+        $enumClass = $this->enumClass;
+        $this->attributes->setModelsValueResolver(function ($value) use ($enumClass) {
             if (is_string($value) || is_int($value)) {
-                return $this->enumClass::from($value);
+                return $enumClass::from($value);
             }
 
             return $value;
         });
 
-        $this->attributes->setModelsValueResolver(function ($value) {
+        $this->attributes->setModelsValueDissolveFn(function ($value) {
             if ($value instanceof \BackedEnum) {
                 return $value->value;
             }

@@ -230,10 +230,10 @@ class Columns implements \IteratorAggregate
 
     /**
      * @param string $name
-     * @param \BackedEnum|null $enumClass
+     * @param string|null $enumClass
      * @return \Charcoal\Database\ORM\Schema\Columns\EnumColumn
      */
-    public function enum(string $name, ?\BackedEnum $enumClass = null): EnumColumn
+    public function enum(string $name, ?string $enumClass = null): EnumColumn
     {
         $col = $enumClass ? new EnumObjectColumn($name, $enumClass) : new EnumColumn($name);
         $this->append($col);
