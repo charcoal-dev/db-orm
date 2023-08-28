@@ -33,6 +33,7 @@ trait LengthValueTrait
         }
 
         $this->length = $length;
+        $this->attributesCallback();
         return $this;
     }
 
@@ -44,6 +45,7 @@ trait LengthValueTrait
     {
         $this->length($length);
         $this->fixed = true;
+        $this->attributesCallback();
         return $this;
     }
 }

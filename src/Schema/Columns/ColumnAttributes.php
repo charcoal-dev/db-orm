@@ -87,6 +87,10 @@ class ColumnAttributes
      */
     public function getResolvedModelProperty(mixed $value): mixed
     {
+        if (is_null($value)) {
+            return null;
+        }
+
         if (!$this->modelValueResolver) {
             return $value; // No changes, return as-is
         }
