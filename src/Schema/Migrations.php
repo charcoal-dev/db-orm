@@ -15,7 +15,10 @@ declare(strict_types=1);
 namespace Charcoal\Database\ORM\Schema;
 
 use Charcoal\Database\Database;
+use Charcoal\Database\DbDriver;
 use Charcoal\Database\ORM\AbstractOrmTable;
+use Charcoal\Database\ORM\Schema\Columns\AbstractColumn;
+use Charcoal\Database\ORM\Schema\Columns\IntegerColumn;
 use Charcoal\OOP\Traits\NoDumpTrait;
 use Charcoal\OOP\Traits\NotCloneableTrait;
 use Charcoal\OOP\Traits\NotSerializableTrait;
@@ -76,5 +79,161 @@ class Migrations
         }
 
         return $migrations;
+    }
+
+    /**
+     * @param \Charcoal\Database\Database $db
+     * @param \Charcoal\Database\ORM\AbstractOrmTable $table
+     * @param \Charcoal\Database\ORM\Schema\Columns\AbstractColumn $col
+     * @param \Charcoal\Database\ORM\Schema\Columns\AbstractColumn $previousColumn
+     * @return string
+     */
+    public static function alterTableAddColumn(
+        Database         $db,
+        AbstractOrmTable $table,
+        AbstractColumn   $col,
+        AbstractColumn   $previousColumn
+    ): string
+    {
+        return "ALERT TABLE `" . $table->name . "` ADD COLUMN " .
+            static::columnSpecSQL($db, $table, $col) . " AFTER `" . $previousColumn->attributes->name . "`;";
+    }
+
+    /**
+     * @param \Charcoal\Database\ORM\AbstractOrmTable $table
+     * @return string
+     */
+    public static function dropTableIfExists(AbstractOrmTable $table): string
+    {
+        return "DROP TABLE IF EXISTS `" . $table->name . "`;";
+    }
+
+    /**
+     * @param \Charcoal\Database\Database $db
+     * @param \Charcoal\Database\ORM\AbstractOrmTable $table
+     * @param bool $createIfNotExists
+     * @return array
+     */
+    public static function createTable(Database $db, AbstractOrmTable $table, bool $createIfNotExists): array
+    {
+        $driver = $db->credentials->driver;
+        $statement = [];
+        $mysqlUniqueKeys = [];
+
+        // Create statement
+        $statement[] = $createIfNotExists ? "CREATE TABLE IF NOT EXISTS" : "CREATE TABLE";
+        $statement[0] = $statement[0] . " `" . $table->name . "` (";
+
+        /** @var \Charcoal\Database\ORM\Schema\Columns\AbstractColumn $column */
+        foreach ($table->columns as $column) {
+            $columnSql = static::columnSpecSQL($db, $table, $column);
+
+            // Unique
+            if ($column->attributes->unique) {
+                if ($db->credentials->driver === DbDriver::MYSQL) {
+                    $mysqlUniqueKeys[] = $column->attributes->name;
+                }
+            }
+
+            $statement[] = $columnSql . ",";
+        }
+
+        // MySQL Unique Keys
+        if ($driver === DbDriver::MYSQL) {
+            foreach ($mysqlUniqueKeys as $mysqlUniqueKey) {
+                $statement[] = "UNIQUE KEY (`" . $mysqlUniqueKey . "`),";
+            }
+        }
+
+        // Constraints
+        /** @var \Charcoal\Database\ORM\Schema\Constraints\AbstractConstraint $constraint */
+        foreach ($table->constraints as $constraint) {
+            $statement[] = $constraint->getConstraintSQL($driver) . ",";
+        }
+
+        // Finishing
+        $lastIndex = count($statement);
+        $statement[$lastIndex - 1] = substr($statement[$lastIndex - 1], 0, -1);
+        $statement[] = match ($driver) {
+            "mysql" => sprintf(') ENGINE=%s;', $table->attributes->mysqlEngine),
+            default => ");",
+        };
+
+        return $statement;
+    }
+
+    /**
+     * @param \Charcoal\Database\Database $db
+     * @param \Charcoal\Database\ORM\AbstractOrmTable $table
+     * @param \Charcoal\Database\ORM\Schema\Columns\AbstractColumn $col
+     * @return string
+     */
+    public static function columnSpecSQL(Database $db, AbstractOrmTable $table, AbstractColumn $col): string
+    {
+        $columnSql = "`" . $col->attributes->name . "` " . $col->getColumnSQL($db->credentials->driver);
+
+        // Signed or Unsigned
+        if (isset($col->attributes->unSigned)) {
+            if ($col->attributes->unSigned) {
+                if ($col instanceof IntegerColumn) {
+                    /** @noinspection PhpStatementHasEmptyBodyInspection */
+                    if ($db->credentials->driver->value === "sqlite" && $col->attributes->autoIncrement) {
+                        // SQLite auto-increment columns can't be unsigned
+                    } else {
+                        $columnSql .= " UNSIGNED";
+                    }
+                } else {
+                    $columnSql .= " UNSIGNED";
+                }
+            }
+        }
+
+        // Primary Key
+        if ($col->attributes->name === $table->columns->getPrimaryKey()) {
+            $columnSql .= " PRIMARY KEY";
+        }
+
+        // Auto-increment
+        if ($col instanceof IntegerColumn) {
+            if ($col->attributes->autoIncrement) {
+                $columnSql .= match ($db->credentials->driver) {
+                    DbDriver::SQLITE => " AUTOINCREMENT",
+                    default => "auto_increment",
+                };
+            }
+        }
+
+        // Unique
+        if ($col->attributes->unique) {
+            if ($db->credentials->driver->value == "sqlite") {
+                $columnSql .= " UNIQUE";
+            }
+        }
+
+        // MySQL specific attributes
+        if ($db->credentials->driver === DbDriver::MYSQL) {
+            if ($col->attributes->charset) {
+                $columnSql .= " CHARACTER SET " . $col->attributes->charset->name;
+                $columnSql .= " COLLATE " . $col->attributes->charset->getCollation();
+            }
+        }
+
+        // Nullable?
+        if (!$col->attributes->nullable) {
+            $columnSql .= " NOT NULL";
+        }
+
+        // Default value
+        if (is_null($col->attributes->defaultValue)) {
+            if ($col->attributes->nullable) {
+                $columnSql .= " default NULL";
+            }
+        } else {
+            $columnSql .= " default ";
+            $columnSql .= is_string($col->attributes->defaultValue) ?
+                "'" . $col->attributes->defaultValue . "'" : $col->attributes->defaultValue;
+        }
+
+        return $columnSql;
     }
 }

@@ -40,14 +40,24 @@ class UsersTable extends AbstractOrmTable
         $cols->string("email")->length(32)->unique();
         $cols->string("first_name")->charset(Charset::UTF8MB4)->length(32)->isNullable();
         $cols->string("last_name")->charset(Charset::UTF8MB4)->length(32)->isNullable();
+        $cols->string("country")->fixed(3)->isNullable();
         $cols->int("joined_on")->bytes(4)->unSigned();
         $cols->setPrimaryKey("id");
     }
 
     protected function migrations(Migrations $migrations): void
     {
-        $migrations->add(0, function (Database $db, self $table) {
+        $migrations->add(0, function (Database $db, self $table): string {
+            return implode("", Migrations::createTable($db, $table, true));
+        });
 
+        $migrations->add(1, function (Database $db, self $table): string {
+            return Migrations::alterTableAddColumn(
+                $db,
+                $table,
+                $table->columns->get("country"),
+                $table->columns->get("last_name")
+            );
         });
     }
 
