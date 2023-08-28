@@ -118,14 +118,14 @@ abstract class AbstractDbTable
      * @param Columns $cols
      * @param Constraints $constraints
      */
-    abstract public function structure(Columns $cols, Constraints $constraints): void;
+    abstract protected function structure(Columns $cols, Constraints $constraints): void;
 
     /**
      * Use this method to define migrations in ascending order
      * @param \Charcoal\Database\ORM\Schema\Migrations $migrations
      * @return void
      */
-    abstract public function migrations(Migrations $migrations): void;
+    abstract protected function migrations(Migrations $migrations): void;
 
     /**
      * This method should return a blank new model object, OR null
@@ -168,7 +168,7 @@ abstract class AbstractDbTable
     ): OrmModelMapper
     {
         $query = $this->resolveDbInstance($db)
-            ->queryBuilder()->table($this->name)->where($whereQuery, $whereData);
+            ->queryBuilder()->table($this->name)->where($this->normalizeWhereClause($whereQuery), $whereData);
         if ($selectColumns) {
             $query->cols(...$selectColumns);
         }
