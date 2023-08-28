@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\ORM\Schema\Columns;
 
+use Charcoal\Database\ORM\Exception\OrmQueryError;
+use Charcoal\Database\ORM\Exception\OrmQueryException;
 use Charcoal\Database\ORM\Schema\Charset;
 use Charcoal\OOP\CaseStyles;
 
@@ -98,15 +100,38 @@ class ColumnAttributes
 
     /**
      * @param mixed $value
+     * @param \Charcoal\Database\ORM\Schema\Columns\AbstractColumn|null $column
      * @return mixed
+     * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
      */
-    public function getDissolvedModelProperty(mixed $value): mixed
+    public function getDissolvedModelProperty(mixed $value, ?AbstractColumn $column = null): mixed
     {
-        if (!$this->modelValueDissolve) {
-            return $value; // No changes, return as-is
+        if ($this->modelValueDissolve) {
+            $value = call_user_func_array($this->modelValueDissolve, [$value]);
         }
 
-        return call_user_func_array($this->modelValueDissolve, [$value]);
+        if ($column) {
+            if (is_null($value) && !$column->isNullable()) {
+                throw new OrmQueryException(
+                    OrmQueryError::COL_VALUE_TYPE_ERROR,
+                    sprintf('Column "%s" is not nullable', $column->attributes->modelProperty)
+                );
+            }
+
+            if (gettype($value) !== $column::PRIMITIVE_TYPE) {
+                throw new OrmQueryException(
+                    OrmQueryError::COL_VALUE_TYPE_ERROR,
+                    sprintf(
+                        'Column "%s" value is expected to be of type "%s", got "%s"',
+                        $column->attributes->modelProperty,
+                        $column::PRIMITIVE_TYPE,
+                        gettype($value)
+                    )
+                );
+            }
+        }
+
+        return $value;
     }
 
     /**

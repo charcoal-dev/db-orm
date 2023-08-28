@@ -17,10 +17,13 @@ namespace Charcoal\Database\ORM\Schema;
 use Charcoal\Database\ORM\Schema\Columns\AbstractColumn;
 use Charcoal\Database\ORM\Schema\Columns\BinaryColumn;
 use Charcoal\Database\ORM\Schema\Columns\BlobColumn;
+use Charcoal\Database\ORM\Schema\Columns\BufferColumn;
 use Charcoal\Database\ORM\Schema\Columns\DecimalColumn;
 use Charcoal\Database\ORM\Schema\Columns\DoubleColumn;
 use Charcoal\Database\ORM\Schema\Columns\EnumColumn;
+use Charcoal\Database\ORM\Schema\Columns\EnumObjectColumn;
 use Charcoal\Database\ORM\Schema\Columns\FloatColumn;
+use Charcoal\Database\ORM\Schema\Columns\FrameColumn;
 use Charcoal\Database\ORM\Schema\Columns\IntegerColumn;
 use Charcoal\Database\ORM\Schema\Columns\StringColumn;
 use Charcoal\Database\ORM\Schema\Columns\TextColumn;
@@ -62,7 +65,7 @@ class Columns implements \IteratorAggregate
      * @param \Charcoal\Database\ORM\Schema\Columns\AbstractColumn $column
      * @return void
      */
-    private function append(AbstractColumn $column): void
+    public function append(AbstractColumn $column): void
     {
         $this->columns[$column->attributes->name] = $column;
         $this->count++;
@@ -129,11 +132,27 @@ class Columns implements \IteratorAggregate
 
     /**
      * @param string $name
+     * @param bool $plainString
      * @return \Charcoal\Database\ORM\Schema\Columns\BinaryColumn
      */
-    public function binary(string $name): BinaryColumn
+    public function binary(string $name, bool $plainString = true): BinaryColumn
     {
+        if (!$plainString) {
+            return $this->binaryFrame($name);
+        }
+
         $col = new BinaryColumn($name);
+        $this->append($col);
+        return $col;
+    }
+
+    /**
+     * @param string $name
+     * @return \Charcoal\Database\ORM\Schema\Columns\FrameColumn
+     */
+    public function binaryFrame(string $name): FrameColumn
+    {
+        $col = new FrameColumn($name);
         $this->append($col);
         return $col;
     }
@@ -151,11 +170,27 @@ class Columns implements \IteratorAggregate
 
     /**
      * @param string $name
+     * @param bool $plainString
      * @return \Charcoal\Database\ORM\Schema\Columns\BlobColumn
      */
-    public function blob(string $name): BlobColumn
+    public function blob(string $name, bool $plainString = true): BlobColumn
     {
+        if (!$plainString) {
+            return $this->blobBuffer($name);
+        }
+
         $col = new BlobColumn($name);
+        $this->append($col);
+        return $col;
+    }
+
+    /**
+     * @param string $name
+     * @return \Charcoal\Database\ORM\Schema\Columns\BufferColumn
+     */
+    public function blobBuffer(string $name): BufferColumn
+    {
+        $col = new BufferColumn($name);
         $this->append($col);
         return $col;
     }
@@ -195,11 +230,12 @@ class Columns implements \IteratorAggregate
 
     /**
      * @param string $name
+     * @param \BackedEnum|null $enumClass
      * @return \Charcoal\Database\ORM\Schema\Columns\EnumColumn
      */
-    public function enum(string $name): EnumColumn
+    public function enum(string $name, ?\BackedEnum $enumClass = null): EnumColumn
     {
-        $col = new EnumColumn($name);
+        $col = $enumClass ? new EnumObjectColumn($name, $enumClass) : new EnumColumn($name);
         $this->append($col);
         return $col;
     }
