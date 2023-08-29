@@ -12,9 +12,7 @@
 
 declare(strict_types=1);
 
-require_once "models/User.php";
-require_once "models/User2.php";
-require_once "models/UsersTable.php";
-require_once "models/UserRole.php";
-require_once "models/TestEnum.php";
-require_once "models/UsersLogsTable.php";
+const CHARCOAL_DB_HOST = "localhost";
+const CHARCOAL_DB_PORT = 3306;
+const CHARCOAL_DB_USERNAME = "root";
+const CHARCOAL_DB_PASSWORD = "";

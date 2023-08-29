@@ -1,0 +1,37 @@
+version: "3.7"
+services:
+  mysql:
+    image: mysql:8.0
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_ROOT_PASSWORD=charcoal-dev
+    ports:
+      - "33061:3306"
+    volumes:
+      - charcoal-test-db:/var/lib/mysql
+    networks:
+      charcoal-test-net:
+        ipv4_address: 10.0.41.2
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      - PMA_HOST=mysql
+      - PMA_PORT=3306
+    ports:
+      - "33062:80"
+    networks:
+      charcoal-test-net:
+        ipv4_address: 10.0.41.3
+
+# Volumes Configuration
+volumes:
+  charcoal-test-db:
+
+# Networks Configuration
+networks:
+  charcoal-test-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.41.0/27

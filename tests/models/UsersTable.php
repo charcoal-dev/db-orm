@@ -20,6 +20,7 @@ use Charcoal\Database\ORM\Migrations;
 use Charcoal\Database\ORM\Schema\Charset;
 use Charcoal\Database\ORM\Schema\Columns;
 use Charcoal\Database\ORM\Schema\Constraints;
+use Charcoal\Database\ORM\Schema\TableMigrations;
 use Charcoal\Database\Queries\DbExecutedQuery;
 
 /**
@@ -48,7 +49,7 @@ class UsersTable extends AbstractOrmTable
         $cols->setPrimaryKey("id");
     }
 
-    protected function migrations(Migrations $migrations): void
+    protected function migrations(TableMigrations $migrations): void
     {
         $migrations->add(0, function (Database $db, self $table): array {
             return [implode("", Migrations::createTable($db, $table, true,
@@ -56,7 +57,7 @@ class UsersTable extends AbstractOrmTable
             ))];
         });
 
-        $migrations->add(1, function (Database $db, self $table): array {
+        $migrations->add(7, function (Database $db, self $table): array {
             return [Migrations::alterTableAddColumn($db, $table, "country", previous: "last_name")];
         });
     }
