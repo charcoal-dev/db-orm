@@ -18,9 +18,6 @@ use Charcoal\Database\Database;
 use Charcoal\Database\DbDriver;
 use Charcoal\Database\ORM\Schema\Columns\AbstractColumn;
 use Charcoal\Database\ORM\Schema\Columns\IntegerColumn;
-use Charcoal\OOP\Traits\NoDumpTrait;
-use Charcoal\OOP\Traits\NotCloneableTrait;
-use Charcoal\OOP\Traits\NotSerializableTrait;
 
 /**
  * Class Migrations
@@ -30,73 +27,61 @@ class Migrations
 {
     private array $migrations = [];
 
-    use NoDumpTrait;
-    use NotSerializableTrait;
-    use NotCloneableTrait;
-
     /**
-     * @param \Charcoal\Database\ORM\AbstractOrmTable $table
+     * @param \Charcoal\Database\Database $db
+     * @param int $versionFrom
+     * @param int $versionTo
      */
-    public function __construct(public readonly AbstractOrmTable $table)
+    public function __construct(
+        private readonly Database $db,
+        private readonly int      $versionFrom = 0,
+        private readonly int      $versionTo = 0
+    )
     {
     }
 
     /**
-     * @param int $version
-     * @param \Closure $migrationProvider
+     * @param \Charcoal\Database\ORM\AbstractOrmTable $table
      * @return $this
      */
-    public function add(int $version, \Closure $migrationProvider): static
+    public function includeTable(AbstractOrmTable $table): static
     {
-        $this->migrations[strval($version)] = $migrationProvider;
+        $tables = $table->getMigrations($this->db, $this->versionFrom, $this->versionTo);
+        foreach ($tables as $version => $queries) {
+            if (!isset($this->migrations[$version])) {
+                $this->migrations[$version] = [];
+            }
+
+            foreach ($queries as $query) {
+                $this->migrations[$version][] = $query;
+            }
+        }
+
         ksort($this->migrations);
         return $this;
     }
 
     /**
-     * @param \Charcoal\Database\Database $db
-     * @param int $versionFrom
-     * @param int $versionTo
      * @return array
      */
-    public function getQueries(Database $db, int $versionFrom = 0, int $versionTo = 0): array
+    public function getVersionedQueries(): array
     {
-        $migrations = [];
-        foreach ($this->migrations as $version => $migration) {
-            $version = intval($version);
-            if ($version < $versionFrom) {
-                continue;
-            }
+        return $this->migrations;
+    }
 
-            if ($version > $versionTo) {
-                break;
-            }
-
-            $queriesSet = call_user_func_array($migration, [$db, $this->table, $version]);
-            if (!is_array($queriesSet)) {
-                throw new \UnexpectedValueException(sprintf(
-                    'Unexpected value of type "%s" from "%s" migrations version %d',
-                    gettype($queriesSet),
-                    $this->table->name,
-                    $version
-                ));
-            }
-
-            foreach ($queriesSet as $query) {
-                if (!is_string($query)) {
-                    throw new \UnexpectedValueException(sprintf(
-                        'Unexpected value of type "%s" in one of the migrations for "%s" from version %d',
-                        gettype($queriesSet),
-                        $this->table->name,
-                        $version
-                    ));
-                }
-
-                $migrations[] = $query;
+    /**
+     * @return array
+     */
+    public function getQueries(): array
+    {
+        $queries = [];
+        foreach ($this->migrations as $querySet) {
+            foreach ($querySet as $query) {
+                $queries[] = $query;
             }
         }
 
-        return $migrations;
+        return $queries;
     }
 
     /**

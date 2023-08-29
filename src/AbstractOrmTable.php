@@ -22,6 +22,7 @@ use Charcoal\Database\ORM\Exception\OrmQueryException;
 use Charcoal\Database\ORM\Schema\Attributes;
 use Charcoal\Database\ORM\Schema\Columns;
 use Charcoal\Database\ORM\Schema\Constraints;
+use Charcoal\Database\ORM\Schema\TableMigrations;
 use Charcoal\Database\Queries\DbExecutedQuery;
 use Charcoal\Database\Queries\SortFlag;
 use Charcoal\OOP\Traits\NoDumpTrait;
@@ -42,7 +43,7 @@ abstract class AbstractOrmTable
     public readonly Attributes $attributes;
 
     protected ?Database $dbInstance = null;
-    protected ?Migrations $migrations = null;
+    protected ?TableMigrations $migrations = null;
 
     use NoDumpTrait;
     use NotCloneableTrait;
@@ -70,7 +71,7 @@ abstract class AbstractOrmTable
         $this->structure($this->columns, $this->constraints);
 
         // Callback schema method to set all migrations
-        $this->migrations = new Migrations($this);
+        $this->migrations = new TableMigrations($this);
         $this->migrations($this->migrations);
     }
 
@@ -102,7 +103,7 @@ abstract class AbstractOrmTable
         $this->dbInstance = null;
 
         // Re-run method that sets all migrations callbacks
-        $this->migrations = new Migrations($this);
+        $this->migrations = new TableMigrations($this);
         $this->migrations($this->migrations);
     }
 
@@ -121,10 +122,10 @@ abstract class AbstractOrmTable
 
     /**
      * Use this method to define migrations in ascending order
-     * @param \Charcoal\Database\ORM\Migrations $migrations
+     * @param \Charcoal\Database\ORM\Schema\TableMigrations $migrations
      * @return void
      */
-    abstract protected function migrations(Migrations $migrations): void;
+    abstract protected function migrations(TableMigrations $migrations): void;
 
     /**
      * This method should return a blank new model object, OR null
