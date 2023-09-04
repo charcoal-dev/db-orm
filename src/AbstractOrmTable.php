@@ -61,9 +61,6 @@ abstract class AbstractOrmTable
             throw new \InvalidArgumentException(sprintf('Invalid TABLE const for table "%s"', static::class));
         }
 
-        // On Construct Callback
-        $this->onConstruct();
-
         // Callback schema method for table structure
         $this->structure($this->columns, $this->constraints);
 

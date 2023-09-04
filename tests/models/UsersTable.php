@@ -62,10 +62,6 @@ class UsersTable extends AbstractOrmTable
         });
     }
 
-    protected function onConstruct(): void
-    {
-    }
-
     public function newModelObject(array $row): object|null
     {
         return new $this->modelClass();
