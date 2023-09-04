@@ -48,10 +48,7 @@ abstract class AbstractOrmTable
     use NoDumpTrait;
     use NotCloneableTrait;
 
-    /**
-     * AbstractDbTable constructor.
-     */
-    final public function __construct()
+    public function __construct()
     {
         $this->columns = new Columns();
         $this->constraints = new Constraints();
@@ -106,12 +103,6 @@ abstract class AbstractOrmTable
         $this->migrations = new TableMigrations($this);
         $this->migrations($this->migrations);
     }
-
-    /**
-     * Callback method triggered directly after constructor is called
-     * @return void
-     */
-    abstract protected function onConstruct(): void;
 
     /**
      * Create table schema in this method using $cols and $constraints
