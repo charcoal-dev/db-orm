@@ -115,7 +115,7 @@ class ColumnAttributes
         }
 
         if ($column) {
-            if (is_null($value) && !$column->isNullable()) {
+            if (is_null($value) && !$column->nullable()) {
                 throw new OrmQueryException(
                     OrmQueryError::COL_VALUE_TYPE_ERROR,
                     sprintf('Column "%s" is not nullable', $column->attributes->modelProperty)
