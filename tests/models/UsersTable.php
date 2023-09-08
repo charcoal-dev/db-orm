@@ -42,9 +42,9 @@ class UsersTable extends AbstractOrmTable
         $cols->binaryFrame("checksum")->fixed(20);
         $cols->string("username")->length(16)->unique();
         $cols->string("email")->length(32)->unique();
-        $cols->string("first_name")->charset(Charset::UTF8MB4)->length(32)->isNullable();
-        $cols->string("last_name")->charset(Charset::UTF8MB4)->length(32)->isNullable();
-        $cols->string("country")->fixed(3)->isNullable();
+        $cols->string("first_name")->charset(Charset::UTF8MB4)->length(32)->nullable();
+        $cols->string("last_name")->charset(Charset::UTF8MB4)->length(32)->nullable();
+        $cols->string("country")->fixed(3)->nullable();
         $cols->int("joined_on")->bytes(4)->unSigned();
         $cols->setPrimaryKey("id");
     }

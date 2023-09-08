@@ -35,7 +35,7 @@ class UsersLogsTable extends AbstractOrmTable
         $cols->string("log")->length(512);
         $cols->int("added_on")->bytes(4)->unSigned();
         $cols->string("ip_address")->length(45);
-        $cols->string("baggage")->length(100)->isNullable();
+        $cols->string("baggage")->length(100)->nullable();
         $cols->setPrimaryKey("id");
 
         $constraints->foreignKey("user")->table(UsersTable::TABLE, "id");

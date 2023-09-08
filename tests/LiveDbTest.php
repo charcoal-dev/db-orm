@@ -108,8 +108,9 @@ class LiveDbTest extends \PHPUnit\Framework\TestCase
         $migrations->includeTable(new \Charcoal\Tests\ORM\UsersTable())
             ->includeTable(new \Charcoal\Tests\ORM\UsersLogsTable());
 
-        $db->exec('SET foreign_key_checks=0; DROP TABLE `users`;');
-        $db->exec('DROP TABLE `users_logs`');
+        $db->exec('SET foreign_key_checks=0;');
+        $db->exec('DROP TABLE IF EXISTS `users`');
+        $db->exec('DROP TABLE IF EXISTS `users_logs`');
         $db->exec('SET foreign_key_checks=1');
 
         foreach ($migrations->getQueries() as $query) {

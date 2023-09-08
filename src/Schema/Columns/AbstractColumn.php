@@ -63,7 +63,7 @@ abstract class AbstractColumn
     /**
      * @return $this
      */
-    public function isNullable(): static
+    public function nullable(): static
     {
         $this->attributes->nullable = true;
         return $this;
