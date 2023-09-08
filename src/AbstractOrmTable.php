@@ -34,10 +34,6 @@ use Charcoal\OOP\Traits\NotCloneableTrait;
  */
 abstract class AbstractOrmTable
 {
-    /** @var string Table name */
-    public const TABLE = null;
-
-    public readonly string $name;
     public readonly Columns $columns;
     public readonly Constraints $constraints;
     public readonly Attributes $attributes;
@@ -48,18 +44,14 @@ abstract class AbstractOrmTable
     use NoDumpTrait;
     use NotCloneableTrait;
 
-    public function __construct()
+    /**
+     * @param string $name
+     */
+    public function __construct(public readonly string $name)
     {
         $this->columns = new Columns();
         $this->constraints = new Constraints();
         $this->attributes = new Attributes();
-
-        // Get table names and engine
-        $this->name = static::TABLE;
-        /** @noinspection PhpConditionAlreadyCheckedInspection */
-        if (!is_string($this->name) || !$this->name) {
-            throw new \InvalidArgumentException(sprintf('Invalid TABLE const for table "%s"', static::class));
-        }
 
         // Callback schema method for table structure
         $this->structure($this->columns, $this->constraints);

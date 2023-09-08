@@ -25,7 +25,7 @@ class MappingTest extends \PHPUnit\Framework\TestCase
      */
     public function testMappings(): void
     {
-        $table = new \Charcoal\Tests\ORM\UsersTable();
+        $table = new \Charcoal\Tests\ORM\UsersTable("users");
         $mapper = new \Charcoal\Database\ORM\Schema\ModelMapper($table);
 
         $user = $mapper->mapSingle($this->getUserRow());
@@ -52,7 +52,7 @@ class MappingTest extends \PHPUnit\Framework\TestCase
      */
     public function testUnmappedProps(): void
     {
-        $table = new \Charcoal\Tests\ORM\UsersTable();
+        $table = new \Charcoal\Tests\ORM\UsersTable("users");
         $mapper = new \Charcoal\Database\ORM\Schema\ModelMapper($table);
         $table->modelClass = \Charcoal\Tests\ORM\User2::class;
 
@@ -74,7 +74,7 @@ class MappingTest extends \PHPUnit\Framework\TestCase
      */
     public function testDissolve(): void
     {
-        $table = new \Charcoal\Tests\ORM\UsersTable();
+        $table = new \Charcoal\Tests\ORM\UsersTable("users");
         $table->modelClass = \Charcoal\Tests\ORM\User2::class;
         $mapper = new \Charcoal\Database\ORM\Schema\ModelMapper($table);
         $user = $mapper->mapSingle($this->getUserRow());

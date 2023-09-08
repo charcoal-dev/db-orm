@@ -27,7 +27,7 @@ class LiveDbTest extends \PHPUnit\Framework\TestCase
     public function testCheckMigrations(): void
     {
         $db = $this->getDbConnection();
-        $usersSchema = new \Charcoal\Tests\ORM\UsersTable();
+        $usersSchema = new \Charcoal\Tests\ORM\UsersTable("users");
         $migrations = $usersSchema->getMigrations($db, versionTo: 10); // $migrations[#version][#index]
         $this->assertIsArray($migrations);
         $this->assertCount(2, $migrations);
@@ -54,7 +54,7 @@ class LiveDbTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals($alterTableStmt, $migrations[7][0]);
 
-        $usersLogsTable = new \Charcoal\Tests\ORM\UsersLogsTable();
+        $usersLogsTable = new \Charcoal\Tests\ORM\UsersLogsTable("users_logs");
         $logsMigrations = $usersLogsTable->getMigrations($db, versionFrom: 0, versionTo: 6);
 
         $createLogsTable = "CREATE TABLE IF NOT EXISTS `users_logs` (" .
@@ -76,8 +76,8 @@ class LiveDbTest extends \PHPUnit\Framework\TestCase
     {
         $db = $this->getDbConnection();
         $migrations = new \Charcoal\Database\ORM\Migrations($db, versionFrom: 0, versionTo: 20);
-        $migrations->includeTable(new \Charcoal\Tests\ORM\UsersTable())
-            ->includeTable(new \Charcoal\Tests\ORM\UsersLogsTable());
+        $migrations->includeTable(new \Charcoal\Tests\ORM\UsersTable("users"))
+            ->includeTable(new \Charcoal\Tests\ORM\UsersLogsTable("users_logs"));
 
         $versioned = $migrations->getVersionedQueries();
         $this->assertIsArray($versioned);
@@ -105,8 +105,8 @@ class LiveDbTest extends \PHPUnit\Framework\TestCase
     {
         $db = $this->getDbConnection();
         $migrations = new \Charcoal\Database\ORM\Migrations($db, versionFrom: 0, versionTo: 20);
-        $migrations->includeTable(new \Charcoal\Tests\ORM\UsersTable())
-            ->includeTable(new \Charcoal\Tests\ORM\UsersLogsTable());
+        $migrations->includeTable(new \Charcoal\Tests\ORM\UsersTable("users"))
+            ->includeTable(new \Charcoal\Tests\ORM\UsersLogsTable("users_logs"));
 
         $db->exec('SET foreign_key_checks=0;');
         $db->exec('DROP TABLE IF EXISTS `users`');
