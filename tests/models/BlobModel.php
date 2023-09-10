@@ -12,11 +12,18 @@
 
 declare(strict_types=1);
 
-require_once "models/User.php";
-require_once "models/User2.php";
-require_once "models/UsersTable.php";
-require_once "models/UserRole.php";
-require_once "models/TestEnum.php";
-require_once "models/UsersLogsTable.php";
-require_once "models/BlobModel.php";
-require_once "models/BlobStoreTable.php";
+namespace Charcoal\Tests\ORM;
+
+use Charcoal\Buffers\Buffer;
+
+/**
+ * Class BlobModel
+ * @package Charcoal\Tests\ORM
+ */
+class BlobModel
+{
+    public string $key;
+    public Buffer $object;
+    public ?string $matchExp;
+    public int $timestamp;
+}

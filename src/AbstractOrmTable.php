@@ -27,6 +27,7 @@ use Charcoal\Database\Queries\DbExecutedQuery;
 use Charcoal\Database\Queries\SortFlag;
 use Charcoal\OOP\Traits\NoDumpTrait;
 use Charcoal\OOP\Traits\NotCloneableTrait;
+use Charcoal\OOP\Vectors\StringVector;
 
 /**
  * Class AbstractOrmTable
@@ -220,17 +221,25 @@ abstract class AbstractOrmTable
 
     /**
      * @param array|object $model
-     * @param array $updates
+     * @param \Charcoal\OOP\Vectors\StringVector $updateCols
      * @param \Charcoal\Database\Database|null $db
      * @return \Charcoal\Database\Queries\DbExecutedQuery
      * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
      */
-    protected function querySave(array|object $model, array $updates, ?Database $db = null): DbExecutedQuery
+    protected function querySave(array|object $model, StringVector $updateCols, ?Database $db = null): DbExecutedQuery
     {
-        $dataSet = array_merge($this->dissolveModelObject($model), $updates);
-        $updates = $this->buildUpdateQueryParts($dataSet);
-        $stmt = $this->buildInsertQuery(false) . " ON DUPLICATE KEY UPDATE " . implode(", ", $updates[0]);
-        return $this->execDbQuery($stmt, $dataSet, $db);
+        $updates = [];
+        foreach ($updateCols as $updateCol) {
+            $column = $this->columns->search($updateCol);
+            if (!$column) {
+                throw new OrmQueryException(OrmQueryError::QUERY_BUILD_ERROR, "Cannot find a column in update part of query");
+            }
+
+            $updates[] = "`" . $column->attributes->name . "`=:" . $column->attributes->name;
+        }
+
+        $stmt = $this->buildInsertQuery(false) . " ON DUPLICATE KEY UPDATE " . implode(", ", $updates);
+        return $this->execDbQuery($stmt, $this->dissolveModelObject($model), $db);
     }
 
     /**
