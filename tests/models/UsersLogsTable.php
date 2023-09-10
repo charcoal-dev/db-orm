@@ -21,6 +21,7 @@ use Charcoal\Database\ORM\Schema\Charset;
 use Charcoal\Database\ORM\Schema\Columns;
 use Charcoal\Database\ORM\Schema\Constraints;
 use Charcoal\Database\ORM\Schema\TableMigrations;
+use Charcoal\OOP\Vectors\StringVector;
 
 class UsersLogsTable extends AbstractOrmTable
 {
@@ -44,9 +45,7 @@ class UsersLogsTable extends AbstractOrmTable
     protected function migrations(TableMigrations $migrations): void
     {
         $migrations->add(0, function (Database $db, self $table): array {
-            return [implode("", Migrations::createTable($db, $table, true,
-                "id", "user", "log"
-            ))];
+            return [implode("", Migrations::createTable($db, $table, true, new StringVector("id", "user", "log")))];
         });
 
         $migrations->add(6, function (Database $db, self $table): array {

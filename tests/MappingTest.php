@@ -34,6 +34,8 @@ class MappingTest extends \PHPUnit\Framework\TestCase
         $this->assertInstanceOf(\Charcoal\Buffers\Frames\Bytes20::class, $user->checksum);
         $this->assertEquals("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\t\ntest", $user->checksum->raw());
         $this->assertIsString($user->status);
+        $this->assertFalse($user->isDeleted);
+        $this->assertTrue($user->testBool2);
         $this->assertIsNotString($user->role);
         $this->assertNotEquals(\Charcoal\Tests\ORM\UserRole::MODERATOR, $user->role);
         $this->assertEquals(\Charcoal\Tests\ORM\UserRole::USER, $user->role);
@@ -83,6 +85,9 @@ class MappingTest extends \PHPUnit\Framework\TestCase
         $this->assertObjectHasProperty("unmapped", $user);
         $this->assertIsArray($user->unmapped);
 
+        $user->isDeleted = true;
+        $user->testBool2 = null;
+
         $dissolveFn = new ReflectionMethod($table, "dissolveModelObject");
         /** @noinspection PhpExpressionResultUnusedInspection */
         $dissolveFn->setAccessible(true);
@@ -91,6 +96,8 @@ class MappingTest extends \PHPUnit\Framework\TestCase
         $this->assertIsArray($row);
         $this->assertEquals($user->id, $row["id"]);
         $this->assertEquals($user->username, $row["username"]);
+        $this->assertEquals(1, $row["is_deleted"]);
+        $this->assertEquals(0, $row["test_bool_2"]);
         $this->assertEquals($user->status, $row["status"]);
         $this->assertEquals($user->role->value, $row["role"]);
         $this->assertEquals($user->firstName, $row["first_name"]);
@@ -112,6 +119,8 @@ class MappingTest extends \PHPUnit\Framework\TestCase
             "username" => "charcoal",
             // e-mail is deliberately not set
             "checksum" => "\t\ntest",
+            "is_deleted" => 0,
+            "test_bool_2" => 1,
             "status" => "active",
             "role" => "user",
             "first_name" => "چارکول",

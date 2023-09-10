@@ -154,6 +154,31 @@ class ColumnsTest extends \PHPUnit\Framework\TestCase
      * @return void
      * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
      */
+    public function testBool(): void
+    {
+        $col1 = (new \Charcoal\Database\ORM\Schema\Columns\BoolColumn("status1"))->default(false);
+
+        $this->assertEquals("tinyint", $col1->getColumnSQL(\Charcoal\Database\DbDriver::MYSQL));
+        $this->assertEquals("integer", $col1->getColumnSQL(\Charcoal\Database\DbDriver::SQLITE));
+        $this->assertFalse($col1->attributes->getResolvedModelProperty("test"));
+        $this->assertFalse($col1->attributes->getResolvedModelProperty("1"));
+        $this->assertFalse($col1->attributes->getResolvedModelProperty("0"));
+        $this->assertFalse($col1->attributes->getResolvedModelProperty(0));
+        $this->assertTrue($col1->attributes->getResolvedModelProperty(1));
+        $this->assertFalse($col1->attributes->getResolvedModelProperty(12314));
+
+        $this->assertEquals(0, $col1->attributes->getDissolvedModelProperty(null));
+        $this->assertEquals(0, $col1->attributes->getDissolvedModelProperty(false));
+        $this->assertEquals(0, $col1->attributes->getDissolvedModelProperty("charcoal"));
+        $this->assertEquals(0, $col1->attributes->getDissolvedModelProperty(1));
+        $this->assertEquals(1, $col1->attributes->getDissolvedModelProperty(true));
+        $this->assertEquals(0, $col1->attributes->getDissolvedModelProperty(1312));
+    }
+
+    /**
+     * @return void
+     * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
+     */
     public function testSerializeColumn(): void
     {
         $cols[] = (new \Charcoal\Database\ORM\Schema\Columns\IntegerColumn("id"))->bytes(2)->unSigned();

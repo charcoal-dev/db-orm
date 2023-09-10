@@ -17,6 +17,7 @@ namespace Charcoal\Database\ORM\Schema;
 use Charcoal\Database\ORM\Schema\Columns\AbstractColumn;
 use Charcoal\Database\ORM\Schema\Columns\BinaryColumn;
 use Charcoal\Database\ORM\Schema\Columns\BlobColumn;
+use Charcoal\Database\ORM\Schema\Columns\BoolColumn;
 use Charcoal\Database\ORM\Schema\Columns\BufferColumn;
 use Charcoal\Database\ORM\Schema\Columns\DecimalColumn;
 use Charcoal\Database\ORM\Schema\Columns\DoubleColumn;
@@ -239,7 +240,34 @@ class Columns implements \IteratorAggregate
      */
     public function enum(string $name, ?string $enumClass = null): EnumColumn
     {
-        $col = $enumClass ? new EnumObjectColumn($name, $enumClass) : new EnumColumn($name);
+        if ($enumClass) {
+            return $this->enumObject($name, $enumClass);
+        }
+
+        $col = new EnumColumn($name);
+        $this->append($col);
+        return $col;
+    }
+
+    /**
+     * @param string $name
+     * @param string $enumClass
+     * @return \Charcoal\Database\ORM\Schema\Columns\EnumObjectColumn
+     */
+    public function enumObject(string $name, string $enumClass): EnumObjectColumn
+    {
+        $col = new EnumObjectColumn($name, $enumClass);
+        $this->append($col);
+        return $col;
+    }
+
+    /**
+     * @param string $name
+     * @return \Charcoal\Database\ORM\Schema\Columns\BoolColumn
+     */
+    public function bool(string $name): BoolColumn
+    {
+        $col = new BoolColumn($name);
         $this->append($col);
         return $col;
     }

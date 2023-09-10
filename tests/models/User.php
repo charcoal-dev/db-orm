@@ -26,6 +26,8 @@ class User
     public string $status;
     public UserRole $role;
     public Bytes20 $checksum;
+    public bool $isDeleted;
+    public ?bool $testBool2;
     public string $username;
     public string $email;
     public ?string $firstName = null;

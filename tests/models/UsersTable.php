@@ -22,6 +22,7 @@ use Charcoal\Database\ORM\Schema\Columns;
 use Charcoal\Database\ORM\Schema\Constraints;
 use Charcoal\Database\ORM\Schema\TableMigrations;
 use Charcoal\Database\Queries\DbExecutedQuery;
+use Charcoal\OOP\Vectors\StringVector;
 
 /**
  * Class UsersTable
@@ -39,6 +40,8 @@ class UsersTable extends AbstractOrmTable
         $cols->int("id")->bytes(4)->unSigned()->autoIncrement();
         $cols->enum("status")->options("active", "frozen", "disabled")->default("active");
         $cols->enum("role", enumClass: UserRole::class)->options("user", "mod")->default("user");
+        $cols->bool("is_deleted")->default(false);
+        $cols->bool("test_bool_2");
         $cols->binaryFrame("checksum")->fixed(20);
         $cols->string("username")->length(16)->unique();
         $cols->string("email")->length(32)->unique();
@@ -53,7 +56,7 @@ class UsersTable extends AbstractOrmTable
     {
         $migrations->add(0, function (Database $db, self $table): array {
             return [implode("", Migrations::createTable($db, $table, true,
-                "id", "status", "role", "checksum", "username", "email", "first_name", "last_name", "joined_on"
+                new StringVector("id", "status", "role", "checksum", "username", "email", "first_name", "last_name", "joined_on")
             ))];
         });
 

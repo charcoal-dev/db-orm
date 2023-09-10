@@ -18,6 +18,7 @@ use Charcoal\Database\Database;
 use Charcoal\Database\DbDriver;
 use Charcoal\Database\ORM\Schema\Columns\AbstractColumn;
 use Charcoal\Database\ORM\Schema\Columns\IntegerColumn;
+use Charcoal\OOP\Vectors\StringVector;
 
 /**
  * Class Migrations
@@ -116,10 +117,10 @@ class Migrations
      * @param \Charcoal\Database\Database $db
      * @param \Charcoal\Database\ORM\AbstractOrmTable $table
      * @param bool $createIfNotExists
-     * @param string ...$columns
+     * @param \Charcoal\OOP\Vectors\StringVector $columns
      * @return array
      */
-    public static function createTable(Database $db, AbstractOrmTable $table, bool $createIfNotExists, string ...$columns): array
+    public static function createTable(Database $db, AbstractOrmTable $table, bool $createIfNotExists, StringVector $columns): array
     {
         $driver = $db->credentials->driver;
         $statement = [];

@@ -22,7 +22,12 @@ class QueryTest extends \PHPUnit\Framework\TestCase
      */
     public function testSaveQuery(): void
     {
-        $db = new \Charcoal\Database\Database(new \Charcoal\Database\DbCredentials(\Charcoal\Database\DbDriver::SQLITE, "tmp/sqlite-file-1"));
+        $db = new \Charcoal\Database\Database(
+            new \Charcoal\Database\DbCredentials(
+                \Charcoal\Database\DbDriver::SQLITE,
+                __DIR__ . "/tmp/sqlite-file-2"
+            )
+        );
         $blob = new \Charcoal\Tests\ORM\BlobStoreTable("dataStore");
 
         try {
