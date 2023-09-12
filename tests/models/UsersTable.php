@@ -65,7 +65,7 @@ class UsersTable extends AbstractOrmTable
         });
     }
 
-    public function newModelObject(array $row): object|null
+    public function newChildObject(array $row): object|null
     {
         return new $this->modelClass();
     }

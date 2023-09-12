@@ -109,11 +109,11 @@ abstract class AbstractOrmTable
     abstract protected function migrations(TableMigrations $migrations): void;
 
     /**
-     * This method should return a blank new model object, OR null
+     * This method should return a blank new child model/object, OR null
      * @param array $row
      * @return object|null
      */
-    abstract public function newModelObject(array $row): object|null;
+    abstract public function newChildObject(array $row): object|null;
 
     /**
      * @param \Charcoal\Database\Database $db
