@@ -31,11 +31,19 @@ class OrmFetchQuery extends ModelMapper
      * @param \Charcoal\Database\ORM\AbstractOrmTable $tableSchema
      */
     public function __construct(
-        public readonly DbFetchQuery $query,
+        private readonly DbFetchQuery $query,
         AbstractOrmTable             $tableSchema
     )
     {
         parent::__construct($tableSchema);
+    }
+
+    /**
+     * @return int
+     */
+    public function getCount(): int
+    {
+        return $this->query->query->rowsCount;
     }
 
     /**
