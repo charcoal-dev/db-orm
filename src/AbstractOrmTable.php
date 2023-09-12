@@ -59,7 +59,6 @@ abstract class AbstractOrmTable
 
         // Callback schema method to set all migrations
         $this->migrations = new TableMigrations($this);
-        $this->migrations($this->migrations);
     }
 
     /**
@@ -88,10 +87,7 @@ abstract class AbstractOrmTable
         $this->constraints = $object["constraints"];
         $this->attributes = $object["attributes"];
         $this->dbInstance = null;
-
-        // Re-run method that sets all migrations callbacks
         $this->migrations = new TableMigrations($this);
-        $this->migrations($this->migrations);
     }
 
     /**
@@ -114,6 +110,15 @@ abstract class AbstractOrmTable
      * @return object|null
      */
     abstract public function newChildObject(array $row): object|null;
+
+    /**
+     * Use this method to registration all migrations defined in "migrations" method
+     * @return void
+     */
+    final public function generateMigrations(): void
+    {
+        $this->migrations($this->migrations);
+    }
 
     /**
      * @param \Charcoal\Database\Database $db
