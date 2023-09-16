@@ -52,6 +52,7 @@ class ColumnAttributes
     public function __serialize(): array
     {
         return [
+            "name" => $this->name,
             "nullable" => $this->nullable,
             "unSigned" => $this->unSigned,
             "unique" => $this->unique,
@@ -70,6 +71,7 @@ class ColumnAttributes
      */
     public function __unserialize(array $data): void
     {
+        $this->name = $data["name"];
         $this->nullable = $data["nullable"];
         $this->unSigned = $data["unSigned"];
         $this->unique = $data["unique"];
