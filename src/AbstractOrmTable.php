@@ -221,7 +221,8 @@ abstract class AbstractOrmTable
      */
     protected function queryInsert(array|object $model, bool $ignoreDuplicate = false, ?Database $db = null): DbExecutedQuery
     {
-        return $this->execDbQuery($this->buildInsertQuery($ignoreDuplicate), $this->dissolveModelObject($model), $db);
+        $data = $this->dissolveModelObject($model);
+        return $this->execDbQuery($this->buildInsertQuery($ignoreDuplicate, $data), $data, $db);
     }
 
     /**
@@ -243,8 +244,9 @@ abstract class AbstractOrmTable
             $updates[] = "`" . $column->attributes->name . "`=:" . $column->attributes->name;
         }
 
-        $stmt = $this->buildInsertQuery(false) . " ON DUPLICATE KEY UPDATE " . implode(", ", $updates);
-        return $this->execDbQuery($stmt, $this->dissolveModelObject($model), $db);
+        $data = $this->dissolveModelObject($model);
+        $stmt = $this->buildInsertQuery(false, $data) . " ON DUPLICATE KEY UPDATE " . implode(", ", $updates);
+        return $this->execDbQuery($stmt, $data, $db);
     }
 
     /**
@@ -298,16 +300,24 @@ abstract class AbstractOrmTable
 
     /**
      * @param bool $ignoreDuplicate
+     * @param array|null $data
      * @return string
      */
-    private function buildInsertQuery(bool $ignoreDuplicate = false): string
+    private function buildInsertQuery(bool $ignoreDuplicate = false, ?array $data = null): string
     {
         $insertColumns = [];
         $insertParams = [];
-        /** @var \Charcoal\Database\ORM\Schema\Columns\AbstractColumn $column */
-        foreach ($this->columns as $column) {
-            $insertColumns[] = "`" . $column->attributes->name . "`";
-            $insertParams[] = ":" . $column->attributes->name;
+        if ($data) {
+            foreach ($data as $columnId => $value) {
+                $insertColumns[] = "`" . $columnId . "`";
+                $insertParams[] = ":" . $columnId;
+            }
+        } else {
+            /** @var \Charcoal\Database\ORM\Schema\Columns\AbstractColumn $column */
+            foreach ($this->columns as $column) {
+                $insertColumns[] = "`" . $column->attributes->name . "`";
+                $insertParams[] = ":" . $column->attributes->name;
+            }
         }
 
         return sprintf(
