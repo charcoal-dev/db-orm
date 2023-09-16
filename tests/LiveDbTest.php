@@ -35,8 +35,8 @@ class LiveDbTest extends \PHPUnit\Framework\TestCase
 
         $createTableStmt = "CREATE TABLE IF NOT EXISTS `users` (" .
             "`id` int UNSIGNED PRIMARY KEY auto_increment NOT NULL," .
-            "`status` enum('active','frozen','disabled') NOT NULL default 'active'," .
-            "`role` enum('user','mod') NOT NULL default 'user'," .
+            "`status` enum('active','frozen','disabled') CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL default 'active'," .
+            "`role` enum('user','mod') CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL default 'user'," .
             "`checksum` binary(20) NOT NULL," .
             "`username` varchar(16) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL," .
             "`email` varchar(32) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL," .
