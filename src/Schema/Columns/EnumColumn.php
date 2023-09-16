@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace Charcoal\Database\ORM\Schema\Columns;
 
 use Charcoal\Database\DbDriver;
+use Charcoal\Database\ORM\Schema\Traits\ColumnCharsetTrait;
 
 /**
  * Class EnumColumn
@@ -26,6 +27,8 @@ class EnumColumn extends AbstractColumn
     public const PRIMITIVE_TYPE = "string";
     /** @var array */
     protected array $options = [];
+
+    use ColumnCharsetTrait;
 
     /**
      * @return array

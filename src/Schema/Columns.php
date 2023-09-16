@@ -246,7 +246,7 @@ class Columns implements \IteratorAggregate
 
         $col = new EnumColumn($name);
         $this->append($col);
-        return $col;
+        return $col->charset($this->defaultCharset);
     }
 
     /**
@@ -258,7 +258,7 @@ class Columns implements \IteratorAggregate
     {
         $col = new EnumObjectColumn($name, $enumClass);
         $this->append($col);
-        return $col;
+        return $col->charset($this->defaultCharset);
     }
 
     /**
