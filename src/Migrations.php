@@ -117,10 +117,10 @@ class Migrations
      * @param \Charcoal\Database\Database $db
      * @param \Charcoal\Database\ORM\AbstractOrmTable $table
      * @param bool $createIfNotExists
-     * @param \Charcoal\OOP\Vectors\StringVector $columns
+     * @param \Charcoal\OOP\Vectors\StringVector|null $columns
      * @return array
      */
-    public static function createTable(Database $db, AbstractOrmTable $table, bool $createIfNotExists, StringVector $columns): array
+    public static function createTable(Database $db, AbstractOrmTable $table, bool $createIfNotExists, ?StringVector $columns = null): array
     {
         $driver = $db->credentials->driver;
         $statement = [];
@@ -130,8 +130,17 @@ class Migrations
         $statement[] = $createIfNotExists ? "CREATE TABLE IF NOT EXISTS" : "CREATE TABLE";
         $statement[0] = $statement[0] . " `" . $table->name . "` (";
 
-        foreach ($columns as $colName) {
-            $column = $table->columns->get($colName);
+        $finalColumns = [];
+        if ($columns) {
+            foreach ($columns as $colName) {
+                $finalColumns[] = $table->columns->get($colName);
+            }
+        } else {
+            $finalColumns = $table->columns;
+        }
+
+
+        foreach ($finalColumns as $column) {
             $columnSql = static::columnSpecSQL($db, $table, $column);
 
             // Unique
