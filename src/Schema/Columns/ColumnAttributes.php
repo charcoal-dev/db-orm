@@ -117,11 +117,15 @@ class ColumnAttributes
         }
 
         if ($column) {
-            if (is_null($value) && !$column->nullable()) {
-                throw new OrmQueryException(
-                    OrmQueryError::COL_VALUE_TYPE_ERROR,
-                    sprintf('Column "%s" is not nullable', $column->attributes->modelProperty)
-                );
+            if (is_null($value)) {
+                if (!$column->nullable()) {
+                    throw new OrmQueryException(
+                        OrmQueryError::COL_VALUE_TYPE_ERROR,
+                        sprintf('Column "%s" is not nullable', $column->attributes->modelProperty)
+                    );
+                }
+
+                return null;
             }
 
             if (gettype($value) !== $column::PRIMITIVE_TYPE) {
