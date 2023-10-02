@@ -337,7 +337,7 @@ abstract class AbstractOrmTable
     {
         $whereClause = trim($whereClause);
         if (str_starts_with($whereClause, "WHERE")) {
-            return substr($whereClause, 0, 6);
+            return substr($whereClause, 6);
         }
 
         return $whereClause;
