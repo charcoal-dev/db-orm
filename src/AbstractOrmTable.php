@@ -134,7 +134,7 @@ abstract class AbstractOrmTable
 
     /**
      * @param string $whereQuery
-     * @param array|null $whereData
+     * @param array $whereData
      * @param array|null $selectColumns
      * @param \Charcoal\Database\Queries\SortFlag|null $sort
      * @param string|null $sortColumn
@@ -147,7 +147,7 @@ abstract class AbstractOrmTable
      */
     public function queryFind(
         string    $whereQuery = "1",
-        array     $whereData = null,
+        array     $whereData = [],
         ?array    $selectColumns = null,
         ?SortFlag $sort = null,
         ?string   $sortColumn = null,
