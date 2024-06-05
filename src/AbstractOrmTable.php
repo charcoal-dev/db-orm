@@ -24,6 +24,7 @@ use Charcoal\Database\ORM\Schema\Columns;
 use Charcoal\Database\ORM\Schema\Constraints;
 use Charcoal\Database\ORM\Schema\TableMigrations;
 use Charcoal\Database\Queries\DbExecutedQuery;
+use Charcoal\Database\Queries\LockFlag;
 use Charcoal\Database\Queries\SortFlag;
 use Charcoal\OOP\Traits\NoDumpTrait;
 use Charcoal\OOP\Traits\NotCloneableTrait;
@@ -139,7 +140,7 @@ abstract class AbstractOrmTable
      * @param string|null $sortColumn
      * @param int $offset
      * @param int $limit
-     * @param bool $lock
+     * @param \Charcoal\Database\Queries\LockFlag|null $lock
      * @param \Charcoal\Database\Database|null $db
      * @return \Charcoal\Database\ORM\OrmFetchQuery
      * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
@@ -152,7 +153,7 @@ abstract class AbstractOrmTable
         ?string   $sortColumn = null,
         int       $offset = 0,
         int       $limit = 0,
-        bool      $lock = false,
+        ?LockFlag $lock = null,
         ?Database $db = null
     ): OrmFetchQuery
     {
@@ -175,7 +176,7 @@ abstract class AbstractOrmTable
         }
 
         if ($lock) {
-            $query->lock();
+            $query->lock($lock);
         }
 
         try {
