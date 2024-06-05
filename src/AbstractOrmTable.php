@@ -145,7 +145,7 @@ abstract class AbstractOrmTable
      * @return \Charcoal\Database\ORM\OrmFetchQuery
      * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
      */
-    protected function queryFind(
+    public function queryFind(
         string    $whereQuery = "1",
         array     $whereData = null,
         ?array    $selectColumns = null,
@@ -193,7 +193,7 @@ abstract class AbstractOrmTable
      * @return \Charcoal\Database\Queries\DbExecutedQuery
      * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
      */
-    protected function queryDelete(
+    public function queryDelete(
         string    $whereQuery = "WHERE ...",
         array     $whereData = [],
         ?Database $db = null
@@ -208,7 +208,7 @@ abstract class AbstractOrmTable
      * @return \Charcoal\Database\Queries\DbExecutedQuery
      * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
      */
-    protected function queryDeletePrimaryKey(int|string $value): DbExecutedQuery
+    public function queryDeletePrimaryKey(int|string $value): DbExecutedQuery
     {
         return $this->queryDelete($this->whereClauseFromPrimary(null, null), [$value]);
     }
@@ -220,7 +220,7 @@ abstract class AbstractOrmTable
      * @return \Charcoal\Database\Queries\DbExecutedQuery
      * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
      */
-    protected function queryInsert(array|object $model, bool $ignoreDuplicate = false, ?Database $db = null): DbExecutedQuery
+    public function queryInsert(array|object $model, bool $ignoreDuplicate = false, ?Database $db = null): DbExecutedQuery
     {
         $data = $this->dissolveModelObject($model);
         return $this->execDbQuery($this->buildInsertQuery($ignoreDuplicate, $data), $data, $db);
@@ -233,7 +233,7 @@ abstract class AbstractOrmTable
      * @return \Charcoal\Database\Queries\DbExecutedQuery
      * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
      */
-    protected function querySave(array|object $model, StringVector $updateCols, ?Database $db = null): DbExecutedQuery
+    public function querySave(array|object $model, StringVector $updateCols, ?Database $db = null): DbExecutedQuery
     {
         $updates = [];
         foreach ($updateCols as $updateCol) {
@@ -258,7 +258,7 @@ abstract class AbstractOrmTable
      * @return \Charcoal\Database\Queries\DbExecutedQuery
      * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
      */
-    protected function queryUpdate(
+    public function queryUpdate(
         array      $changes,
         int|string $primaryValue,
         ?string    $primaryColumn = null,
