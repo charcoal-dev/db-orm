@@ -17,6 +17,7 @@ namespace Charcoal\Database\ORM\Schema;
 use Charcoal\Database\ORM\AbstractOrmTable;
 use Charcoal\Database\ORM\Exception\OrmModelMapException;
 use Charcoal\Database\ORM\Exception\OrmModelNotFoundException;
+use Charcoal\OOP\Vectors\ExceptionLog;
 
 /**
  * Class ModelMapper
@@ -37,10 +38,13 @@ class ModelMapper
      * Maps given assoc array using table's defined schema to model classes
      * NOTE: Any remaining values from input array, if any, are mapped into "unmapped" prop of model class, if such property exists
      * @param bool|array|null $row
+     * @param ExceptionLog|null $errorLog
      * @return object|array
-     * @throws \Charcoal\Database\ORM\Exception\OrmException
+     * @throws OrmModelMapException
+     * @throws OrmModelNotFoundException
+     * @throws \Exception
      */
-    public function mapSingle(bool|null|array $row): object|array
+    public function mapSingle(bool|null|array $row, ?ExceptionLog $errorLog = null): object|array
     {
         if (!is_array($row)) {
             throw new OrmModelNotFoundException();
@@ -68,19 +72,37 @@ class ModelMapper
                 continue;
             }
 
-            $value = $column->attributes->getResolvedModelProperty($row[$column->attributes->name]);
+            try {
+                $value = $column->attributes->getResolvedModelProperty($row[$column->attributes->name]);
+            } catch (\Exception $e) {
+                if ($errorLog) {
+                    $errorLog->append($e); // Append to ExceptionLog
+                    continue; // Leave property uninitialized
+                }
+
+                throw $e;
+            }
 
             try {
-                $object->$prop = $value;
-            } catch (\Throwable $t) {
-                throw new OrmModelMapException(
-                    sprintf(
-                        'Cannot map value of type "%s" to column "%s"',
-                        gettype($value),
-                        $column->attributes->modelProperty
-                    ),
-                    previous: $t
-                );
+                try {
+                    $object->$prop = $value;
+                } catch (\Throwable $t) {
+                    throw new OrmModelMapException(
+                        sprintf(
+                            'Cannot map value of type "%s" to column "%s"',
+                            gettype($value),
+                            $column->attributes->modelProperty
+                        ),
+                        previous: $t
+                    );
+                }
+            } catch (OrmModelMapException $e) {
+                if ($errorLog) {
+                    $errorLog->append($e); // Append to ExceptionLog
+                    continue; // Leave property uninitialized
+                }
+
+                throw $e;
             }
 
             unset($row[$column->attributes->name]);

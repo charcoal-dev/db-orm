@@ -19,6 +19,7 @@ use Charcoal\Database\ORM\Exception\OrmQueryError;
 use Charcoal\Database\ORM\Exception\OrmQueryException;
 use Charcoal\Database\ORM\Schema\ModelMapper;
 use Charcoal\Database\Queries\DbFetchQuery;
+use Charcoal\OOP\Vectors\ExceptionLog;
 
 /**
  * Class OrmFetchQuery
@@ -32,7 +33,7 @@ class OrmFetchQuery extends ModelMapper
      */
     public function __construct(
         private readonly DbFetchQuery $query,
-        AbstractOrmTable             $tableSchema
+        AbstractOrmTable              $tableSchema
     )
     {
         parent::__construct($tableSchema);
@@ -47,14 +48,16 @@ class OrmFetchQuery extends ModelMapper
     }
 
     /**
+     * @param ExceptionLog|null $errorLog
      * @return object|array
-     * @throws \Charcoal\Database\ORM\Exception\OrmException
-     * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
+     * @throws Exception\OrmModelMapException
+     * @throws Exception\OrmModelNotFoundException
+     * @throws OrmQueryException
      */
-    public function getNext(): object|array
+    public function getNext(?ExceptionLog $errorLog = null): object|array
     {
         try {
-            return $this->mapSingle($this->query->getNext());
+            return $this->mapSingle($this->query->getNext(), $errorLog);
         } catch (DbQueryException $e) {
             throw new OrmQueryException(OrmQueryError::QUERY_FETCH_EX, $e->getMessage(), previous: $e);
         }
