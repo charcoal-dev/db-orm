@@ -274,8 +274,10 @@ class Columns implements \IteratorAggregate
 
     /**
      * @param string $col
+     * @param bool $defaultValueCheck
+     * @return void
      */
-    public function setPrimaryKey(string $col): void
+    public function setPrimaryKey(string $col, bool $defaultValueCheck = true): void
     {
         /** @var AbstractColumn $column */
         $column = $this->columns[$col] ?? null;
@@ -287,7 +289,7 @@ class Columns implements \IteratorAggregate
             throw new \InvalidArgumentException(sprintf('Primary key "%s" cannot be nullable', $col));
         }
 
-        if (is_null($column->attributes->defaultValue)) {
+        if ($defaultValueCheck && is_null($column->attributes->defaultValue)) {
             if (!$column instanceof IntegerColumn || !$column->attributes->autoIncrement) {
                 throw new \InvalidArgumentException(sprintf('Primary key "%s" default value cannot be NULL', $col));
             }
