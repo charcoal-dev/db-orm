@@ -18,6 +18,7 @@ use Charcoal\Buffers\AbstractByteArray;
 use Charcoal\Buffers\Buffer;
 use Charcoal\Buffers\Frames\Bytes20P;
 use Charcoal\Buffers\Frames\Bytes32P;
+use Charcoal\Buffers\Frames\Bytes64P;
 
 /**
  * Class FrameColumn
@@ -35,6 +36,7 @@ class FrameColumn extends BinaryColumn
             $bufferClass = match ($this->length) {
                 20 => Bytes20P::class,
                 32 => Bytes32P::class,
+                64 => Bytes64P::class,
                 default => Buffer::class
             };
         }
