@@ -239,7 +239,7 @@ abstract class AbstractOrmTable
         foreach ($updateCols as $updateCol) {
             $column = $this->columns->search($updateCol);
             if (!$column) {
-                throw new OrmQueryException(OrmQueryError::QUERY_BUILD_ERROR, 'Cannot find a column "' . $updateCol . '" in update part of query');
+                throw new OrmQueryException(OrmQueryError::QUERY_BUILD_ERROR, 'Cannot find a column in update part of query');
             }
 
             $updates[] = "`" . $column->attributes->name . "`=:" . $column->attributes->name;
