@@ -57,4 +57,18 @@ class DateColumn extends AbstractColumn
             default => "TEXT",
         };
     }
+
+    /**
+     * @return void
+     */
+    protected function attributesCallback(): void
+    {
+        $this->attributes->setModelsValueResolver(function (?string $value): ?\DateTime {
+            return ($value) ? \DateTime::createFromFormat("Y-m-d", $value) : null;
+        });
+
+        $this->attributes->setModelsValueDissolveFn(function (?\DateTime $date): ?string {
+            return $date?->format("Y-m-d");
+        });
+    }
 }
