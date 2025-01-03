@@ -19,6 +19,7 @@ use Charcoal\Database\ORM\Schema\Columns\BinaryColumn;
 use Charcoal\Database\ORM\Schema\Columns\BlobColumn;
 use Charcoal\Database\ORM\Schema\Columns\BoolColumn;
 use Charcoal\Database\ORM\Schema\Columns\BufferColumn;
+use Charcoal\Database\ORM\Schema\Columns\DateColumn;
 use Charcoal\Database\ORM\Schema\Columns\DecimalColumn;
 use Charcoal\Database\ORM\Schema\Columns\DoubleColumn;
 use Charcoal\Database\ORM\Schema\Columns\EnumColumn;
@@ -133,6 +134,17 @@ class Columns implements \IteratorAggregate
         $col = new StringColumn($name);
         $this->append($col);
         return $col->charset($this->defaultCharset);
+    }
+
+    /**
+     * @param string $name
+     * @return DateColumn
+     */
+    public function date(string $name): DateColumn
+    {
+        $col = new DateColumn($name);
+        $this->append($col);
+        return $col;
     }
 
     /**
