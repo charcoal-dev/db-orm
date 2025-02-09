@@ -22,6 +22,7 @@ use Charcoal\Database\ORM\Schema\Columns\BufferColumn;
 use Charcoal\Database\ORM\Schema\Columns\DateColumn;
 use Charcoal\Database\ORM\Schema\Columns\DecimalColumn;
 use Charcoal\Database\ORM\Schema\Columns\DoubleColumn;
+use Charcoal\Database\ORM\Schema\Columns\DsvColumn;
 use Charcoal\Database\ORM\Schema\Columns\EnumColumn;
 use Charcoal\Database\ORM\Schema\Columns\EnumObjectColumn;
 use Charcoal\Database\ORM\Schema\Columns\FloatColumn;
@@ -134,6 +135,19 @@ class Columns implements \IteratorAggregate
         $col = new StringColumn($name);
         $this->append($col);
         return $col->charset($this->defaultCharset);
+    }
+
+    /**
+     * @param string $name
+     * @param string $delimiter
+     * @return DsvColumn
+     */
+    public function dsvString(string $name, string $delimiter = ","): DsvColumn
+    {
+        $col = new DsvColumn($name);
+        $col->delimiter($delimiter);
+        $this->append($col);
+        return $col;
     }
 
     /**

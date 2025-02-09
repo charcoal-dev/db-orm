@@ -17,7 +17,7 @@
     "charcoal-dev/buffers": "^0.1.0",
     "charcoal-dev/database": "^0.1.0",
     "charcoal-dev/events-base": "^0.1.0",
-    "charcoal-dev/oop-base": "^0.1.1"
+    "charcoal-dev/oop-base": "^0.1.5"
   },
   "autoload": {
     "psr-4": {
