@@ -14,6 +14,7 @@ class DsvColumn extends StringColumn
     private string $delimiter = ",";
     private int $limit = 1;
     private bool $caseInsensitive = false;
+    private ?string $enumClass = null;
 
     /**
      * @return void
@@ -25,12 +26,20 @@ class DsvColumn extends StringColumn
         });
 
         $this->attributes->setModelsValueDissolveFn(function (?DsvString $dsvString): ?string {
+            if (!$dsvString) {
+                return null;
+            }
+
             if ($dsvString->delimiter !== $this->delimiter) {
                 throw new \UnexpectedValueException("Delimiter of DsvString vector does not match with column");
             }
 
             if ($dsvString->caseInsensitive !== $this->caseInsensitive) {
                 throw new \UnexpectedValueException("CaseInsensitive of DsvString vector does not match with column");
+            }
+
+            if ($this->enumClass) {
+                $dsvString->enumValidate($this->enumClass);
             }
 
             $dsvString = $dsvString->toString();
@@ -76,6 +85,16 @@ class DsvColumn extends StringColumn
     }
 
     /**
+     * @param class-string<\StringBackedEnum> $enumClass
+     * @return $this
+     */
+    public function enumClass(string $enumClass): static
+    {
+        $this->enumClass = $enumClass;
+        return $this;
+    }
+
+    /**
      * @param string $delimiter
      * @return $this
      */
@@ -98,6 +117,7 @@ class DsvColumn extends StringColumn
         $data["limit"] = $this->limit;
         $data["delimiter"] = $this->delimiter;
         $data["caseInsensitive"] = $this->caseInsensitive;
+        $data["enumClass"] = $this->enumClass;
         return $data;
     }
 
@@ -110,7 +130,8 @@ class DsvColumn extends StringColumn
         $this->limit = $data["limit"];
         $this->delimiter = $data["delimiter"];
         $this->caseInsensitive = $data["caseInsensitive"];
-        unset($data["limit"], $data["delimiter"], $data["caseInsensitive"]);
+        $this->enumClass = $data["enumClass"];
+        unset($data["limit"], $data["delimiter"], $data["caseInsensitive"], $data["enumClass"]);
         parent::__unserialize($data);
     }
 }
