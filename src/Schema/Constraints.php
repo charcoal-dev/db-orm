@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace Charcoal\Database\ORM\Schema;
 
 use Charcoal\Database\ORM\Schema\Constraints\ForeignKeyConstraint;
+use Charcoal\Database\ORM\Schema\Constraints\IndexKeyConstraint;
 use Charcoal\Database\ORM\Schema\Constraints\UniqueKeyConstraint;
 
 /**
@@ -43,6 +44,28 @@ class Constraints implements \IteratorAggregate
     public function foreignKey(string $key): ForeignKeyConstraint
     {
         $constraint = new ForeignKeyConstraint($key);
+        $this->constraints[$key] = $constraint;
+        return $constraint;
+    }
+
+    /**
+     * @param string $column
+     * @param string $prefix
+     * @return void
+     */
+    public function addIndex(string $column, string $prefix = "idx_"): void
+    {
+        $key = $prefix . $column;
+        $this->constraints[$key] = (new IndexKeyConstraint($key))->columns($column);
+    }
+
+    /**
+     * @param string $key
+     * @return IndexKeyConstraint
+     */
+    public function addIndexComposite(string $key): IndexKeyConstraint
+    {
+        $constraint = new IndexKeyConstraint($key);
         $this->constraints[$key] = $constraint;
         return $constraint;
     }
