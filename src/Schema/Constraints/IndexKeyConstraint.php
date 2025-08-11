@@ -1,33 +1,30 @@
 <?php
+/*
+ * Part of the "charcoal-dev/db-orm" package.
+ * @link https://github.com/charcoal-dev/db-orm
+ */
+
 declare(strict_types=1);
 
-namespace Charcoal\Database\ORM\Schema\Constraints;
+namespace Charcoal\Database\Orm\Schema\Constraints;
 
 use Charcoal\Database\DbDriver;
 
 /**
  * Class IndexKeyConstraint
- * @package Charcoal\Database\ORM\Schema\Constraints
+ * @package Charcoal\Database\Orm\Schema\Constraints
  */
 class IndexKeyConstraint extends AbstractConstraint
 {
-    /** @var array */
+    /** @var string[] */
     private array $columns = [];
 
-    /**
-     * @param string ...$cols
-     * @return $this
-     */
     public function columns(string ...$cols): static
     {
         $this->columns = $cols;
         return $this;
     }
 
-    /**
-     * @param DbDriver $driver
-     * @return string|null
-     */
     public function getConstraintSQL(DbDriver $driver): ?string
     {
         $columns = implode(",", array_map(function ($col) {
