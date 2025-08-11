@@ -17,6 +17,7 @@ namespace Charcoal\Database\ORM\Schema\Traits;
 /**
  * Trait UniqueValueTrait
  * @package Charcoal\Database\ORM\Schema\Traits
+ * @internal
  */
 trait UniqueValueTrait
 {

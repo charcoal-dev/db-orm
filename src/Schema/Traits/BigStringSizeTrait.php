@@ -17,6 +17,7 @@ namespace Charcoal\Database\ORM\Schema\Traits;
 /**
  * Trait BigStringSizeTrait
  * @package Charcoal\Database\ORM\Schema\Traits
+ * @internal
  */
 trait BigStringSizeTrait
 {

@@ -17,6 +17,7 @@ namespace Charcoal\Database\ORM\Schema\Traits;
 /**
  * Trait NumericValueTrait
  * @package Charcoal\Database\ORM\Schema\Traits
+ * @internal
  */
 trait NumericValueTrait
 {

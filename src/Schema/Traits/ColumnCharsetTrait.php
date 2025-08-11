@@ -19,6 +19,7 @@ use Charcoal\Database\ORM\Schema\Charset;
 /**
  * Trait ColumnCharsetTrait
  * @package Charcoal\Database\ORM\Schema\Traits
+ * @internal 
  */
 trait ColumnCharsetTrait
 {
