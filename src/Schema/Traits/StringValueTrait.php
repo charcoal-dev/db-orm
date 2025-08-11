@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Part of the "charcoal-dev/db-orm" package.
  * @link https://github.com/charcoal-dev/db-orm
  */
@@ -15,10 +15,6 @@ namespace Charcoal\Database\Orm\Schema\Traits;
  */
 trait StringValueTrait
 {
-    /**
-     * @param string $value
-     * @return $this
-     */
     final public function default(string $value): static
     {
         $this->setDefaultValue($value);

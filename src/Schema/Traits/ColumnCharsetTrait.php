@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Part of the "charcoal-dev/db-orm" package.
  * @link https://github.com/charcoal-dev/db-orm
  */
@@ -17,10 +17,6 @@ use Charcoal\Database\Orm\Schema\Charset;
  */
 trait ColumnCharsetTrait
 {
-    /**
-     * @param \Charcoal\Database\Orm\Schema\Charset $charset
-     * @return $this
-     */
     final public function charset(Charset $charset): static
     {
         $this->attributes->charset = $charset;

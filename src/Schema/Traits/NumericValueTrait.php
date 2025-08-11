@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Part of the "charcoal-dev/db-orm" package.
  * @link https://github.com/charcoal-dev/db-orm
  */
@@ -15,18 +15,12 @@ namespace Charcoal\Database\Orm\Schema\Traits;
  */
 trait NumericValueTrait
 {
-    /**
-     * @return $this
-     */
     final public function signed(): static
     {
         $this->attributes->unSigned = false;
         return $this;
     }
 
-    /**
-     * @return $this
-     */
     final public function unSigned(): static
     {
         $this->attributes->unSigned = true;

@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Part of the "charcoal-dev/db-orm" package.
  * @link https://github.com/charcoal-dev/db-orm
  */
@@ -15,10 +15,6 @@ namespace Charcoal\Database\Orm\Schema\Traits;
  */
 trait LengthValueTrait
 {
-    /**
-     * @param int $length
-     * @return $this
-     */
     public function length(int $length): static
     {
         if ($length < static::LENGTH_MIN || $length > static::LENGTH_MAX) {
@@ -32,10 +28,6 @@ trait LengthValueTrait
         return $this;
     }
 
-    /**
-     * @param int $length
-     * @return $this
-     */
     public function fixed(int $length): static
     {
         $this->length($length);
