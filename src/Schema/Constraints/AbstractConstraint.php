@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Orm\Schema\Constraints;
 
-use Charcoal\Database\DbDriver;
+use Charcoal\Database\Enums\DbDriver;
 
 /**
  * Class AbstractConstraint
