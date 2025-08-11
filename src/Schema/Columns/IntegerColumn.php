@@ -1,50 +1,37 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/db-orm" package.
- * https://github.com/charcoal-dev/db-orm
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/db-orm/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/db-orm" package.
+ * @link https://github.com/charcoal-dev/db-orm
  */
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\ORM\Schema\Columns;
+namespace Charcoal\Database\Orm\Schema\Columns;
 
-use Charcoal\Database\DbDriver;
-use Charcoal\Database\ORM\Schema\Traits\NumericValueTrait;
-use Charcoal\Database\ORM\Schema\Traits\UniqueValueTrait;
+use Charcoal\Base\Enums\PrimitiveType;
+use Charcoal\Database\Enums\DbDriver;
+use Charcoal\Database\Orm\Schema\Traits\NumericValueTrait;
+use Charcoal\Database\Orm\Schema\Traits\UniqueValueTrait;
 
 /**
  * Class IntegerColumn
- * @package Charcoal\Database\ORM\Schema\Columns
+ * @package Charcoal\Database\Orm\Schema\Columns
  */
 class IntegerColumn extends AbstractColumn
 {
-    /** @var string */
-    public const PRIMITIVE_TYPE = "integer";
-    /** @var int */
-    private int $size = 4; // Default 4 byte integer
+    public const ?PrimitiveType PRIMITIVE_TYPE = PrimitiveType::INT;
+
+    private int $size = 4;
 
     use NumericValueTrait;
     use UniqueValueTrait;
 
-    /**
-     * IntegerColumn constructor.
-     * @param string $name
-     */
     public function __construct(string $name)
     {
         parent::__construct($name);
         $this->attributes->unSigned = true;
     }
 
-    /**
-     * @return array
-     */
     public function __serialize(): array
     {
         $data = parent::__serialize();
@@ -52,10 +39,6 @@ class IntegerColumn extends AbstractColumn
         return $data;
     }
 
-    /**
-     * @param array $data
-     * @return void
-     */
     public function __unserialize(array $data): void
     {
         $this->size = $data["size"];
@@ -63,10 +46,6 @@ class IntegerColumn extends AbstractColumn
         parent::__unserialize($data);
     }
 
-    /**
-     * @param int $byte
-     * @return $this
-     */
     public function size(int $byte): static
     {
         if (!in_array($byte, [1, 2, 3, 4, 8])) {
@@ -77,19 +56,11 @@ class IntegerColumn extends AbstractColumn
         return $this;
     }
 
-    /**
-     * @param int $byte
-     * @return $this
-     */
     public function bytes(int $byte): static
     {
         return $this->size($byte);
     }
 
-    /**
-     * @param int $value
-     * @return $this
-     */
     public function default(int $value): static
     {
         if ($value < 0 && $this->attributes["unsigned"] === 1) {
@@ -100,23 +71,16 @@ class IntegerColumn extends AbstractColumn
         return $this;
     }
 
-    /**
-     * @return $this
-     */
     public function autoIncrement(): static
     {
         $this->attributes->autoIncrement = true;
         return $this;
     }
 
-    /**
-     * @param \Charcoal\Database\DbDriver $driver
-     * @return string|null
-     */
     public function getColumnSQL(DbDriver $driver): ?string
     {
-        return match ($driver->value) {
-            "mysql" => match ($this->size) {
+        return match ($driver) {
+            DbDriver::MYSQL => match ($this->size) {
                 1 => "tinyint",
                 2 => "smallint",
                 3 => "mediumint",

@@ -9,7 +9,7 @@ declare(strict_types=1);
 namespace Charcoal\Database\Orm\Schema\Columns;
 
 use Charcoal\Base\Enums\PrimitiveType;
-use Charcoal\Database\DbDriver;
+use Charcoal\Database\Enums\DbDriver;
 use Charcoal\Database\Orm\Concerns\LobSize;
 use Charcoal\Database\Orm\Schema\Traits\LargeObjectSizeTrait;
 use Charcoal\Database\Orm\Schema\Traits\ColumnCharsetTrait;
