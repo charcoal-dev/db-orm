@@ -26,7 +26,7 @@ class ColumnAttributes
     public ?Charset $charset = null;
     public int|float|string|null $defaultValue = null;
 
-    public readonly string $modelProperty;
+    public readonly string $modelMapKey;
     private string|\Closure|null $resolveTypedValueFn = null;
     private \Closure|null $resolveDbValueFn = null;
 
@@ -34,7 +34,7 @@ class ColumnAttributes
         public readonly string $name
     )
     {
-        $this->modelProperty = str_contains($this->name, "_") ?
+        $this->modelMapKey = str_contains($this->name, "_") ?
             CaseStyle::CAMEL_CASE->from($this->name, CaseStyle::SNAKE_CASE) : $this->name;
     }
 
@@ -48,7 +48,7 @@ class ColumnAttributes
             "autoIncrement" => $this->autoIncrement,
             "charset" => $this->charset,
             "defaultValue" => $this->defaultValue,
-            "modelProperty" => $this->modelProperty,
+            "modelMapKey" => $this->modelMapKey,
             "resolveTypedValueFn" => null,
             "resolveDbValueFn" => null,
         ];
@@ -63,23 +63,23 @@ class ColumnAttributes
         $this->autoIncrement = $data["autoIncrement"];
         $this->charset = $data["charset"];
         $this->defaultValue = $data["defaultValue"];
-        $this->modelProperty = $data["modelProperty"];
+        $this->modelMapKey = $data["modelMapKey"];
         $this->resolveTypedValueFn = null;
         $this->resolveDbValueFn = null;
     }
 
-    public function getResolvedModelProperty(mixed $value): mixed
+    public function resolveForModelProperty(mixed $value): mixed
     {
         if (is_null($value)) {
             return null;
         }
 
         if (!$this->resolveTypedValueFn) {
-            return $value; // No changes, return as-is
+            return $value;
         }
 
         if (is_string($this->resolveTypedValueFn)) {
-            return new $this->resolveTypedValueFn($value); // Encapsulate value in class
+            return new $this->resolveTypedValueFn($value);
         }
 
         return call_user_func_array($this->resolveTypedValueFn, [$value]);
@@ -88,7 +88,7 @@ class ColumnAttributes
     /**
      * @throws OrmQueryException
      */
-    public function getDissolvedModelProperty(mixed $value, ?AbstractColumn $column = null): mixed
+    public function resolveValueForDb(mixed $value, ?AbstractColumn $column = null): mixed
     {
         if ($this->resolveDbValueFn) {
             $value = call_user_func_array($this->resolveDbValueFn, [$value]);
@@ -97,10 +97,8 @@ class ColumnAttributes
         if ($column) {
             if (is_null($value)) {
                 if (!$column->nullable()) {
-                    throw new OrmQueryException(
-                        OrmError::COL_VALUE_TYPE_ERROR,
-                        sprintf('Column "%s" is not nullable', $column->attributes->modelProperty)
-                    );
+                    throw new OrmQueryException(OrmError::COL_VALUE_TYPE_ERROR,
+                        sprintf('Column "%s" is not nullable', $column->attributes->modelMapKey));
                 }
 
                 return null;
@@ -109,12 +107,10 @@ class ColumnAttributes
             if (gettype($value) !== $column::PRIMITIVE_TYPE) {
                 throw new OrmQueryException(
                     OrmError::COL_VALUE_TYPE_ERROR,
-                    sprintf(
-                        'Column "%s" value is expected to be of type "%s", got "%s"',
-                        $column->attributes->modelProperty,
+                    sprintf('Column "%s" value is expected to be of type "%s", got "%s"',
+                        $column->attributes->modelMapKey,
                         $column::PRIMITIVE_TYPE,
-                        gettype($value)
-                    )
+                        gettype($value))
                 );
             }
         }
@@ -128,9 +124,9 @@ class ColumnAttributes
         return $this;
     }
 
-    public function resolveDbValue(\Closure $dissolveFn): static
+    public function resolveDbValue(\Closure $resolver): static
     {
-        $this->resolveDbValueFn = $dissolveFn;
+        $this->resolveDbValueFn = $resolver;
         return $this;
     }
 }
