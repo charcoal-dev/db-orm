@@ -1,47 +1,34 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/db-orm" package.
- * https://github.com/charcoal-dev/db-orm
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/db-orm/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/db-orm" package.
+ * @link https://github.com/charcoal-dev/db-orm
  */
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\ORM\Schema\Columns;
+namespace Charcoal\Database\Orm\Schema\Columns;
 
-use Charcoal\Database\DbDriver;
-use Charcoal\Database\ORM\Schema\Traits\NumericValueTrait;
-use Charcoal\Database\ORM\Schema\Traits\PrecisionValueTrait;
+use Charcoal\Base\Enums\PrimitiveType;
+use Charcoal\Database\Enums\DbDriver;
+use Charcoal\Database\Orm\Schema\Traits\NumericValueTrait;
+use Charcoal\Database\Orm\Schema\Traits\PrecisionValueTrait;
 
 /**
  * Class DecimalColumn
- * @package Charcoal\Database\ORM\Schema\Columns
+ * @package Charcoal\Database\Orm\Schema\Columns
  */
 class DecimalColumn extends AbstractColumn
 {
-    /** @var string */
-    public const PRIMITIVE_TYPE = "string";
-    /** @var int */
-    protected const MAX_DIGITS = 65;
-    /** @var int */
-    protected const MAX_SCALE = 30;
+    public const PrimitiveType PRIMITIVE_TYPE = PrimitiveType::STRING;
+    protected const int MAX_DIGITS = 65;
+    protected const int MAX_SCALE = 30;
 
-    /** @var int */
     protected int $digits = 0;
-    /** @var int */
     protected int $scale = 0;
 
     use NumericValueTrait;
     use PrecisionValueTrait;
 
-    /**
-     * @return array
-     */
     public function __serialize(): array
     {
         $data = parent::__serialize();
@@ -50,10 +37,7 @@ class DecimalColumn extends AbstractColumn
         return $data;
     }
 
-    /**
-     * @param array $data
-     * @return void
-     */
+
     public function __unserialize(array $data): void
     {
         $this->digits = $data["digits"];
@@ -62,38 +46,28 @@ class DecimalColumn extends AbstractColumn
         parent::__unserialize($data);
     }
 
-    /**
-     * @param string $name
-     */
     public function __construct(string $name)
     {
         parent::__construct($name);
         $this->setDefaultValue("0");
     }
 
-    /**
-     * @param string $value
-     * @return DecimalColumn
-     */
     public function default(string $value = "0"): static
     {
         if (!preg_match('/^-?[0-9]+(\.[0-9]+)?$/', $value)) {
-            throw new \InvalidArgumentException(sprintf('Bad default decimal value for col "%s"', $this->attributes->name));
+            throw new \InvalidArgumentException(sprintf('Bad default decimal value for col "%s"',
+                $this->attributes->name));
         }
 
         $this->setDefaultValue($value);
         return $this;
     }
 
-    /**
-     * @param \Charcoal\Database\DbDriver $driver
-     * @return string|null
-     */
     public function getColumnSQL(DbDriver $driver): ?string
     {
-        return match ($driver->value) {
-            "mysql" => sprintf('decimal(%d,%d)', $this->digits, $this->scale),
-            "sqlite" => "REAL",
+        return match ($driver) {
+            DbDriver::MYSQL => sprintf("decimal(%d,%d)", $this->digits, $this->scale),
+            DbDriver::PGSQL => "REAL",
             default => null,
         };
     }
