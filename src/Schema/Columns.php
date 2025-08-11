@@ -1,104 +1,80 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/db-orm" package.
- * https://github.com/charcoal-dev/db-orm
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/db-orm/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/db-orm" package.
+ * @link https://github.com/charcoal-dev/db-orm
  */
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\ORM\Schema;
+namespace Charcoal\Database\Orm\Schema;
 
-use Charcoal\Database\ORM\Schema\Columns\AbstractColumn;
-use Charcoal\Database\ORM\Schema\Columns\BinaryColumn;
-use Charcoal\Database\ORM\Schema\Columns\BlobColumn;
-use Charcoal\Database\ORM\Schema\Columns\BoolColumn;
-use Charcoal\Database\ORM\Schema\Columns\BufferColumn;
-use Charcoal\Database\ORM\Schema\Columns\DateColumn;
-use Charcoal\Database\ORM\Schema\Columns\DecimalColumn;
-use Charcoal\Database\ORM\Schema\Columns\DoubleColumn;
-use Charcoal\Database\ORM\Schema\Columns\DsvColumn;
-use Charcoal\Database\ORM\Schema\Columns\EnumColumn;
-use Charcoal\Database\ORM\Schema\Columns\EnumObjectColumn;
-use Charcoal\Database\ORM\Schema\Columns\FloatColumn;
-use Charcoal\Database\ORM\Schema\Columns\FrameColumn;
-use Charcoal\Database\ORM\Schema\Columns\IntegerColumn;
-use Charcoal\Database\ORM\Schema\Columns\StringColumn;
-use Charcoal\Database\ORM\Schema\Columns\TextColumn;
+use Charcoal\Base\Concerns\InstancedObjectsRegistry;
+use Charcoal\Base\Concerns\RegistryKeysLowercaseTrimmed;
+use Charcoal\Base\Enums\Charset;
+use Charcoal\Database\Orm\Schema\Columns\AbstractColumn;
+use Charcoal\Database\Orm\Schema\Columns\BinaryColumn;
+use Charcoal\Database\Orm\Schema\Columns\BlobColumn;
+use Charcoal\Database\Orm\Schema\Columns\BoolColumn;
+use Charcoal\Database\Orm\Schema\Columns\BufferColumn;
+use Charcoal\Database\Orm\Schema\Columns\DateColumn;
+use Charcoal\Database\Orm\Schema\Columns\DecimalColumn;
+use Charcoal\Database\Orm\Schema\Columns\DoubleColumn;
+use Charcoal\Database\Orm\Schema\Columns\DsvColumn;
+use Charcoal\Database\Orm\Schema\Columns\EnumColumn;
+use Charcoal\Database\Orm\Schema\Columns\EnumObjectColumn;
+use Charcoal\Database\Orm\Schema\Columns\FloatColumn;
+use Charcoal\Database\Orm\Schema\Columns\FrameColumn;
+use Charcoal\Database\Orm\Schema\Columns\IntegerColumn;
+use Charcoal\Database\Orm\Schema\Columns\StringColumn;
+use Charcoal\Database\Orm\Schema\Columns\TextColumn;
 
 /**
  * Class Columns
- * @package Charcoal\Database\ORM\Schema
+ * @package Charcoal\Database\Orm\Schema
+ * @property array<string,AbstractColumn> $instances
  */
 class Columns implements \IteratorAggregate
 {
-    /** @var array */
-    private array $columns = [];
-    /** @var int */
     private int $count = 0;
-    /** @var \Charcoal\Database\ORM\Schema\Charset */
     private Charset $defaultCharset = Charset::ASCII;
-    /** @var null|string */
     private ?string $primaryKey = null;
 
-    /**
-     * @return array
-     */
+    use InstancedObjectsRegistry;
+    use RegistryKeysLowercaseTrimmed;
+
     public function names(): array
     {
-        return array_keys($this->columns);
+        return array_keys($this->instances);
     }
 
-    /**
-     * @param \Charcoal\Database\ORM\Schema\Charset|null $charset
-     * @return $this
-     */
     public function setDefaultCharset(Charset $charset = null): static
     {
         $this->defaultCharset = $charset;
         return $this;
     }
 
-    /**
-     * @param \Charcoal\Database\ORM\Schema\Columns\AbstractColumn $column
-     * @return void
-     */
     public function append(AbstractColumn $column): void
     {
-        $this->columns[$column->attributes->name] = $column;
+        $this->instances[$column->attributes->name] = $column;
         $this->count++;
     }
 
-    /**
-     * @param string $name
-     * @return \Charcoal\Database\ORM\Schema\Columns\AbstractColumn
-     */
     public function get(string $name): AbstractColumn
     {
-        if (!isset($this->columns[$name])) {
+        if (!isset($this->instances[$name])) {
             throw new \OutOfBoundsException(sprintf('No definition exists for column `%s`', $name));
         }
 
-        return $this->columns[$name];
+        return $this->instances[$name];
     }
 
-    /**
-     * @param string $key
-     * @return \Charcoal\Database\ORM\Schema\Columns\AbstractColumn|null
-     */
     public function search(string $key): ?AbstractColumn
     {
-        if (isset($this->columns[$key])) {
-            return $this->columns[$key];
+        if (isset($this->instances[$key])) {
+            return $this->instances[$key];
         }
 
-        /** @var AbstractColumn $column */
-        foreach ($this->columns as $column) {
+        foreach ($this->instances as $column) {
             if ($key === $column->attributes->modelProperty) {
                 return $column;
             }
@@ -107,18 +83,11 @@ class Columns implements \IteratorAggregate
         return null;
     }
 
-    /**
-     * @return int
-     */
     public function count(): int
     {
         return $this->count;
     }
 
-    /**
-     * @param string $name
-     * @return \Charcoal\Database\ORM\Schema\Columns\IntegerColumn
-     */
     public function int(string $name): IntegerColumn
     {
         $col = new IntegerColumn($name);
@@ -126,10 +95,6 @@ class Columns implements \IteratorAggregate
         return $col;
     }
 
-    /**
-     * @param string $name
-     * @return \Charcoal\Database\ORM\Schema\Columns\StringColumn
-     */
     public function string(string $name): StringColumn
     {
         $col = new StringColumn($name);
@@ -137,11 +102,6 @@ class Columns implements \IteratorAggregate
         return $col->charset($this->defaultCharset);
     }
 
-    /**
-     * @param string $name
-     * @param string $delimiter
-     * @return DsvColumn
-     */
     public function dsvString(string $name, string $delimiter = ","): DsvColumn
     {
         $col = new DsvColumn($name);
@@ -150,10 +110,6 @@ class Columns implements \IteratorAggregate
         return $col;
     }
 
-    /**
-     * @param string $name
-     * @return DateColumn
-     */
     public function date(string $name): DateColumn
     {
         $col = new DateColumn($name);
@@ -161,11 +117,6 @@ class Columns implements \IteratorAggregate
         return $col;
     }
 
-    /**
-     * @param string $name
-     * @param bool $plainString
-     * @return \Charcoal\Database\ORM\Schema\Columns\BinaryColumn
-     */
     public function binary(string $name, bool $plainString = true): BinaryColumn
     {
         if (!$plainString) {
@@ -177,10 +128,6 @@ class Columns implements \IteratorAggregate
         return $col;
     }
 
-    /**
-     * @param string $name
-     * @return \Charcoal\Database\ORM\Schema\Columns\FrameColumn
-     */
     public function binaryFrame(string $name): FrameColumn
     {
         $col = new FrameColumn($name);
@@ -188,10 +135,6 @@ class Columns implements \IteratorAggregate
         return $col;
     }
 
-    /**
-     * @param string $name
-     * @return \Charcoal\Database\ORM\Schema\Columns\TextColumn
-     */
     public function text(string $name): TextColumn
     {
         $col = new TextColumn($name);
@@ -199,11 +142,6 @@ class Columns implements \IteratorAggregate
         return $col->charset($this->defaultCharset);
     }
 
-    /**
-     * @param string $name
-     * @param bool $plainString
-     * @return \Charcoal\Database\ORM\Schema\Columns\BlobColumn
-     */
     public function blob(string $name, bool $plainString = true): BlobColumn
     {
         if (!$plainString) {
@@ -215,10 +153,6 @@ class Columns implements \IteratorAggregate
         return $col;
     }
 
-    /**
-     * @param string $name
-     * @return \Charcoal\Database\ORM\Schema\Columns\BufferColumn
-     */
     public function blobBuffer(string $name): BufferColumn
     {
         $col = new BufferColumn($name);
@@ -226,10 +160,6 @@ class Columns implements \IteratorAggregate
         return $col;
     }
 
-    /**
-     * @param string $name
-     * @return \Charcoal\Database\ORM\Schema\Columns\DecimalColumn
-     */
     public function decimal(string $name): DecimalColumn
     {
         $col = new DecimalColumn($name);
@@ -237,10 +167,6 @@ class Columns implements \IteratorAggregate
         return $col;
     }
 
-    /**
-     * @param string $name
-     * @return \Charcoal\Database\ORM\Schema\Columns\FloatColumn
-     */
     public function float(string $name): FloatColumn
     {
         $col = new FloatColumn($name);
@@ -248,10 +174,6 @@ class Columns implements \IteratorAggregate
         return $col;
     }
 
-    /**
-     * @param string $name
-     * @return \Charcoal\Database\ORM\Schema\Columns\DoubleColumn
-     */
     public function double(string $name): DoubleColumn
     {
         $col = new DoubleColumn($name);
@@ -259,11 +181,6 @@ class Columns implements \IteratorAggregate
         return $col;
     }
 
-    /**
-     * @param string $name
-     * @param string|null $enumClass
-     * @return \Charcoal\Database\ORM\Schema\Columns\EnumColumn
-     */
     public function enum(string $name, ?string $enumClass = null): EnumColumn
     {
         if ($enumClass) {
@@ -275,11 +192,6 @@ class Columns implements \IteratorAggregate
         return $col->charset($this->defaultCharset);
     }
 
-    /**
-     * @param string $name
-     * @param string $enumClass
-     * @return \Charcoal\Database\ORM\Schema\Columns\EnumObjectColumn
-     */
     public function enumObject(string $name, string $enumClass): EnumObjectColumn
     {
         $col = new EnumObjectColumn($name, $enumClass);
@@ -287,10 +199,6 @@ class Columns implements \IteratorAggregate
         return $col->charset($this->defaultCharset);
     }
 
-    /**
-     * @param string $name
-     * @return \Charcoal\Database\ORM\Schema\Columns\BoolColumn
-     */
     public function bool(string $name): BoolColumn
     {
         $col = new BoolColumn($name);
@@ -298,15 +206,9 @@ class Columns implements \IteratorAggregate
         return $col;
     }
 
-    /**
-     * @param string $col
-     * @param bool $defaultValueCheck
-     * @return void
-     */
     public function setPrimaryKey(string $col, bool $defaultValueCheck = true): void
     {
-        /** @var AbstractColumn $column */
-        $column = $this->columns[$col] ?? null;
+        $column = $this->instances[$col] ?? null;
         if (!$column) {
             throw new \InvalidArgumentException(sprintf('Column "%s" not defined in table', $col));
         }
@@ -324,19 +226,13 @@ class Columns implements \IteratorAggregate
         $this->primaryKey = $col;
     }
 
-    /**
-     * @return string|null
-     */
     public function getPrimaryKey(): ?string
     {
         return $this->primaryKey;
     }
 
-    /**
-     * @return \Traversable
-     */
     public function getIterator(): \Traversable
     {
-        return new \ArrayIterator($this->columns);
+        return new \ArrayIterator($this->instances);
     }
 }
