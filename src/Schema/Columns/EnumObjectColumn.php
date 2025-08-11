@@ -1,37 +1,25 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/db-orm" package.
- * https://github.com/charcoal-dev/db-orm
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/db-orm/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/db-orm" package.
+ * @link https://github.com/charcoal-dev/db-orm
  */
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\ORM\Schema\Columns;
+namespace Charcoal\Database\Orm\Schema\Columns;
 
 /**
  * Class EnumObjectColumn
- * @package Charcoal\Database\ORM\Schema\Columns
+ * @package Charcoal\Database\Orm\Schema\Columns
+ * @property class-string $enumClass
  */
 class EnumObjectColumn extends EnumColumn
 {
-    /**
-     * @param string $name
-     * @param string $enumClass
-     */
     public function __construct(string $name, private readonly string $enumClass)
     {
         parent::__construct($name);
     }
 
-    /**
-     * @return array
-     */
     public function __serialize(): array
     {
         $data = parent::__serialize();
@@ -39,10 +27,6 @@ class EnumObjectColumn extends EnumColumn
         return $data;
     }
 
-    /**
-     * @param array $data
-     * @return void
-     */
     public function __unserialize(array $data): void
     {
         $this->enumClass = $data["enumClass"];
@@ -50,14 +34,11 @@ class EnumObjectColumn extends EnumColumn
         parent::__unserialize($data);
     }
 
-    /**
-     * @return void
-     */
     protected function attributesCallback(): void
     {
-        /** @var \BackedEnum $enumClass */
+        /** @var class-string $enumClass */
         $enumClass = $this->enumClass;
-        $this->attributes->setModelsValueResolver(function ($value) use ($enumClass) {
+        $this->attributes->resolveTypedValue(function ($value) use ($enumClass) {
             if (is_string($value) || is_int($value)) {
                 return $enumClass::from($value);
             }
@@ -65,7 +46,7 @@ class EnumObjectColumn extends EnumColumn
             return $value;
         });
 
-        $this->attributes->setModelsValueDissolveFn(function ($value) {
+        $this->attributes->resolveDbValue(function ($value) {
             if ($value instanceof \BackedEnum) {
                 return $value->value;
             }
