@@ -1,34 +1,23 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/db-orm" package.
- * https://github.com/charcoal-dev/db-orm
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/db-orm/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/db-orm" package.
+ * @link https://github.com/charcoal-dev/db-orm
  */
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\ORM\Exception;
+namespace Charcoal\Database\Orm\Exception;
 
 /**
  * Class OrmQueryException
- * @package Charcoal\Database\ORM\Exception
+ * @package Charcoal\Database\Orm\Exception
  */
 class OrmQueryException extends OrmException
 {
-    /**
-     * @param \Charcoal\Database\ORM\Exception\OrmQueryError $ormError
-     * @param string $message
-     * @param \Throwable|null $previous
-     */
     public function __construct(
-        public readonly OrmQueryError $ormError,
-        string                        $message = "",
-        ?\Throwable                   $previous = null)
+        public readonly OrmError $ormError,
+        string                   $message = "",
+        ?\Throwable              $previous = null)
     {
         parent::__construct($message, $this->ormError->value, $previous);
     }
