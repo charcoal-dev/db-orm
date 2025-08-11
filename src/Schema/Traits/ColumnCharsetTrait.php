@@ -8,12 +8,12 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Orm\Schema\Traits;
 
-use Charcoal\Database\Orm\Schema\Charset;
+use Charcoal\Base\Enums\Charset;
 
 /**
  * Trait ColumnCharsetTrait
  * @package Charcoal\Database\Orm\Schema\Traits
- * @internal 
+ * @internal
  */
 trait ColumnCharsetTrait
 {

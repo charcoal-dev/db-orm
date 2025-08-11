@@ -1,27 +1,21 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/db-orm" package.
- * https://github.com/charcoal-dev/db-orm
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/db-orm/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/db-orm" package.
+ * @link https://github.com/charcoal-dev/db-orm
  */
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\ORM\Schema\Columns;
+namespace Charcoal\Database\Orm\Schema\Columns;
 
-use Charcoal\Database\ORM\Exception\OrmQueryError;
-use Charcoal\Database\ORM\Exception\OrmQueryException;
-use Charcoal\Database\ORM\Schema\Charset;
-use Charcoal\OOP\CaseStyles;
+use Charcoal\Base\Enums\Charset;
+use Charcoal\Base\Support\CaseStyle;
+use Charcoal\Database\Orm\Exception\OrmError;
+use Charcoal\Database\Orm\Exception\OrmQueryException;
 
 /**
  * Class ColumnAttributes
- * @package Charcoal\Database\ORM\Schema\Columns
+ * @package Charcoal\Database\Orm\Schema\Columns
  */
 class ColumnAttributes
 {
@@ -33,22 +27,17 @@ class ColumnAttributes
     public int|float|string|null $defaultValue = null;
 
     public readonly string $modelProperty;
-    private string|\Closure|null $modelValueResolver = null;
-    private \Closure|null $modelValueDissolve = null;
+    private string|\Closure|null $resolveTypedValueFn = null;
+    private \Closure|null $resolveDbValueFn = null;
 
-    /**
-     * @param string $name
-     */
     public function __construct(
         public readonly string $name
     )
     {
-        $this->modelProperty = str_contains($this->name, "_") ? CaseStyles::camelCase($this->name) : $this->name;
+        $this->modelProperty = str_contains($this->name, "_") ?
+            CaseStyle::CAMEL_CASE->from($this->name, CaseStyle::SNAKE_CASE) : $this->name;
     }
 
-    /**
-     * @return array
-     */
     public function __serialize(): array
     {
         return [
@@ -60,15 +49,11 @@ class ColumnAttributes
             "charset" => $this->charset,
             "defaultValue" => $this->defaultValue,
             "modelProperty" => $this->modelProperty,
-            "modelValueResolver" => null,
-            "modelValueDissolve" => null,
+            "resolveTypedValueFn" => null,
+            "resolveDbValueFn" => null,
         ];
     }
 
-    /**
-     * @param array $data
-     * @return void
-     */
     public function __unserialize(array $data): void
     {
         $this->name = $data["name"];
@@ -79,48 +64,41 @@ class ColumnAttributes
         $this->charset = $data["charset"];
         $this->defaultValue = $data["defaultValue"];
         $this->modelProperty = $data["modelProperty"];
-        $this->modelValueResolver = null;
-        $this->modelValueDissolve = null;
+        $this->resolveTypedValueFn = null;
+        $this->resolveDbValueFn = null;
     }
 
-    /**
-     * @param mixed $value
-     * @return mixed
-     */
     public function getResolvedModelProperty(mixed $value): mixed
     {
         if (is_null($value)) {
             return null;
         }
 
-        if (!$this->modelValueResolver) {
+        if (!$this->resolveTypedValueFn) {
             return $value; // No changes, return as-is
         }
 
-        if (is_string($this->modelValueResolver)) {
-            return new $this->modelValueResolver($value); // Encapsulate value in class
+        if (is_string($this->resolveTypedValueFn)) {
+            return new $this->resolveTypedValueFn($value); // Encapsulate value in class
         }
 
-        return call_user_func_array($this->modelValueResolver, [$value]);
+        return call_user_func_array($this->resolveTypedValueFn, [$value]);
     }
 
     /**
-     * @param mixed $value
-     * @param \Charcoal\Database\ORM\Schema\Columns\AbstractColumn|null $column
-     * @return mixed
-     * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
+     * @throws OrmQueryException
      */
     public function getDissolvedModelProperty(mixed $value, ?AbstractColumn $column = null): mixed
     {
-        if ($this->modelValueDissolve) {
-            $value = call_user_func_array($this->modelValueDissolve, [$value]);
+        if ($this->resolveDbValueFn) {
+            $value = call_user_func_array($this->resolveDbValueFn, [$value]);
         }
 
         if ($column) {
             if (is_null($value)) {
                 if (!$column->nullable()) {
                     throw new OrmQueryException(
-                        OrmQueryError::COL_VALUE_TYPE_ERROR,
+                        OrmError::COL_VALUE_TYPE_ERROR,
                         sprintf('Column "%s" is not nullable', $column->attributes->modelProperty)
                     );
                 }
@@ -130,7 +108,7 @@ class ColumnAttributes
 
             if (gettype($value) !== $column::PRIMITIVE_TYPE) {
                 throw new OrmQueryException(
-                    OrmQueryError::COL_VALUE_TYPE_ERROR,
+                    OrmError::COL_VALUE_TYPE_ERROR,
                     sprintf(
                         'Column "%s" value is expected to be of type "%s", got "%s"',
                         $column->attributes->modelProperty,
@@ -144,25 +122,15 @@ class ColumnAttributes
         return $value;
     }
 
-    /**
-     * Provide a classname or resolver callback function to resolve this column's values when mapped to a model
-     * @param string|\Closure $resolver
-     * @return $this
-     */
-    public function setModelsValueResolver(string|\Closure $resolver): static
+    public function resolveTypedValue(string|\Closure $resolver): static
     {
-        $this->modelValueResolver = $resolver;
+        $this->resolveTypedValueFn = $resolver;
         return $this;
     }
 
-    /**
-     * Value reversing to primitive types, this method is opposite to "setModelsValueResolver"
-     * @param \Closure $dissolveFn
-     * @return $this
-     */
-    public function setModelsValueDissolveFn(\Closure $dissolveFn): static
+    public function resolveDbValue(\Closure $dissolveFn): static
     {
-        $this->modelValueDissolve = $dissolveFn;
+        $this->resolveDbValueFn = $dissolveFn;
         return $this;
     }
 }
