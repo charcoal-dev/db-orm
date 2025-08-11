@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Part of the "charcoal-dev/db-orm" package.
  * @link https://github.com/charcoal-dev/db-orm
  */
@@ -36,9 +36,9 @@ class ForeignKeyConstraint extends AbstractConstraint
     public function getConstraintSQL(DbDriver $driver): ?string
     {
         $tableReference = $this->db ? sprintf('`%s`.`%s`', $this->db, $this->table) : sprintf('`%s`', $this->table);
-        return match ($driver->value) {
-            "mysql" => sprintf('FOREIGN KEY (`%s`) REFERENCES %s(`%s`)', $this->name, $tableReference, $this->col),
-            "sqlite" => sprintf(
+        return match ($driver) {
+            DbDriver::MYSQL => sprintf('FOREIGN KEY (`%s`) REFERENCES %s(`%s`)', $this->name, $tableReference, $this->col),
+            DbDriver::SQLITE => sprintf(
                 'CONSTRAINT `%s` FOREIGN KEY (`%s`) REFERENCES %s(`%s`)',
                 sprintf('cnstrnt_%s_frgn', $this->name),
                 $this->name,

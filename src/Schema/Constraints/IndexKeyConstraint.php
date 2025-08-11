@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Part of the "charcoal-dev/db-orm" package.
  * @link https://github.com/charcoal-dev/db-orm
  */
@@ -13,10 +13,10 @@ use Charcoal\Database\DbDriver;
 /**
  * Class IndexKeyConstraint
  * @package Charcoal\Database\Orm\Schema\Constraints
+ * @property array<string> $columns
  */
 class IndexKeyConstraint extends AbstractConstraint
 {
-    /** @var string[] */
     private array $columns = [];
 
     public function columns(string ...$cols): static
@@ -31,8 +31,8 @@ class IndexKeyConstraint extends AbstractConstraint
             return sprintf('`%s`', $col);
         }, $this->columns));
 
-        return match ($driver->value) {
-            "mysql" => sprintf('INDEX `%s` (%s)', $this->name, $columns),
+        return match ($driver) {
+            DbDriver::MYSQL => sprintf('INDEX `%s` (%s)', $this->name, $columns),
             default => null,
         };
     }
