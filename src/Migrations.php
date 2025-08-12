@@ -1,38 +1,28 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/db-orm" package.
- * https://github.com/charcoal-dev/db-orm
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/db-orm/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/db-orm" package.
+ * @link https://github.com/charcoal-dev/db-orm
  */
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\ORM;
+namespace Charcoal\Database\Orm;
 
+use Charcoal\Base\Enums\Charset;
+use Charcoal\Base\Vectors\StringVector;
 use Charcoal\Database\Database;
-use Charcoal\Database\DbDriver;
-use Charcoal\Database\ORM\Schema\Columns\AbstractColumn;
-use Charcoal\Database\ORM\Schema\Columns\IntegerColumn;
-use Charcoal\OOP\Vectors\StringVector;
+use Charcoal\Database\Enums\DbDriver;
+use Charcoal\Database\Orm\Schema\Columns\AbstractColumn;
+use Charcoal\Database\Orm\Schema\Columns\IntegerColumn;
 
 /**
  * Class Migrations
- * @package Charcoal\Database\ORM
+ * @package Charcoal\Database\Orm
  */
 class Migrations
 {
     private array $migrations = [];
 
-    /**
-     * @param \Charcoal\Database\Database $db
-     * @param int $versionFrom
-     * @param int $versionTo
-     */
     public function __construct(
         private readonly Database $db,
         private readonly int      $versionFrom = 0,
@@ -41,10 +31,6 @@ class Migrations
     {
     }
 
-    /**
-     * @param \Charcoal\Database\ORM\AbstractOrmTable $table
-     * @return $this
-     */
     public function includeTable(AbstractOrmTable $table): static
     {
         $tables = $table->getMigrations($this->db, $this->versionFrom, $this->versionTo);
@@ -62,17 +48,11 @@ class Migrations
         return $this;
     }
 
-    /**
-     * @return array
-     */
     public function getVersionedQueries(): array
     {
         return $this->migrations;
     }
 
-    /**
-     * @return array
-     */
     public function getQueries(): array
     {
         $queries = [];
@@ -85,13 +65,6 @@ class Migrations
         return $queries;
     }
 
-    /**
-     * @param \Charcoal\Database\Database $db
-     * @param \Charcoal\Database\ORM\AbstractOrmTable $table
-     * @param string $column
-     * @param string $previous
-     * @return string
-     */
     public static function alterTableAddColumn(
         Database         $db,
         AbstractOrmTable $table,
@@ -104,23 +77,13 @@ class Migrations
             " AFTER `" . $table->columns->get($previous)->attributes->name . "`;";
     }
 
-    /**
-     * @param \Charcoal\Database\ORM\AbstractOrmTable $table
-     * @return string
-     */
     public static function dropTableIfExists(AbstractOrmTable $table): string
     {
         return "DROP TABLE IF EXISTS `" . $table->name . "`;";
     }
 
-    /**
-     * @param \Charcoal\Database\Database $db
-     * @param \Charcoal\Database\ORM\AbstractOrmTable $table
-     * @param bool $createIfNotExists
-     * @param \Charcoal\OOP\Vectors\StringVector|null $columns
-     * @return array
-     */
-    public static function createTable(Database $db, AbstractOrmTable $table, bool $createIfNotExists, ?StringVector $columns = null): array
+    public static function createTable(Database $db, AbstractOrmTable $table,
+                                       bool $createIfNotExists, ?StringVector $columns = null): array
     {
         $driver = $db->credentials->driver;
         $statement = [];
@@ -161,7 +124,7 @@ class Migrations
         }
 
         // Constraints
-        /** @var \Charcoal\Database\ORM\Schema\Constraints\AbstractConstraint $constraint */
+        /** @var \Charcoal\Database\Orm\Schema\Constraints\AbstractConstraint $constraint */
         foreach ($table->constraints as $constraint) {
             $statement[] = $constraint->getConstraintSQL($driver) . ",";
         }
@@ -177,12 +140,7 @@ class Migrations
         return $statement;
     }
 
-    /**
-     * @param \Charcoal\Database\Database $db
-     * @param \Charcoal\Database\ORM\AbstractOrmTable $table
-     * @param \Charcoal\Database\ORM\Schema\Columns\AbstractColumn $col
-     * @return string
-     */
+
     public static function columnSpecSQL(Database $db, AbstractOrmTable $table, AbstractColumn $col): string
     {
         $columnSql = "`" . $col->attributes->name . "` " . $col->getColumnSQL($db->credentials->driver);
@@ -191,12 +149,8 @@ class Migrations
         if (isset($col->attributes->unSigned)) {
             if ($col->attributes->unSigned) {
                 if ($col instanceof IntegerColumn) {
-                    /** @noinspection PhpStatementHasEmptyBodyInspection */
-                    if ($db->credentials->driver->value === "sqlite" && $col->attributes->autoIncrement) {
-                        // SQLite auto-increment columns can't be unsigned
-                    } else {
-                        $columnSql .= " UNSIGNED";
-                    }
+                    $columnSql = ($db->credentials->driver === DbDriver::SQLITE && $col->attributes->autoIncrement) ?
+                        "" : " UNSIGNED";
                 } else {
                     $columnSql .= " UNSIGNED";
                 }
@@ -220,7 +174,7 @@ class Migrations
 
         // Unique
         if ($col->attributes->unique) {
-            if ($db->credentials->driver->value == "sqlite") {
+            if ($db->credentials->driver == DbDriver::SQLITE) {
                 $columnSql .= " UNIQUE";
             }
         }
@@ -229,7 +183,10 @@ class Migrations
         if ($db->credentials->driver === DbDriver::MYSQL) {
             if ($col->attributes->charset) {
                 $columnSql .= " CHARACTER SET " . $col->attributes->charset->value;
-                $columnSql .= " COLLATE " . $col->attributes->charset->getCollation();
+                $columnSql .= " COLLATE " . match ($col->attributes->charset) {
+                        Charset::ASCII => "ascii_general_ci",
+                        Charset::UTF8 => "utf8mb4_unicode_ci",
+                    };
             }
         }
 

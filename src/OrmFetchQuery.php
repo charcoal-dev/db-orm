@@ -1,79 +1,66 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/db-orm" package.
- * https://github.com/charcoal-dev/db-orm
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/db-orm/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/db-orm" package.
+ * @link https://github.com/charcoal-dev/db-orm
  */
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\ORM;
+namespace Charcoal\Database\Orm;
 
+use Charcoal\Base\Vectors\ExceptionVector;
 use Charcoal\Database\Exception\DbQueryException;
-use Charcoal\Database\ORM\Exception\OrmQueryError;
-use Charcoal\Database\ORM\Exception\OrmQueryException;
-use Charcoal\Database\ORM\Schema\ModelMapper;
-use Charcoal\Database\Queries\DbFetchQuery;
-use Charcoal\OOP\Vectors\ExceptionLog;
+use Charcoal\Database\Orm\Exception\OrmError;
+use Charcoal\Database\Orm\Exception\OrmQueryException;
+use Charcoal\Database\Orm\Exception\OrmModelMapException;
+use Charcoal\Database\Orm\Exception\OrmModelNotFoundException;
+use Charcoal\Database\Orm\Schema\ModelMapper;
+use Charcoal\Database\Queries\FetchQuery;
 
 /**
  * Class OrmFetchQuery
- * @package Charcoal\Database\ORM
+ * @package Charcoal\Database\Orm
  */
 class OrmFetchQuery extends ModelMapper
 {
-    /**
-     * @param \Charcoal\Database\Queries\DbFetchQuery $query
-     * @param \Charcoal\Database\ORM\AbstractOrmTable $tableSchema
-     */
     public function __construct(
-        private readonly DbFetchQuery $query,
-        AbstractOrmTable              $tableSchema
+        private readonly FetchQuery $metaQuery,
+        AbstractOrmTable            $tableSchema
     )
     {
         parent::__construct($tableSchema);
     }
 
-    /**
-     * @return int
-     */
     public function getCount(): int
     {
-        return $this->query->query->rowsCount;
+        return $this->metaQuery->query->rowsCount;
     }
 
     /**
-     * @param ExceptionLog|null $errorLog
-     * @return object|array
-     * @throws Exception\OrmModelMapException
-     * @throws Exception\OrmModelNotFoundException
+     * @throws OrmModelMapException
+     * @throws OrmModelNotFoundException
      * @throws OrmQueryException
      */
-    public function getNext(?ExceptionLog $errorLog = null): object|array
+    public function getNext(?ExceptionVector $errorLog = null): object|array
     {
         try {
-            return $this->mapSingle($this->query->getNext(), $errorLog);
+            return $this->mapSingle($this->metaQuery->getNext(), $errorLog);
         } catch (DbQueryException $e) {
-            throw new OrmQueryException(OrmQueryError::QUERY_FETCH_EX, $e->getMessage(), previous: $e);
+            throw new OrmQueryException(OrmError::QUERY_FETCH, $e->getMessage(), previous: $e);
         }
     }
 
     /**
-     * @return array
-     * @throws \Charcoal\Database\ORM\Exception\OrmException
-     * @throws \Charcoal\Database\ORM\Exception\OrmQueryException
+     * @throws OrmModelMapException
+     * @throws OrmModelNotFoundException
+     * @throws OrmQueryException
      */
     public function getAll(): array
     {
         try {
-            $rows = $this->query->getAll();
+            $rows = $this->metaQuery->getAll();
         } catch (DbQueryException $e) {
-            throw new OrmQueryException(OrmQueryError::QUERY_FETCH_EX, $e->getMessage(), previous: $e);
+            throw new OrmQueryException(OrmError::QUERY_FETCH, $e->getMessage(), previous: $e);
         }
 
         $result = [];
