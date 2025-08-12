@@ -27,7 +27,7 @@ class ForeignKeyConstraint extends AbstractConstraint
         return $this;
     }
 
-    public function database(string $db): static
+    public function DatabaseClient(string $db): static
     {
         $this->db = $db;
         return $this;

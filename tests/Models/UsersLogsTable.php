@@ -10,7 +10,7 @@ namespace Charcoal\Database\Tests\Orm\Models;
 
 use Charcoal\Base\Enums\Charset;
 use Charcoal\Base\Vectors\StringVector;
-use Charcoal\Database\Database;
+use Charcoal\Database\DatabaseClient;
 use Charcoal\Database\Orm\AbstractOrmTable;
 use Charcoal\Database\Orm\Migrations;
 use Charcoal\Database\Orm\Schema\Columns;
@@ -38,15 +38,15 @@ class UsersLogsTable extends AbstractOrmTable
 
     protected function migrations(TableMigrations $migrations): void
     {
-        $migrations->add(0, function (Database $db, self $table): array {
+        $migrations->add(0, function (DatabaseClient $db, self $table): array {
             return [implode("", Migrations::createTable($db, $table, true, new StringVector("id", "user", "log")))];
         });
 
-        $migrations->add(6, function (Database $db, self $table): array {
+        $migrations->add(6, function (DatabaseClient $db, self $table): array {
             return [Migrations::alterTableAddColumn($db, $table, "added_on", "log")];
         });
 
-        $migrations->add(7, function (Database $db, self $table): array {
+        $migrations->add(7, function (DatabaseClient $db, self $table): array {
             return [Migrations::alterTableAddColumn($db, $table, "ip_address", "added_on"),
                 Migrations::alterTableAddColumn($db, $table, "baggage", "ip_address")];
         });

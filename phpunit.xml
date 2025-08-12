@@ -6,7 +6,7 @@
          failOnWarning="true"
          testdox="true">
     <testsuites>
-        <testsuite name="Charcoal Base Test Suite">
+        <testsuite name="Charcoal Database-ORM Test Suite">
             <directory>./tests</directory>
         </testsuite>
     </testsuites>

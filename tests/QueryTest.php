@@ -10,7 +10,7 @@ namespace Charcoal\Database\Tests\Orm;
 
 use Charcoal\Base\Vectors\StringVector;
 use Charcoal\Buffers\Buffer;
-use Charcoal\Database\Database;
+use Charcoal\Database\DatabaseClient;
 use Charcoal\Database\DbCredentials;
 use Charcoal\Database\Enums\DbDriver;
 use Charcoal\Database\Exception\QueryExecuteException;
@@ -32,7 +32,7 @@ class QueryTest extends \PHPUnit\Framework\TestCase
      */
     public function testSaveQuery(): void
     {
-        OrmDbResolver::Bind(new Database(
+        OrmDbResolver::Bind(new DatabaseClient(
             new DbCredentials(
                 DbDriver::SQLITE,
                 __DIR__ . "/tmp/sqlite-file-2"

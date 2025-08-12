@@ -10,7 +10,7 @@ namespace Charcoal\Database\Tests\Orm\Models;
 
 use Charcoal\Base\Enums\Charset;
 use Charcoal\Base\Vectors\StringVector;
-use Charcoal\Database\Database;
+use Charcoal\Database\DatabaseClient;
 use Charcoal\Database\Orm\AbstractOrmTable;
 use Charcoal\Database\Orm\Exception\OrmModelMapException;
 use Charcoal\Database\Orm\Exception\OrmModelNotFoundException;
@@ -47,14 +47,14 @@ class UsersTable extends AbstractOrmTable
 
     protected function migrations(TableMigrations $migrations): void
     {
-        $migrations->add(0, function (Database $db, self $table): array {
+        $migrations->add(0, function (DatabaseClient $db, self $table): array {
             return [implode("", Migrations::createTable($db, $table, true,
                 new StringVector("id", "status", "role", "checksum", "username", "email",
                     "first_name", "last_name", "joined_on")
             ))];
         });
 
-        $migrations->add(7, function (Database $db, self $table): array {
+        $migrations->add(7, function (DatabaseClient $db, self $table): array {
             return [Migrations::alterTableAddColumn($db, $table, "country", previous: "last_name")];
         });
     }

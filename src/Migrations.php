@@ -10,7 +10,7 @@ namespace Charcoal\Database\Orm;
 
 use Charcoal\Base\Enums\Charset;
 use Charcoal\Base\Vectors\StringVector;
-use Charcoal\Database\Database;
+use Charcoal\Database\DatabaseClient;
 use Charcoal\Database\Enums\DbDriver;
 use Charcoal\Database\Orm\Schema\Columns\AbstractColumn;
 use Charcoal\Database\Orm\Schema\Columns\IntegerColumn;
@@ -24,9 +24,9 @@ class Migrations
     private array $migrations = [];
 
     public function __construct(
-        private readonly Database $db,
-        private readonly int      $versionFrom = 0,
-        private readonly int      $versionTo = 0
+        private readonly DatabaseClient $db,
+        private readonly int            $versionFrom = 0,
+        private readonly int            $versionTo = 0
     )
     {
     }
@@ -66,7 +66,7 @@ class Migrations
     }
 
     public static function alterTableAddColumn(
-        Database         $db,
+        DatabaseClient   $db,
         AbstractOrmTable $table,
         string           $column,
         string           $previous
@@ -82,8 +82,12 @@ class Migrations
         return "DROP TABLE IF EXISTS `" . $table->name . "`;";
     }
 
-    public static function createTable(Database $db, AbstractOrmTable $table,
-                                       bool $createIfNotExists, ?StringVector $columns = null): array
+    public static function createTable(
+        DatabaseClient   $db,
+        AbstractOrmTable $table,
+        bool             $createIfNotExists,
+        ?StringVector    $columns = null
+    ): array
     {
         $driver = $db->credentials->driver;
         $statement = [];
@@ -141,7 +145,7 @@ class Migrations
     }
 
 
-    public static function columnSpecSQL(Database $db, AbstractOrmTable $table, AbstractColumn $col): string
+    public static function columnSpecSQL(DatabaseClient $db, AbstractOrmTable $table, AbstractColumn $col): string
     {
         $columnSql = "`" . $col->attributes->name . "` " . $col->getColumnSQL($db->credentials->driver);
 

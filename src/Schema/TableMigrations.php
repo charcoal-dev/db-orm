@@ -11,7 +11,7 @@ namespace Charcoal\Database\Orm\Schema;
 use Charcoal\Base\Traits\NoDumpTrait;
 use Charcoal\Base\Traits\NotCloneableTrait;
 use Charcoal\Base\Traits\NotSerializableTrait;
-use Charcoal\Database\Database;
+use Charcoal\Database\DatabaseClient;
 use Charcoal\Database\Orm\AbstractOrmTable;
 
 /**
@@ -37,7 +37,7 @@ class TableMigrations
         return $this;
     }
 
-    public function getQueries(Database $db, int $versionFrom = 0, int $versionTo = 0): array
+    public function getQueries(DatabaseClient $db, int $versionFrom = 0, int $versionTo = 0): array
     {
         $migrations = [];
         foreach ($this->migrations as $version => $migration) {

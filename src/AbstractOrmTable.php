@@ -12,7 +12,7 @@ use Charcoal\Base\Enums\Sort;
 use Charcoal\Base\Traits\NoDumpTrait;
 use Charcoal\Base\Traits\NotCloneableTrait;
 use Charcoal\Base\Vectors\StringVector;
-use Charcoal\Database\Database;
+use Charcoal\Database\DatabaseClient;
 use Charcoal\Database\Enums\LockFlag;
 use Charcoal\Database\Exception\DbQueryException;
 use Charcoal\Database\Exception\QueryExecuteException;
@@ -34,7 +34,7 @@ abstract class AbstractOrmTable
     public readonly Constraints $constraints;
     public readonly Attributes $attributes;
 
-    protected ?Database $dbInstance = null;
+    protected ?DatabaseClient $dbInstance = null;
     protected ?TableMigrations $migrations = null;
 
     use NoDumpTrait;
@@ -96,7 +96,7 @@ abstract class AbstractOrmTable
         $this->migrations($this->migrations);
     }
 
-    public function getMigrations(Database $db, int $versionFrom = 0, int $versionTo = 0): array
+    public function getMigrations(DatabaseClient $db, int $versionFrom = 0, int $versionTo = 0): array
     {
         return $this->migrations->getQueries($db, $versionFrom, $versionTo);
     }
@@ -219,7 +219,7 @@ abstract class AbstractOrmTable
     /**
      * @throws OrmQueryException
      */
-    protected function resolveDbInstance(): Database
+    protected function resolveDbInstance(): DatabaseClient
     {
         if ($this->dbInstance) {
             return $this->dbInstance;
