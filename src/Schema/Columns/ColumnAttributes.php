@@ -10,7 +10,7 @@ namespace Charcoal\Database\Orm\Schema\Columns;
 
 use Charcoal\Base\Enums\Charset;
 use Charcoal\Base\Support\CaseStyle;
-use Charcoal\Database\Orm\Exception\OrmError;
+use Charcoal\Database\Orm\Concerns\OrmError;
 use Charcoal\Database\Orm\Exception\OrmQueryException;
 
 /**
@@ -104,7 +104,7 @@ class ColumnAttributes
             }
 
             $primitiveType = $column->getPrimitiveType();
-            if ($primitiveType->matches($value)) {
+            if (!$primitiveType->matches($value)) {
                 throw new OrmQueryException(OrmError::VALUE_TYPE_ERROR,
                     sprintf('Column "%s" value is expected to be of type "%s", got "%s"',
                         $column->attributes->modelMapKey,

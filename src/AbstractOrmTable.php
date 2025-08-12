@@ -16,7 +16,7 @@ use Charcoal\Database\Database;
 use Charcoal\Database\Enums\LockFlag;
 use Charcoal\Database\Exception\DbQueryException;
 use Charcoal\Database\Exception\QueryExecuteException;
-use Charcoal\Database\Orm\Exception\OrmError;
+use Charcoal\Database\Orm\Concerns\OrmError;
 use Charcoal\Database\Orm\Exception\OrmQueryException;
 use Charcoal\Database\Orm\Schema\Attributes;
 use Charcoal\Database\Orm\Schema\Columns;
