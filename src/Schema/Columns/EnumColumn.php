@@ -18,11 +18,14 @@ use Charcoal\Database\Orm\Schema\Traits\ColumnCharsetTrait;
  */
 class EnumColumn extends AbstractColumn
 {
-    public const PrimitiveType PRIMITIVE_TYPE = PrimitiveType::STRING;
-
     protected array $options = [];
 
     use ColumnCharsetTrait;
+
+    public function getPrimitiveType(): PrimitiveType
+    {
+        return PrimitiveType::STRING;
+    }
 
     public function __serialize(): array
     {

@@ -19,8 +19,6 @@ use Charcoal\Database\Orm\Schema\Traits\UniqueValueTrait;
  */
 class IntegerColumn extends AbstractColumn
 {
-    public const ?PrimitiveType PRIMITIVE_TYPE = PrimitiveType::INT;
-
     private int $size = 4;
 
     use NumericValueTrait;
@@ -30,6 +28,11 @@ class IntegerColumn extends AbstractColumn
     {
         parent::__construct($name);
         $this->attributes->unSigned = true;
+    }
+
+    public function getPrimitiveType(): PrimitiveType
+    {
+        return PrimitiveType::INT;
     }
 
     public function __serialize(): array

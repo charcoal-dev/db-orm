@@ -17,7 +17,10 @@ use Charcoal\Database\Enums\DbDriver;
  */
 class BoolColumn extends AbstractColumn
 {
-    public const PrimitiveType PRIMITIVE_TYPE = PrimitiveType::INT;
+    public function getPrimitiveType(): PrimitiveType
+    {
+        return PrimitiveType::INT;
+    }
 
     protected function attributesCallback(): void
     {

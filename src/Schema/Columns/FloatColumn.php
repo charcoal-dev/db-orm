@@ -19,8 +19,6 @@ use Charcoal\Database\Orm\Schema\Traits\PrecisionValueTrait;
  */
 class FloatColumn extends AbstractColumn
 {
-    public const PrimitiveType PRIMITIVE_TYPE = PrimitiveType::FLOAT;
-
     protected const int MAX_DIGITS = 65;
     protected const int MAX_SCALE = 30;
 
@@ -30,6 +28,11 @@ class FloatColumn extends AbstractColumn
 
     use NumericValueTrait;
     use PrecisionValueTrait;
+
+    public function getPrimitiveType(): PrimitiveType
+    {
+        return PrimitiveType::FLOAT;
+    }
 
     public function __construct(string $name)
     {

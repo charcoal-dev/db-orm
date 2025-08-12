@@ -20,7 +20,6 @@ use Charcoal\Database\Orm\Schema\Traits\UniqueValueTrait;
  */
 class BinaryColumn extends AbstractColumn
 {
-    public const PrimitiveType PRIMITIVE_TYPE = PrimitiveType::STRING;
     protected const int LENGTH_MIN = 1;
     protected const int  LENGTH_MAX = 0xffff;
 
@@ -30,6 +29,11 @@ class BinaryColumn extends AbstractColumn
     use LengthValueTrait;
     use StringValueTrait;
     use UniqueValueTrait;
+
+    public function getPrimitiveType(): PrimitiveType
+    {
+        return PrimitiveType::STRING;
+    }
 
     public function __serialize(): array
     {

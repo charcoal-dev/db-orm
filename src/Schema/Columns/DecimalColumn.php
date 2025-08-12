@@ -19,7 +19,6 @@ use Charcoal\Database\Orm\Schema\Traits\PrecisionValueTrait;
  */
 class DecimalColumn extends AbstractColumn
 {
-    public const PrimitiveType PRIMITIVE_TYPE = PrimitiveType::STRING;
     protected const int MAX_DIGITS = 65;
     protected const int MAX_SCALE = 30;
 
@@ -28,6 +27,11 @@ class DecimalColumn extends AbstractColumn
 
     use NumericValueTrait;
     use PrecisionValueTrait;
+
+    public function getPrimitiveType(): PrimitiveType
+    {
+        return PrimitiveType::STRING;
+    }
 
     public function __serialize(): array
     {

@@ -19,10 +19,14 @@ use Charcoal\Database\Orm\Schema\Traits\LargeObjectSizeTrait;
  */
 class BlobColumn extends AbstractColumn
 {
-    public const PrimitiveType PRIMITIVE_TYPE = PrimitiveType::STRING;
     protected LobSize $size = LobSize::DEFAULT;
 
     use LargeObjectSizeTrait;
+
+    public function getPrimitiveType(): PrimitiveType
+    {
+        return PrimitiveType::STRING;
+    }
 
     public function __serialize(): array
     {

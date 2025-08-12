@@ -18,9 +18,12 @@ use Charcoal\Database\Orm\Schema\Traits\UniqueValueTrait;
  */
 class DateColumn extends AbstractColumn
 {
-    public const PrimitiveType PRIMITIVE_TYPE = PrimitiveType::STRING;
-
     use UniqueValueTrait;
+
+    public function getPrimitiveType(): PrimitiveType
+    {
+        return PrimitiveType::STRING;
+    }
 
     final public function default(\DateTime|int|string $value): static
     {
