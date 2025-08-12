@@ -75,7 +75,7 @@ class Columns implements \IteratorAggregate
         }
 
         foreach ($this->instances as $column) {
-            if ($key === $column->attributes->modelProperty) {
+            if ($key === $column->attributes->modelMapKey) {
                 return $column;
             }
         }

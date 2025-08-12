@@ -17,8 +17,6 @@ use Charcoal\Database\Enums\DbDriver;
  */
 abstract class AbstractColumn
 {
-    public const ?PrimitiveType PRIMITIVE_TYPE = null;
-
     public readonly ColumnAttributes $attributes;
 
     public function __construct(string $name)
@@ -26,6 +24,8 @@ abstract class AbstractColumn
         $this->attributes = new ColumnAttributes($name);
         $this->attributesCallback();
     }
+
+    abstract public function getPrimitiveType(): PrimitiveType;
 
     protected function attributesCallback(): void
     {

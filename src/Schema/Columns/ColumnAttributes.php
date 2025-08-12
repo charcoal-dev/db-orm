@@ -30,12 +30,11 @@ class ColumnAttributes
     private string|\Closure|null $resolveTypedValueFn = null;
     private \Closure|null $resolveDbValueFn = null;
 
-    public function __construct(
-        public readonly string $name
-    )
+    public function __construct(public readonly string $name)
     {
         $this->modelMapKey = str_contains($this->name, "_") ?
-            CaseStyle::CAMEL_CASE->from($this->name, CaseStyle::SNAKE_CASE) : $this->name;
+            CaseStyle::CAMEL_CASE->from($this->name, CaseStyle::SNAKE_CASE) :
+            $this->name;
     }
 
     public function __serialize(): array
@@ -97,21 +96,20 @@ class ColumnAttributes
         if ($column) {
             if (is_null($value)) {
                 if (!$column->nullable()) {
-                    throw new OrmQueryException(OrmError::COL_VALUE_TYPE_ERROR,
+                    throw new OrmQueryException(OrmError::VALUE_TYPE_ERROR,
                         sprintf('Column "%s" is not nullable', $column->attributes->modelMapKey));
                 }
 
                 return null;
             }
 
-            if (gettype($value) !== $column::PRIMITIVE_TYPE) {
-                throw new OrmQueryException(
-                    OrmError::COL_VALUE_TYPE_ERROR,
+            $primitiveType = $column->getPrimitiveType();
+            if ($primitiveType->matches($value)) {
+                throw new OrmQueryException(OrmError::VALUE_TYPE_ERROR,
                     sprintf('Column "%s" value is expected to be of type "%s", got "%s"',
                         $column->attributes->modelMapKey,
-                        $column::PRIMITIVE_TYPE,
-                        gettype($value))
-                );
+                        $primitiveType->value,
+                        gettype($value)));
             }
         }
 
