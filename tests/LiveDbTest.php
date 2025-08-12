@@ -1,18 +1,20 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/db-orm" package.
- * https://github.com/charcoal-dev/db-orm
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/db-orm/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/db-orm" package.
+ * @link https://github.com/charcoal-dev/db-orm
  */
 
 declare(strict_types=1);
 
-require_once "TestModels.php";
+namespace Charcoal\Database\Tests\Orm;
+
+use Charcoal\Database\Database;
+use Charcoal\Database\DbCredentials;
+use Charcoal\Database\Enums\DbDriver;
+use Charcoal\Database\Orm\Migrations;
+use Charcoal\Database\Tests\Orm\Models\UsersLogsTable;
+use Charcoal\Database\Tests\Orm\Models\UsersTable;
+
 require_once "live-db.config.php";
 
 /**
@@ -27,7 +29,7 @@ class LiveDbTest extends \PHPUnit\Framework\TestCase
     public function testCheckMigrations(): void
     {
         $db = $this->getDbConnection();
-        $usersSchema = new \Charcoal\Tests\ORM\UsersTable("users");
+        $usersSchema = new UsersTable("users");
         $usersSchema->generateMigrations();
         $migrations = $usersSchema->getMigrations($db, versionTo: 10); // $migrations[#version][#index]
         $this->assertIsArray($migrations);
@@ -55,7 +57,7 @@ class LiveDbTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals($alterTableStmt, $migrations[7][0]);
 
-        $usersLogsTable = new \Charcoal\Tests\ORM\UsersLogsTable("users_logs");
+        $usersLogsTable = new UsersLogsTable("users_logs");
         $usersLogsTable->generateMigrations();
         $logsMigrations = $usersLogsTable->getMigrations($db, versionFrom: 0, versionTo: 6);
 
@@ -77,13 +79,13 @@ class LiveDbTest extends \PHPUnit\Framework\TestCase
     public function testCheckVersioning(): void
     {
         $db = $this->getDbConnection();
-        $usersTable = new \Charcoal\Tests\ORM\UsersTable("users");
-        $usersLogsTable = new \Charcoal\Tests\ORM\UsersLogsTable("users_logs");
+        $usersTable = new UsersTable("users");
+        $usersLogsTable = new UsersLogsTable("users_logs");
 
         $usersTable->generateMigrations();
         $usersLogsTable->generateMigrations();
 
-        $migrations = new \Charcoal\Database\ORM\Migrations($db, versionFrom: 0, versionTo: 20);
+        $migrations = new Migrations($db, versionFrom: 0, versionTo: 20);
         $migrations->includeTable($usersTable)
             ->includeTable($usersLogsTable);
 
@@ -112,9 +114,9 @@ class LiveDbTest extends \PHPUnit\Framework\TestCase
     public function testExecuteLive(): void
     {
         $db = $this->getDbConnection();
-        $migrations = new \Charcoal\Database\ORM\Migrations($db, versionFrom: 0, versionTo: 20);
-        $migrations->includeTable(new \Charcoal\Tests\ORM\UsersTable("users"))
-            ->includeTable(new \Charcoal\Tests\ORM\UsersLogsTable("users_logs"));
+        $migrations = new Migrations($db, versionFrom: 0, versionTo: 20);
+        $migrations->includeTable(new UsersTable("users"))
+            ->includeTable(new UsersLogsTable("users_logs"));
 
         $db->exec('SET foreign_key_checks=0;');
         $db->exec('DROP TABLE IF EXISTS `users`');
@@ -129,14 +131,14 @@ class LiveDbTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @return \Charcoal\Database\Database
+     * @return Database
      * @throws \Charcoal\Database\Exception\DbConnectionException
      */
-    private function getDbConnection(): \Charcoal\Database\Database
+    private function getDbConnection(): Database
     {
-        return new \Charcoal\Database\Database(
-            new \Charcoal\Database\DbCredentials(
-                \Charcoal\Database\DbDriver::MYSQL,
+        return new Database(
+            new DbCredentials(
+                DbDriver::MYSQL,
                 dbName: "charcoal_dev_test_db",
                 host: CHARCOAL_DB_HOST,
                 port: CHARCOAL_DB_PORT,

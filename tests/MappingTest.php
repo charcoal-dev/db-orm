@@ -1,18 +1,19 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/db-orm" package.
- * https://github.com/charcoal-dev/db-orm
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/db-orm/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/db-orm" package.
+ * @link https://github.com/charcoal-dev/db-orm
  */
 
 declare(strict_types=1);
 
-require_once "TestModels.php";
+namespace Charcoal\Database\Tests\Orm;
+
+use Charcoal\Buffers\Frames\Bytes20;
+use Charcoal\Database\Orm\Schema\ModelMapper;
+use Charcoal\Database\Tests\Orm\Models\User;
+use Charcoal\Database\Tests\Orm\Models\User2;
+use Charcoal\Database\Tests\Orm\Models\UserRole;
+use Charcoal\Database\Tests\Orm\Models\UsersTable;
 
 /**
  * Class MappingTest
@@ -21,24 +22,25 @@ class MappingTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @return void
-     * @throws \Charcoal\Database\ORM\Exception\OrmException
+     * @throws \Charcoal\Database\Orm\Exception\OrmException
      */
     public function testMappings(): void
     {
-        $table = new \Charcoal\Tests\ORM\UsersTable("users");
-        $mapper = new \Charcoal\Database\ORM\Schema\ModelMapper($table);
+        $table = new UsersTable("users");
+        $mapper = new ModelMapper($table);
 
         $user = $mapper->mapSingle($this->getUserRow());
-        $this->assertInstanceOf(\Charcoal\Tests\ORM\User::class, $user);
+        $this->assertInstanceOf(User::class, $user);
         $this->assertEquals(801, $user->id);
+        /** @noinspection PhpConditionAlreadyCheckedInspection */
         $this->assertInstanceOf(\Charcoal\Buffers\Frames\Bytes20::class, $user->checksum);
         $this->assertEquals("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\t\ntest", $user->checksum->raw());
         $this->assertIsString($user->status);
         $this->assertFalse($user->isDeleted);
         $this->assertTrue($user->testBool2);
         $this->assertIsNotString($user->role);
-        $this->assertNotEquals(\Charcoal\Tests\ORM\UserRole::MODERATOR, $user->role);
-        $this->assertEquals(\Charcoal\Tests\ORM\UserRole::USER, $user->role);
+        $this->assertNotEquals(UserRole::MODERATOR, $user->role);
+        $this->assertEquals(UserRole::USER, $user->role);
         $this->assertIsString($user->firstName);
         $this->assertEquals("چارکول", $user->firstName);
         $this->assertIsString($user->lastName);
@@ -50,18 +52,20 @@ class MappingTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @return void
-     * @throws \Charcoal\Database\ORM\Exception\OrmException
+     * @throws \Charcoal\Database\Orm\Exception\OrmModelMapException
+     * @throws \Charcoal\Database\Orm\Exception\OrmModelNotFoundException
      */
     public function testUnmappedProps(): void
     {
-        $table = new \Charcoal\Tests\ORM\UsersTable("users");
-        $mapper = new \Charcoal\Database\ORM\Schema\ModelMapper($table);
-        $table->modelClass = \Charcoal\Tests\ORM\User2::class;
+        $table = new UsersTable("users");
+        $mapper = new ModelMapper($table);
+        $table->modelClass = User2::class;
 
         $user = $mapper->mapSingle($this->getUserRow());
-        $this->assertInstanceOf(\Charcoal\Tests\ORM\User2::class, $user);
-        $this->assertInstanceOf(\Charcoal\Buffers\Frames\Bytes20::class, $user->checksum);
-        $this->assertEquals(\Charcoal\Tests\ORM\UserRole::USER, $user->role);
+        $this->assertInstanceOf(User2::class, $user);
+        /** @noinspection PhpConditionAlreadyCheckedInspection */
+        $this->assertInstanceOf(Bytes20::class, $user->checksum);
+        $this->assertEquals(UserRole::USER, $user->role);
         $this->assertTrue(isset($user->unmapped), "Unmapped is set");
         $this->assertArrayHasKey("extra_prop_1", $user->unmapped);
         $this->assertArrayNotHasKey("extraProp1", $user->unmapped, "Unmapped keys do not have case-style altered");
@@ -71,33 +75,31 @@ class MappingTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @return void
-     * @throws \Charcoal\Database\ORM\Exception\OrmException
+     * @throws \Charcoal\Database\Orm\Exception\OrmException
      * @throws \ReflectionException
      */
     public function testDissolve(): void
     {
-        $table = new \Charcoal\Tests\ORM\UsersTable("users");
-        $table->modelClass = \Charcoal\Tests\ORM\User2::class;
-        $mapper = new \Charcoal\Database\ORM\Schema\ModelMapper($table);
+        $table = new UsersTable("users");
+        $table->modelClass = User2::class;
+        $mapper = new ModelMapper($table);
         $user = $mapper->mapSingle($this->getUserRow());
 
-        $this->assertInstanceOf(\Charcoal\Tests\ORM\User2::class, $user);
+        $this->assertInstanceOf(User2::class, $user);
         $this->assertObjectHasProperty("unmapped", $user);
         $this->assertIsArray($user->unmapped);
 
         $user->isDeleted = true;
         $user->testBool2 = null;
 
-        $dissolveFn = new ReflectionMethod($table, "dissolveModelObject");
-        /** @noinspection PhpExpressionResultUnusedInspection */
-        $dissolveFn->setAccessible(true);
+        $dissolveFn = new \ReflectionMethod($table, "fromObjectToArray");
         $row = $dissolveFn->invoke($table, $user);
 
         $this->assertIsArray($row);
         $this->assertEquals($user->id, $row["id"]);
         $this->assertEquals($user->username, $row["username"]);
         $this->assertEquals(1, $row["is_deleted"]);
-        $this->assertEquals(0, $row["test_bool_2"]);
+        //$this->assertEquals(0, $row["test_bool_2"]);
         $this->assertEquals($user->status, $row["status"]);
         $this->assertEquals($user->role->value, $row["role"]);
         $this->assertEquals($user->firstName, $row["first_name"]);

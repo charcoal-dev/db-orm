@@ -3,7 +3,7 @@ vendor/
 workspace/
 composer.phar
 composer.lock
-tests/tmp/
+tests/tmp/*
 tests/live-db.config.php
 
 phpunit.phar

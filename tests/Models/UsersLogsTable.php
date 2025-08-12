@@ -1,31 +1,25 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/db-orm" package.
- * https://github.com/charcoal-dev/db-orm
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/db-orm/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/db-orm" package.
+ * @link https://github.com/charcoal-dev/db-orm
  */
 
 declare(strict_types=1);
 
-namespace Charcoal\Tests\ORM;
+namespace Charcoal\Database\Tests\Orm\Models;
 
+use Charcoal\Base\Enums\Charset;
+use Charcoal\Base\Vectors\StringVector;
 use Charcoal\Database\Database;
-use Charcoal\Database\ORM\AbstractOrmTable;
-use Charcoal\Database\ORM\Migrations;
-use Charcoal\Database\ORM\Schema\Charset;
-use Charcoal\Database\ORM\Schema\Columns;
-use Charcoal\Database\ORM\Schema\Constraints;
-use Charcoal\Database\ORM\Schema\TableMigrations;
-use Charcoal\OOP\Vectors\StringVector;
+use Charcoal\Database\Orm\AbstractOrmTable;
+use Charcoal\Database\Orm\Migrations;
+use Charcoal\Database\Orm\Schema\Columns;
+use Charcoal\Database\Orm\Schema\Constraints;
+use Charcoal\Database\Orm\Schema\TableMigrations;
 
 class UsersLogsTable extends AbstractOrmTable
 {
-    public const TABLE = "users_logs";
+    public const string TABLE = "users_logs";
 
     protected function structure(Columns $cols, Constraints $constraints): void
     {

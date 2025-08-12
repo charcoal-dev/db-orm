@@ -22,10 +22,16 @@ class OrmDbResolver
     /** @var array<string,array<string,string>> $tableClasses */
     private static array $dbTables = [];
 
-    public static function Bind(Database $db, string $tableClass): void
+    public static function Bind(Database $db, AbstractOrmTable|string $tableClass): void
     {
-        if (!ObjectHelper::isValidClass($tableClass) || !is_subclass_of(AbstractOrmTable::class, $tableClass)) {
-            throw new \InvalidArgumentException('Cannot bind DB instance to invalid class');
+        if (is_string($tableClass)) {
+            if (!ObjectHelper::isValidClass($tableClass) || !is_subclass_of($tableClass, AbstractOrmTable::class, true)) {
+                throw new \InvalidArgumentException('Cannot bind DB instance to invalid class');
+            }
+        }
+
+        if ($tableClass instanceof AbstractOrmTable) {
+            $tableClass = $tableClass::class;
         }
 
         static::$tableClasses[$tableClass] = $db;

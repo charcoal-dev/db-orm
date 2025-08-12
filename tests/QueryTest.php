@@ -1,19 +1,29 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/db-orm" package.
- * https://github.com/charcoal-dev/db-orm
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/db-orm/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/db-orm" package.
+ * @link https://github.com/charcoal-dev/db-orm
  */
 
 declare(strict_types=1);
 
-require_once "TestModels.php";
+namespace Charcoal\Database\Tests\Orm;
 
+use Charcoal\Base\Vectors\StringVector;
+use Charcoal\Buffers\Buffer;
+use Charcoal\Database\Database;
+use Charcoal\Database\DbCredentials;
+use Charcoal\Database\Enums\DbDriver;
+use Charcoal\Database\Exception\QueryExecuteException;
+use Charcoal\Database\Orm\Concerns\OrmError;
+use Charcoal\Database\Orm\Exception\OrmQueryException;
+use Charcoal\Database\Orm\OrmDbResolver;
+use Charcoal\Database\Tests\Orm\Models\BlobModel;
+use Charcoal\Database\Tests\Orm\Models\BlobStoreTable;
+
+/**
+ * Class QueryTest
+ * @package Charcoal\Database\Tests\Orm
+ */
 class QueryTest extends \PHPUnit\Framework\TestCase
 {
     /**
@@ -22,26 +32,30 @@ class QueryTest extends \PHPUnit\Framework\TestCase
      */
     public function testSaveQuery(): void
     {
-        $db = new \Charcoal\Database\Database(
-            new \Charcoal\Database\DbCredentials(
-                \Charcoal\Database\DbDriver::SQLITE,
+        OrmDbResolver::Bind(new Database(
+            new DbCredentials(
+                DbDriver::SQLITE,
                 __DIR__ . "/tmp/sqlite-file-2"
             )
-        );
-        $blob = new \Charcoal\Tests\ORM\BlobStoreTable("dataStore");
+        ), BlobStoreTable::class);
+
+        $blob = new BlobStoreTable("dataStore");
 
         try {
-            $model = new \Charcoal\Tests\ORM\BlobModel();
+            $model = new BlobModel();
             $model->key = "some.key";
-            $model->object = new \Charcoal\Buffers\Buffer("testvalue\0\0");
+            $model->object = new Buffer("testvalue\0\0");
             $model->matchExp = null;
             $model->timestamp = 1234567;
 
-            $blob->querySave($model, new \Charcoal\OOP\Vectors\StringVector("object", "matchExp", "timestamp"), $db);
-        } catch (Exception $e) {
-            $this->assertInstanceOf(\Charcoal\Database\ORM\Exception\OrmQueryException::class, $e);
-            $this->assertInstanceOf(\Charcoal\Database\Exception\QueryExecuteException::class, $e->getPrevious());
-            /** @var \Charcoal\Database\Exception\QueryExecuteException $queryExecEx */
+            $blob->querySave($model, new StringVector("object", "matchExp", "timestamp"));
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(OrmQueryException::class, $e);
+            $this->assertEquals(OrmError::tryFrom($e->ormError->value)->name,
+                OrmError::QUERY_EXECUTE->name);
+
+            $this->assertInstanceOf(QueryExecuteException::class, $e->getPrevious());
+            /** @var QueryExecuteException $queryExecEx */
             $queryExecEx = $e->getPrevious();
 
             $expectedQueryStr = 'INSERT INTO `dataStore` (`key`, `object`, `match_exp`, `timestamp`) VALUES (:key, ' .
