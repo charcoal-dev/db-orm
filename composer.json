@@ -26,5 +26,10 @@
       ]
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Charcoal\\Database\\Tests\\Orm\\": "tests/"
+    }
+  },
   "minimum-stability": "dev"
 }
