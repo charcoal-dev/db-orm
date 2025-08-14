@@ -11,7 +11,7 @@ namespace Charcoal\Database\Orm\Schema\Columns;
 use Charcoal\Base\Enums\Charset;
 use Charcoal\Base\Enums\ExceptionAction;
 use Charcoal\Base\Support\DsvString;
-use Charcoal\Base\Support\EnumHelper;
+use Charcoal\Base\Support\Helpers\EnumHelper;
 
 /**
  * Class DsvColumn
@@ -44,7 +44,7 @@ class DsvColumn extends StringColumn
             }
 
             if ($this->enumClass) {
-                EnumHelper::validateEnumValues($this->enumClass, $dsvString, ExceptionAction::Ignore);
+                EnumHelper::validatedEnumCasesFromVector($this->enumClass, $dsvString, ExceptionAction::Ignore);
             }
 
             $dsvString = $dsvString->toString();

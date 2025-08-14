@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Orm;
 
-use Charcoal\Base\Support\ObjectHelper;
+use Charcoal\Base\Support\Helpers\ObjectHelper;
 use Charcoal\Database\DatabaseClient;
 
 /**
