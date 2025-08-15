@@ -10,8 +10,8 @@ namespace Charcoal\Database\Orm\Schema;
 
 use Charcoal\Base\Vectors\ExceptionVector;
 use Charcoal\Database\Orm\AbstractOrmTable;
-use Charcoal\Database\Orm\Exception\OrmModelMapException;
-use Charcoal\Database\Orm\Exception\OrmModelNotFoundException;
+use Charcoal\Database\Orm\Exceptions\OrmModelMapException;
+use Charcoal\Database\Orm\Exceptions\OrmModelNotFoundException;
 use Charcoal\Database\Orm\Schema\Columns\AbstractColumn;
 
 /**

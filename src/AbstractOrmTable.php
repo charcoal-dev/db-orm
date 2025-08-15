@@ -14,10 +14,10 @@ use Charcoal\Base\Traits\NotCloneableTrait;
 use Charcoal\Base\Vectors\StringVector;
 use Charcoal\Database\DatabaseClient;
 use Charcoal\Database\Enums\LockFlag;
-use Charcoal\Database\Exception\DbQueryException;
-use Charcoal\Database\Exception\QueryExecuteException;
+use Charcoal\Database\Exceptions\DbQueryException;
+use Charcoal\Database\Exceptions\QueryExecuteException;
 use Charcoal\Database\Orm\Concerns\OrmError;
-use Charcoal\Database\Orm\Exception\OrmQueryException;
+use Charcoal\Database\Orm\Exceptions\OrmQueryException;
 use Charcoal\Database\Orm\Schema\Attributes;
 use Charcoal\Database\Orm\Schema\Columns;
 use Charcoal\Database\Orm\Schema\Constraints;
@@ -236,7 +236,7 @@ abstract class AbstractOrmTable
     /**
      * @param array $changes
      * @return array
-     * @throws \Charcoal\Database\Orm\Exception\OrmQueryException
+     * @throws \Charcoal\Database\Orm\Exceptions\OrmQueryException
      */
     private function buildUpdateQueryParts(array $changes): array
     {

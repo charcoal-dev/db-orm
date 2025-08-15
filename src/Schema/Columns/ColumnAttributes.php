@@ -11,7 +11,7 @@ namespace Charcoal\Database\Orm\Schema\Columns;
 use Charcoal\Base\Enums\Charset;
 use Charcoal\Base\Support\CaseStyle;
 use Charcoal\Database\Orm\Concerns\OrmError;
-use Charcoal\Database\Orm\Exception\OrmQueryException;
+use Charcoal\Database\Orm\Exceptions\OrmQueryException;
 
 /**
  * Class ColumnAttributes

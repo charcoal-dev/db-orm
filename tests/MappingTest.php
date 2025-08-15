@@ -22,7 +22,7 @@ class MappingTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @return void
-     * @throws \Charcoal\Database\Orm\Exception\OrmException
+     * @throws \Charcoal\Database\Orm\Exceptions\OrmException
      */
     public function testMappings(): void
     {
@@ -52,8 +52,8 @@ class MappingTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @return void
-     * @throws \Charcoal\Database\Orm\Exception\OrmModelMapException
-     * @throws \Charcoal\Database\Orm\Exception\OrmModelNotFoundException
+     * @throws \Charcoal\Database\Orm\Exceptions\OrmModelMapException
+     * @throws \Charcoal\Database\Orm\Exceptions\OrmModelNotFoundException
      */
     public function testUnmappedProps(): void
     {
@@ -75,7 +75,7 @@ class MappingTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @return void
-     * @throws \Charcoal\Database\Orm\Exception\OrmException
+     * @throws \Charcoal\Database\Orm\Exceptions\OrmException
      * @throws \ReflectionException
      */
     public function testDissolve(): void

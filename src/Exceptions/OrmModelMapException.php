@@ -6,11 +6,11 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Exception;
+namespace Charcoal\Database\Orm\Exceptions;
 
 /**
  * Class OrmModelMapException
- * @package Charcoal\Database\Orm\Exception
+ * @package Charcoal\Database\Orm\Exceptions
  */
 class OrmModelMapException extends OrmException
 {

@@ -6,13 +6,14 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Exception;
+namespace Charcoal\Database\Orm\Exceptions;
+
+use Charcoal\Database\Exceptions\DatabaseException;
 
 /**
- * Class OrmModelNotFoundException
+ * Class OrmException
  * @package Charcoal\Database\Orm\Exception
  */
-class OrmModelNotFoundException extends OrmException
+class OrmException extends DatabaseException
 {
 }
-

@@ -13,9 +13,9 @@ use Charcoal\Buffers\Buffer;
 use Charcoal\Database\DatabaseClient;
 use Charcoal\Database\DbCredentials;
 use Charcoal\Database\Enums\DbDriver;
-use Charcoal\Database\Exception\QueryExecuteException;
+use Charcoal\Database\Exceptions\QueryExecuteException;
 use Charcoal\Database\Orm\Concerns\OrmError;
-use Charcoal\Database\Orm\Exception\OrmQueryException;
+use Charcoal\Database\Orm\Exceptions\OrmQueryException;
 use Charcoal\Database\Orm\OrmDbResolver;
 use Charcoal\Database\Tests\Orm\Models\BlobModel;
 use Charcoal\Database\Tests\Orm\Models\BlobStoreTable;
@@ -28,7 +28,7 @@ class QueryTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @return void
-     * @throws \Charcoal\Database\Exception\DbConnectionException
+     * @throws \Charcoal\Database\Exceptions\DbConnectionException
      */
     public function testSaveQuery(): void
     {

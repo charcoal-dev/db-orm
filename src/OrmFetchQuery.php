@@ -9,11 +9,11 @@ declare(strict_types=1);
 namespace Charcoal\Database\Orm;
 
 use Charcoal\Base\Vectors\ExceptionVector;
-use Charcoal\Database\Exception\DbQueryException;
+use Charcoal\Database\Exceptions\DbQueryException;
 use Charcoal\Database\Orm\Concerns\OrmError;
-use Charcoal\Database\Orm\Exception\OrmQueryException;
-use Charcoal\Database\Orm\Exception\OrmModelMapException;
-use Charcoal\Database\Orm\Exception\OrmModelNotFoundException;
+use Charcoal\Database\Orm\Exceptions\OrmQueryException;
+use Charcoal\Database\Orm\Exceptions\OrmModelMapException;
+use Charcoal\Database\Orm\Exceptions\OrmModelNotFoundException;
 use Charcoal\Database\Orm\Schema\ModelMapper;
 use Charcoal\Database\Queries\FetchQuery;
 

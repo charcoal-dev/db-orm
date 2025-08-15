@@ -6,13 +6,13 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Exception;
+namespace Charcoal\Database\Orm\Exceptions;
 
 use Charcoal\Database\Orm\Concerns\OrmError;
 
 /**
  * Class OrmQueryException
- * @package Charcoal\Database\Orm\Exception
+ * @package Charcoal\Database\Orm\Exceptions
  */
 class OrmQueryException extends OrmException
 {

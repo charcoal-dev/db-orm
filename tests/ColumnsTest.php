@@ -61,7 +61,7 @@ class ColumnsTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @return void
-     * @throws \Charcoal\Database\Orm\Exception\OrmQueryException
+     * @throws \Charcoal\Database\Orm\Exceptions\OrmQueryException
      */
     public function testBinaryColumn(): void
     {
@@ -124,7 +124,7 @@ class ColumnsTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @return void
-     * @throws \Charcoal\Database\Orm\Exception\OrmQueryException
+     * @throws \Charcoal\Database\Orm\Exceptions\OrmQueryException
      */
     public function testEnum(): void
     {
@@ -160,7 +160,7 @@ class ColumnsTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @return void
-     * @throws \Charcoal\Database\Orm\Exception\OrmQueryException
+     * @throws \Charcoal\Database\Orm\Exceptions\OrmQueryException
      */
     public function testBool(): void
     {
@@ -185,7 +185,7 @@ class ColumnsTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @return void
-     * @throws \Charcoal\Database\Orm\Exception\OrmQueryException
+     * @throws \Charcoal\Database\Orm\Exceptions\OrmQueryException
      */
     public function testSerializeColumn(): void
     {
