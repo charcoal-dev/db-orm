@@ -7,4 +7,4 @@ with tables through typed entities instead of raw SQL. It integrates with the ke
 persistence actions, and offers a clean API for querying, saving, and managing records while keeping database logic
 organized and consistent across projects.
 
-[https://charcoal.dev/docs/db-orm](https://charcoal.dev/docs/db-orm)
+[https://charcoal.dev/libs/db-orm](https://charcoal.dev/libs/db-orm)
