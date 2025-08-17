@@ -11,7 +11,7 @@ namespace Charcoal\Database\Tests\Orm;
 use Charcoal\Base\Vectors\StringVector;
 use Charcoal\Buffers\Buffer;
 use Charcoal\Database\DatabaseClient;
-use Charcoal\Database\DbCredentials;
+use Charcoal\Database\Config\DbCredentials;
 use Charcoal\Database\Enums\DbDriver;
 use Charcoal\Database\Exceptions\QueryExecuteException;
 use Charcoal\Database\Orm\Concerns\OrmError;
