@@ -144,7 +144,10 @@ class Migrations
         return $statement;
     }
 
-
+    /**
+     * Generates the SQL string representation of a column specification based on its attributes
+     * and the database driver's requirements.
+     */
     public static function columnSpecSQL(DatabaseClient $db, AbstractOrmTable $table, AbstractColumn $col): string
     {
         $columnSql = "`" . $col->attributes->name . "` " . $col->getColumnSQL($db->credentials->driver);
@@ -153,7 +156,7 @@ class Migrations
         if (isset($col->attributes->unSigned)) {
             if ($col->attributes->unSigned) {
                 if ($col instanceof IntegerColumn) {
-                    $columnSql = ($db->credentials->driver === DbDriver::SQLITE && $col->attributes->autoIncrement) ?
+                    $columnSql .= ($db->credentials->driver === DbDriver::SQLITE && $col->attributes->autoIncrement) ?
                         "" : " UNSIGNED";
                 } else {
                     $columnSql .= " UNSIGNED";
