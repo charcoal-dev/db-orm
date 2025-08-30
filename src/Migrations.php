@@ -186,7 +186,7 @@ class Migrations
         // MySQL specific attributes
         if ($db->credentials->driver === DbDriver::MYSQL) {
             if ($col->attributes->charset) {
-                $columnSql .= " CHARACTER SET " . $col->attributes->charset->value;
+                $columnSql .= " CHARACTER SET " . strtolower($col->attributes->charset->value);
                 $columnSql .= " COLLATE " . match ($col->attributes->charset) {
                         Charset::ASCII => "ascii_general_ci",
                         Charset::UTF8 => "utf8mb4_unicode_ci",
