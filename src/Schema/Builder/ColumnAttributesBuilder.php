@@ -33,7 +33,7 @@ class ColumnAttributesBuilder
     public int|float|string|null $defaultValue = null;
 
     private ?ColumnValuePipeEnumInterface $valuePipe = null;
-    private ?string $pipeContextFqcn;
+    private ?array $pipeContext;
 
     public function __construct(
         public readonly string     $name,
@@ -50,18 +50,23 @@ class ColumnAttributesBuilder
      */
     public function useValuePipe(
         ColumnValuePipeEnumInterface $pipe,
-    ): static
+        array                        $context = [],
+    ): void
     {
         $this->valuePipe = $pipe;
-        return $this;
+        $this->pipeContext = $context;
     }
 
     /**
      * @internal
      */
-    public function setPipeContext(string $fqcn): void
+    public function updateContext(array $context): void
     {
-        $this->pipeContextFqcn = $fqcn;
+        if (!isset($this->pipeContext)) {
+            throw new \BadMethodCallException("Pipe context is not set");
+        }
+
+        $this->pipeContext = array_merge($this->pipeContext, $context);
     }
 
     /**
@@ -70,6 +75,6 @@ class ColumnAttributesBuilder
     public function getPipe(): array
     {
         return [$this->valuePipe ?? null,
-            $this->pipeContextFqcn ?? null];
+            $this->pipeContext ?? null];
     }
 }

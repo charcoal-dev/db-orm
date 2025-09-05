@@ -26,7 +26,7 @@ abstract class AbstractColumnBuilder
 
     protected readonly ColumnAttributesBuilder $attributes;
 
-    public function __construct(string $name, ColumnType $type)
+    public function __construct(public readonly string $name, ColumnType $type)
     {
         $this->attributes = new ColumnAttributesBuilder($name, $type);
     }
@@ -48,6 +48,14 @@ abstract class AbstractColumnBuilder
 
         $this->attributes->defaultValue = $value;
         return $this;
+    }
+
+    /**
+     * @internal
+     */
+    public function getAttributes(): ColumnAttributesBuilder
+    {
+        return $this->attributes;
     }
 
     /**

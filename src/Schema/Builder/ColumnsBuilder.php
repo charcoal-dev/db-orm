@@ -6,34 +6,35 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Schema;
+namespace Charcoal\Database\Orm\Schema\Builder;
 
-use Charcoal\Base\Concerns\InstancedObjectsRegistry;
-use Charcoal\Base\Concerns\RegistryKeysLowercaseTrimmed;
-use Charcoal\Base\Enums\Charset;
-use Charcoal\Database\Orm\Schema\Columns\AbstractColumn;
-use Charcoal\Database\Orm\Schema\Columns\BinaryColumn;
-use Charcoal\Database\Orm\Schema\Columns\BlobColumn;
-use Charcoal\Database\Orm\Schema\Columns\BoolColumn;
-use Charcoal\Database\Orm\Schema\Columns\BufferColumn;
-use Charcoal\Database\Orm\Schema\Columns\DateColumn;
-use Charcoal\Database\Orm\Schema\Columns\DecimalColumn;
-use Charcoal\Database\Orm\Schema\Columns\DoubleColumn;
-use Charcoal\Database\Orm\Schema\Columns\DsvColumn;
-use Charcoal\Database\Orm\Schema\Columns\EnumColumn;
-use Charcoal\Database\Orm\Schema\Columns\EnumObjectColumn;
-use Charcoal\Database\Orm\Schema\Columns\FloatColumn;
-use Charcoal\Database\Orm\Schema\Columns\FrameColumn;
-use Charcoal\Database\Orm\Schema\Columns\IntegerColumn;
-use Charcoal\Database\Orm\Schema\Columns\StringColumn;
-use Charcoal\Database\Orm\Schema\Columns\TextColumn;
+use Charcoal\Base\Registry\Traits\InstancedObjectsRegistry;
+use Charcoal\Base\Registry\Traits\RegistryKeysLowercaseTrimmed;
+use Charcoal\Contracts\Charsets\Charset;
+use Charcoal\Database\Orm\Schema\Builder\Columns\AbstractColumnBuilder;
+use Charcoal\Database\Orm\Schema\Builder\Columns\BinaryColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\BlobColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\BoolColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\BufferColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\DateColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\DecimalColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\DoubleColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\DsvColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\EnumColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\EnumObjectColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\FloatColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\FrameColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\IntegerColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\StringColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\TextColumn;
 
 /**
- * Class Columns
+ * Class ColumnsBuilder
  * @package Charcoal\Database\Orm\Schema
- * @property array<string,AbstractColumn> $instances
+ * @use InstancedObjectsRegistry<AbstractColumnBuilder>
+ * @property array<string,AbstractColumnBuilder> $instances
  */
-class Columns implements \IteratorAggregate
+class ColumnsBuilder implements \IteratorAggregate
 {
     private int $count = 0;
     private Charset $defaultCharset = Charset::ASCII;
@@ -53,34 +54,19 @@ class Columns implements \IteratorAggregate
         return $this;
     }
 
-    public function append(AbstractColumn $column): void
+    public function append(AbstractColumnBuilder $column): void
     {
-        $this->instances[$column->attributes->name] = $column;
+        $this->instances[$column->name] = $column;
         $this->count++;
     }
 
-    public function get(string $name): AbstractColumn
+    public function get(string $name): AbstractColumnBuilder
     {
         if (!isset($this->instances[$name])) {
             throw new \OutOfBoundsException(sprintf('No definition exists for column `%s`', $name));
         }
 
         return $this->instances[$name];
-    }
-
-    public function search(string $key): ?AbstractColumn
-    {
-        if (isset($this->instances[$key])) {
-            return $this->instances[$key];
-        }
-
-        foreach ($this->instances as $column) {
-            if ($key === $column->attributes->modelMapKey) {
-                return $column;
-            }
-        }
-
-        return null;
     }
 
     public function count(): int
@@ -213,12 +199,13 @@ class Columns implements \IteratorAggregate
             throw new \InvalidArgumentException(sprintf('Column "%s" not defined in table', $col));
         }
 
-        if ($column->attributes->nullable) {
+        $attr = $column->getAttributes();
+        if ($attr->nullable) {
             throw new \InvalidArgumentException(sprintf('Primary key "%s" cannot be nullable', $col));
         }
 
-        if ($defaultValueCheck && is_null($column->attributes->defaultValue)) {
-            if (!$column instanceof IntegerColumn || !$column->attributes->autoIncrement) {
+        if ($defaultValueCheck && is_null($attr->defaultValue)) {
+            if (!$column instanceof IntegerColumn || !$attr->autoIncrement) {
                 throw new \InvalidArgumentException(sprintf('Primary key "%s" default value cannot be NULL', $col));
             }
         }

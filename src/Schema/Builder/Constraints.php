@@ -6,18 +6,19 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Schema;
+namespace Charcoal\Database\Orm\Schema\Builder;
 
-use Charcoal\Base\Concerns\InstancedObjectsRegistry;
-use Charcoal\Base\Concerns\RegistryKeysLowercaseTrimmed;
-use Charcoal\Database\Orm\Schema\Constraints\AbstractConstraint;
-use Charcoal\Database\Orm\Schema\Constraints\ForeignKeyConstraint;
-use Charcoal\Database\Orm\Schema\Constraints\IndexKeyConstraint;
-use Charcoal\Database\Orm\Schema\Constraints\UniqueKeyConstraint;
+use Charcoal\Base\Registry\Traits\InstancedObjectsRegistry;
+use Charcoal\Base\Registry\Traits\RegistryKeysLowercaseTrimmed;
+use Charcoal\Database\Orm\Schema\Builder\Constraints\AbstractConstraint;
+use Charcoal\Database\Orm\Schema\Builder\Constraints\ForeignKeyConstraint;
+use Charcoal\Database\Orm\Schema\Builder\Constraints\IndexKeyConstraint;
+use Charcoal\Database\Orm\Schema\Builder\Constraints\UniqueKeyConstraint;
 
 /**
- * Class Constraints
- * @package Charcoal\Database\Orm\Schema
+ * Represents a collection of database constraints, including unique keys, foreign keys,
+ * and indices. Provides methods to manage and retrieve these constraints.
+ * @use \IteratorAggregate<string,AbstractConstraint>
  * @property array<string,AbstractConstraint> $instances
  */
 class Constraints implements \IteratorAggregate

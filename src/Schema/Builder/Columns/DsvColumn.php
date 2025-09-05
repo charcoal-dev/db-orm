@@ -17,9 +17,25 @@ use Charcoal\Database\Orm\Pipes\ColumnPipes;
  */
 class DsvColumn extends StringColumn
 {
-    public function __construct(string $name)
+    public function __construct(string $name, string $delimiter = ",")
     {
         parent::__construct($name, ColumnType::Dsv);
+        $this->attributes->useValuePipe(ColumnPipes::DsvColumnPipe);
+        $this->delimiter($delimiter);
+    }
+
+    /**
+     * @param string $delimiter
+     * @return $this
+     */
+    public function delimiter(string $delimiter): static
+    {
+        if (!in_array($delimiter, [" ", ",", "\t", "|", ";", ":"])) {
+            throw new \InvalidArgumentException("Invalid delimiter");
+        }
+
+        $this->attributes->updateContext(["delimiter" => $delimiter]);
+        return $this;
     }
 
     /**
@@ -32,8 +48,7 @@ class DsvColumn extends StringColumn
             throw new \InvalidArgumentException("Enum class does not exist: " . $enumClass);
         }
 
-        $this->attributes->setPipeContext(fqcn: $enumClass);
-        $this->attributes->useValuePipe(ColumnPipes::BackedEnumColumnPipe);
+        $this->attributes->updateContext(["enum" => $enumClass]);
         return $this;
     }
 }

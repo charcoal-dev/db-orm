@@ -16,14 +16,13 @@ use Charcoal\Database\Orm\Pipes\ColumnPipes;
  */
 class EnumObjectColumn extends EnumColumn
 {
-    public function __construct(string $name, private readonly string $enumClass)
+    public function __construct(string $name, string $enumClass)
     {
         parent::__construct($name);
         if (!enum_exists($enumClass)) {
             throw new \InvalidArgumentException("Enum class does not exist: " . $enumClass);
         }
 
-        $this->attributes->useValuePipe(ColumnPipes::BackedEnumColumnPipe);
-        $this->attributes->setPipeContext($this->enumClass);
+        $this->attributes->useValuePipe(ColumnPipes::BackedEnumColumnPipe, ["enum" => $enumClass]);
     }
 }
