@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Orm\Exceptions;
 
-use Charcoal\Database\Orm\Concerns\OrmError;
+use Charcoal\Database\Orm\Enums\OrmError;
 
 /**
  * Class OrmQueryException
