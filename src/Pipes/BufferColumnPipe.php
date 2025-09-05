@@ -18,10 +18,6 @@ use Charcoal\Database\Orm\Contracts\ColumnValuePipeInterface;
  */
 final readonly class BufferColumnPipe implements ColumnValuePipeInterface
 {
-    /**
-     * @param mixed $value
-     * @return string
-     */
     public static function forDb(mixed $value): string
     {
         Runtime::assert($value instanceof ReadableBufferInterface,
@@ -30,10 +26,6 @@ final readonly class BufferColumnPipe implements ColumnValuePipeInterface
         return $value->bytes();
     }
 
-    /**
-     * @param string|int $value
-     * @return Buffer
-     */
     public static function forEntity(string|int $value): Buffer
     {
         Runtime::assert(is_string($value),

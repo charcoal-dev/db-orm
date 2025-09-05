@@ -16,10 +16,6 @@ use Charcoal\Database\Orm\Contracts\ColumnValuePipeInterface;
  */
 final readonly class BoolColumnPipe implements ColumnValuePipeInterface
 {
-    /**
-     * @param mixed $value
-     * @return int
-     */
     public static function forDb(mixed $value): int
     {
         Runtime::assert(is_bool($value),
@@ -28,10 +24,6 @@ final readonly class BoolColumnPipe implements ColumnValuePipeInterface
         return $value ? 1 : 0;
     }
 
-    /**
-     * @param string|int $value
-     * @return bool
-     */
     public static function forEntity(string|int $value): bool
     {
         Runtime::assert(is_int($value),
