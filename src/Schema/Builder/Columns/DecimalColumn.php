@@ -6,53 +6,29 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Schema\Columns;
+namespace Charcoal\Database\Orm\Schema\Builder\Columns;
 
-use Charcoal\Base\Enums\PrimitiveType;
 use Charcoal\Database\Enums\DbDriver;
-use Charcoal\Database\Orm\Schema\Traits\NumericValueTrait;
-use Charcoal\Database\Orm\Schema\Traits\PrecisionValueTrait;
+use Charcoal\Database\Orm\Enums\ColumnType;
+use Charcoal\Database\Orm\Schema\Builder\Traits\NumericValueTrait;
+use Charcoal\Database\Orm\Schema\Builder\Traits\PrecisionValueTrait;
 
 /**
  * Class DecimalColumn
  * @package Charcoal\Database\Orm\Schema\Columns
  */
-class DecimalColumn extends AbstractColumn
+class DecimalColumn extends AbstractColumnBuilder
 {
     protected const int MAX_DIGITS = 65;
     protected const int MAX_SCALE = 30;
 
-    protected int $digits = 0;
-    protected int $scale = 0;
-
     use NumericValueTrait;
     use PrecisionValueTrait;
 
-    public function getPrimitiveType(): PrimitiveType
-    {
-        return PrimitiveType::STRING;
-    }
-
-    public function __serialize(): array
-    {
-        $data = parent::__serialize();
-        $data["digits"] = $this->digits;
-        $data["scale"] = $this->scale;
-        return $data;
-    }
-
-
-    public function __unserialize(array $data): void
-    {
-        $this->digits = $data["digits"];
-        $this->scale = $data["scale"];
-        unset($data["digits"], $data["scale"]);
-        parent::__unserialize($data);
-    }
 
     public function __construct(string $name)
     {
-        parent::__construct($name);
+        parent::__construct($name, ColumnType::Decimal);
         $this->setDefaultValue("0");
     }
 
