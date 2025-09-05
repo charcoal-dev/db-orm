@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Charcoal\Database\Orm\Schema\Builder\Constraints;
 
 use Charcoal\Database\Enums\DbDriver;
+use Charcoal\Database\Orm\Schema\Snapshot\ConstraintSnapshot;
 
 /**
  * Class AbstractConstraint
@@ -23,5 +24,9 @@ abstract class AbstractConstraint
         }
     }
 
+    /** @internal */
+    abstract public function snapshot(DbDriver $driver): ConstraintSnapshot;
+
+    /** @internal */
     abstract public function getConstraintSQL(DbDriver $driver): ?string;
 }

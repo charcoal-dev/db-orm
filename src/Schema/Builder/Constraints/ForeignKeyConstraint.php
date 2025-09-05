@@ -9,6 +9,8 @@ declare(strict_types=1);
 namespace Charcoal\Database\Orm\Schema\Builder\Constraints;
 
 use Charcoal\Database\Enums\DbDriver;
+use Charcoal\Database\Orm\Enums\ConstraintType;
+use Charcoal\Database\Orm\Schema\Snapshot\ConstraintSnapshot;
 
 /**
  * Class ForeignKeyConstraint
@@ -33,6 +35,23 @@ class ForeignKeyConstraint extends AbstractConstraint
         return $this;
     }
 
+    /**
+     * @internal
+     */
+    public function snapshot(DbDriver $driver): ConstraintSnapshot
+    {
+        return new ConstraintSnapshot(
+            $this->name,
+            ConstraintType::ForeignKey,
+            [$this->col],
+            $this->table,
+            $this->db
+        );
+    }
+
+    /**
+     * @internal
+     */
     public function getConstraintSQL(DbDriver $driver): ?string
     {
         $tableReference = $this->db ? sprintf('`%s`.`%s`', $this->db, $this->table) : sprintf('`%s`', $this->table);
