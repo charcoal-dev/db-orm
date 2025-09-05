@@ -8,33 +8,35 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Orm\Schema;
 
-use Charcoal\Base\Vectors\ExceptionVector;
+use Charcoal\Contracts\Vectors\ExceptionsVectorInterface;
 use Charcoal\Database\Orm\AbstractOrmTable;
-use Charcoal\Database\Orm\Exceptions\OrmModelMapException;
-use Charcoal\Database\Orm\Exceptions\OrmModelNotFoundException;
+use Charcoal\Database\Orm\Exceptions\OrmEntityMappingException;
+use Charcoal\Database\Orm\Exceptions\OrmEntityNotFoundException;
 use Charcoal\Database\Orm\Schema\Columns\AbstractColumn;
 
 /**
- * Class ModelMapper
- * @package Charcoal\Database\Orm
+ * Handles the mapping of raw database rows to entity objects or arrays, based on the schema
+ * provided by the given AbstractOrmTable instance. The class resolves column attributes
+ * and populates entity properties accordingly, adhering to the constraints and requirements
+ * defined by the schema.
  */
-class ModelMapper
+final readonly class EntityMapper
 {
     public function __construct(
-        private readonly AbstractOrmTable $tableSchema
+        private AbstractOrmTable $tableSchema
     )
     {
     }
 
     /**
-     * @throws OrmModelMapException
-     * @throws OrmModelNotFoundException
+     * @throws OrmEntityMappingException
+     * @throws OrmEntityNotFoundException
      * @throws \Exception
      */
-    public function mapSingle(bool|null|array $row, ?ExceptionVector $errorLog = null): object|array
+    public function mapSingle(bool|null|array $row, ?ExceptionsVectorInterface $errorLog = null): object|array
     {
         if (!is_array($row)) {
-            throw new OrmModelNotFoundException();
+            throw new OrmEntityNotFoundException();
         }
 
         $object = $this->tableSchema->newChildObject($row);
@@ -74,7 +76,7 @@ class ModelMapper
                 try {
                     $object->$prop = $value;
                 } catch (\Throwable $t) {
-                    throw new OrmModelMapException(
+                    throw new OrmEntityMappingException(
                         sprintf(
                             'Cannot map value of type "%s" to column "%s"',
                             gettype($value),
@@ -83,7 +85,7 @@ class ModelMapper
                         previous: $t
                     );
                 }
-            } catch (OrmModelMapException $e) {
+            } catch (OrmEntityMappingException $e) {
                 if ($errorLog) {
                     $errorLog->append($e);
                     continue;
