@@ -9,13 +9,11 @@ declare(strict_types=1);
 namespace Charcoal\Database\Orm;
 
 use Charcoal\Contracts\Charsets\Charset;
-use Charcoal\Database\DatabaseClient;
 use Charcoal\Database\Enums\DbDriver;
 use Charcoal\Database\Orm\Enums\MySqlEngine;
 use Charcoal\Database\Orm\Schema\Builder\Columns\AbstractColumnBuilder;
 use Charcoal\Database\Orm\Schema\Builder\Columns\IntegerColumn;
 use Charcoal\Database\Orm\Schema\Builder\ColumnsBuilder;
-use Charcoal\Database\Orm\Schema\Snapshot\TableSnapshot;
 use Charcoal\Vectors\Strings\StringVector;
 
 /**
@@ -27,9 +25,8 @@ class Migrations
     private array $migrations = [];
 
     public function __construct(
-        private readonly DatabaseClient $db,
-        private readonly int            $versionFrom = 0,
-        private readonly int            $versionTo = 0
+        private readonly int $versionFrom = 0,
+        private readonly int $versionTo = 0
     )
     {
     }
@@ -39,7 +36,7 @@ class Migrations
      */
     public function includeTable(AbstractOrmTable $table): static
     {
-        $tables = $table->getMigrations($this->db, $this->versionFrom, $this->versionTo);
+        $tables = $table->getMigrations($this->versionFrom, $this->versionTo);
         foreach ($tables as $version => $queries) {
             if (!isset($this->migrations[$version])) {
                 $this->migrations[$version] = [];
@@ -81,16 +78,23 @@ class Migrations
      * Helper method to generate an ALTER TABLE statement for adding a new column.
      */
     public static function alterTableAddColumn(
-        DbDriver       $driver,
-        string         $table,
-        ColumnsBuilder $columns,
-        string         $column,
-        string         $previous
+        AbstractOrmTable $table,
+        string           $columnId,
+        string           $previousId
     ): string
     {
-        return "ALTER TABLE `" . $table . "` ADD COLUMN " .
-            static::columnSpecSQL($driver, $columns, $columns->get($column)) .
-            " AFTER `" . $columns->get($previous)->getAttributes()->name . "`;";
+        $column = $table->snapshot->columns[$columnId] ?? null;
+        if (!$column) {
+            throw new \RuntimeException("Column \"" . $columnId . "\" not found in table");
+        }
+
+        $previous = $table->snapshot->columns[$previousId] ?? null;
+        if (!$previous) {
+            throw new \RuntimeException("Column \"" . $previousId . "\" not found in table");
+        }
+
+        return "ALTER TABLE `" . $table->name . "` ADD COLUMN " . $column->schemaSql .
+            " AFTER `" . $previous->name . "`;";
     }
 
     /**
@@ -105,10 +109,9 @@ class Migrations
      * Creates a table statement based on the provided parameters.
      */
     public static function createTable(
-        string        $name,
-        TableSnapshot $table,
-        bool          $createIfNotExists,
-        ?StringVector $useColumns = null
+        AbstractOrmTable $table,
+        bool             $createIfNotExists,
+        ?StringVector    $useColumns = null
     ): array
     {
         $statement = [];
@@ -116,29 +119,28 @@ class Migrations
 
         // Create statement
         $statement[] = $createIfNotExists ? "CREATE TABLE IF NOT EXISTS" : "CREATE TABLE";
-        $statement[0] = $statement[0] . " `" . $name . "` (";
+        $statement[0] = $statement[0] . " `" . $table->name . "` (";
 
         $finalColumns = [];
         if ($useColumns) {
             foreach ($useColumns as $colName) {
-                if (!isset($table->columns[$colName])) {
+                if (!isset($table->snapshot->columns[$colName])) {
                     throw new \RuntimeException("Column \"" . $colName . "\" not found in table");
                 }
 
-                $finalColumns[] = $table->columns[$colName];
+                $finalColumns[] = $table->snapshot->columns[$colName];
             }
         } else {
-            $finalColumns = $table->columns;
+            $finalColumns = $table->snapshot->columns;
         }
 
         foreach ($finalColumns as $column) {
             $columnSql = $column->schemaSql;
 
             // Unique
-            $columnAttributes = $column->getAttributes();
-            if ($columnAttributes->unique) {
-                if ($table->driver === DbDriver::MYSQL) {
-                    $mysqlUniqueKeys[] = $columnAttributes->name;
+            if ($column->unique) {
+                if ($table->snapshot->driver === DbDriver::MYSQL) {
+                    $mysqlUniqueKeys[] = $column->name;
                 }
             }
 
@@ -146,21 +148,21 @@ class Migrations
         }
 
         // MySQL Unique Keys
-        if ($table->driver === DbDriver::MYSQL) {
+        if ($table->snapshot->driver === DbDriver::MYSQL) {
             foreach ($mysqlUniqueKeys as $mysqlUniqueKey) {
                 $statement[] = "UNIQUE KEY (`" . $mysqlUniqueKey . "`),";
             }
         }
 
         // Constraints
-        foreach ($table->constraints as $constraint) {
+        foreach ($table->snapshot->constraints as $constraint) {
             $statement[] = $constraint->schemaSql . ",";
         }
 
         // Finishing
         $lastIndex = count($statement);
         $statement[$lastIndex - 1] = substr($statement[$lastIndex - 1], 0, -1);
-        $statement[] = match ($table->driver) {
+        $statement[] = match ($table->snapshot->driver) {
             DbDriver::MYSQL => sprintf(') ENGINE=%s;', $table->mySqlEngine?->value ?? MySqlEngine::InnoDb->value),
             default => ");",
         };

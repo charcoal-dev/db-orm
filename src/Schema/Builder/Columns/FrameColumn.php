@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Charcoal\Database\Orm\Schema\Builder\Columns;
 
 use Charcoal\Database\Orm\Enums\ColumnType;
+use Charcoal\Database\Orm\Pipes\ColumnPipes;
 
 /**
  * Class FrameColumn
@@ -19,5 +20,6 @@ class FrameColumn extends BinaryColumn
     public function __construct(string $name)
     {
         parent::__construct($name, ColumnType::Frame);
+        $this->attributes->useValuePipe(ColumnPipes::FrameColumnPipe);
     }
 }

@@ -19,11 +19,11 @@ use Charcoal\Database\Orm\Enums\MySqlEngine;
 final readonly class TableSnapshot
 {
     public function __construct(
-        public array       $columns,
-        public array       $constraints,
-        public string      $primaryKey,
-        public DbDriver    $driver,
-        public MySqlEngine $mySqlEngine,
+        public array        $columns,
+        public array        $constraints,
+        public ?string      $primaryKey,
+        public DbDriver     $driver,
+        public ?MySqlEngine $mySqlEngine,
     )
     {
     }

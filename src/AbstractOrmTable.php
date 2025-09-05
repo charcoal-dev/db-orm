@@ -50,7 +50,11 @@ abstract class AbstractOrmTable
         $constraints = new ConstraintsBuilder();
         $attributes = new TableAttributesBuilder($this->name, $driver);
 
-        $this->structure($columns, $constraints, $attributes);
+        if (method_exists($this, "setAttributes")) {
+            $this->setAttributes($attributes);
+        }
+
+        $this->structure($columns, $constraints);
         $constraintSnapshots = $constraints->snapshot($this, $columns, $driver);
         $columnSnapshots = [];
         foreach ($columns as $column) {
@@ -97,9 +101,8 @@ abstract class AbstractOrmTable
      * Create table schema in this method using $cols and $constraints
      */
     abstract protected function structure(
-        ColumnsBuilder         $cols,
-        ConstraintsBuilder     $constraints,
-        TableAttributesBuilder $attributes
+        ColumnsBuilder     $cols,
+        ConstraintsBuilder $constraints
     ): void;
 
     /**
@@ -124,9 +127,9 @@ abstract class AbstractOrmTable
     /**
      * Gets migration queries for a given version
      */
-    public function getMigrations(DatabaseClient $db, int $versionFrom = 0, int $versionTo = 0): array
+    public function getMigrations(int $versionFrom = 0, int $versionTo = 0): array
     {
-        return $this->migrations->getQueries($db, $versionFrom, $versionTo);
+        return $this->migrations->getQueries($versionFrom, $versionTo);
     }
 
     /**

@@ -11,7 +11,7 @@ namespace Charcoal\Database\Orm\Schema;
 use Charcoal\Base\Objects\Traits\NoDumpTrait;
 use Charcoal\Base\Objects\Traits\NotCloneableTrait;
 use Charcoal\Base\Objects\Traits\NotSerializableTrait;
-use Charcoal\Database\DatabaseClient;
+use Charcoal\Database\Orm\AbstractOrmTable;
 use Charcoal\Database\Orm\Schema\Snapshot\TableSnapshot;
 
 /**
@@ -35,7 +35,7 @@ class TableMigrations
 
     /**
      * @param int $version
-     * @param \Closure(DatabaseClient, string, TableSnapshot, int):array<string> $migrationProvider
+     * @param \Closure(AbstractOrmTable $table):array<string> $migrationProvider
      * @return $this
      */
     public function add(int $version, \Closure $migrationProvider): static
@@ -48,7 +48,7 @@ class TableMigrations
     /**
      * @internal
      */
-    public function getQueries(DatabaseClient $db, int $versionFrom = 0, int $versionTo = 0): array
+    public function getQueries(int $versionFrom = 0, int $versionTo = 0): array
     {
         $migrations = [];
         foreach ($this->migrations as $version => $migration) {
@@ -62,7 +62,7 @@ class TableMigrations
             }
 
             $migrations[$version] = [];
-            $queriesSet = call_user_func_array($migration, [$db, $this->table, $this->snapshot, $version]);
+            $queriesSet = call_user_func_array($migration, [$this->table]);
             if (!is_array($queriesSet)) {
                 throw new \UnexpectedValueException(sprintf(
                     'Unexpected value of type "%s" from "%s" migrations version %d',

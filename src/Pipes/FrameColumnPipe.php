@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Charcoal\Database\Orm\Pipes;
 
 use Charcoal\Base\Support\Runtime;
+use Charcoal\Buffers\Buffer;
 use Charcoal\Buffers\BufferImmutable;
 use Charcoal\Buffers\Types\Bytes16;
 use Charcoal\Buffers\Types\Bytes20;
@@ -16,7 +17,7 @@ use Charcoal\Buffers\Types\Bytes24;
 use Charcoal\Buffers\Types\Bytes32;
 use Charcoal\Buffers\Types\Bytes40;
 use Charcoal\Buffers\Types\Bytes64;
-use Charcoal\Contracts\Buffers\Immutable\ImmutableBufferInterface;
+use Charcoal\Contracts\Buffers\ByteArrayInterface;
 use Charcoal\Contracts\Buffers\ReadableBufferInterface;
 use Charcoal\Database\Orm\Contracts\ColumnValuePipeInterface;
 use Charcoal\Database\Orm\Schema\Snapshot\ColumnSnapshot;
@@ -34,7 +35,7 @@ final readonly class FrameColumnPipe implements ColumnValuePipeInterface
         return $value->bytes();
     }
 
-    public static function forEntity(string|int|array $value, ColumnSnapshot $context): ImmutableBufferInterface
+    public static function forEntity(string|int|array $value, ColumnSnapshot $context): ByteArrayInterface
     {
         Runtime::assert(is_string($value),
             "FrameColumnPipe: value must be a string, got " . get_debug_type($value));
@@ -43,17 +44,24 @@ final readonly class FrameColumnPipe implements ColumnValuePipeInterface
             throw new \InvalidArgumentException("FrameColumnPipe: byteLen must be a positive integer");
         }
 
-        $fqcn = match ($context->byteLen) {
-            16 => Bytes16::class,
-            20 => Bytes20::class,
-            24 => Bytes24::class,
-            32 => Bytes32::class,
-            40 => Bytes40::class,
-            64 => Bytes64::class,
-            default => BufferImmutable::class,
-        };
+        return self::getPaddedFrame($value, $context);
+    }
 
-        return new $fqcn($value);
+    private static function getPaddedFrame(string $value, ColumnSnapshot $column): ByteArrayInterface
+    {
+        if ($column->byteLen && $column->fixedLen === false) {
+            return new Buffer($value);
+        }
+
+        return match ($column->byteLen) {
+            16 => Bytes16::setPadded($value),
+            20 => Bytes20::setPadded($value),
+            24 => Bytes24::setPadded($value),
+            32 => Bytes32::setPadded($value),
+            40 => Bytes40::setPadded($value),
+            64 => Bytes64::setPadded($value),
+            default => new BufferImmutable($value),
+        };
     }
 
     public static function validate(array $context): void

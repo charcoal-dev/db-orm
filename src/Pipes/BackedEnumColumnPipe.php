@@ -31,10 +31,10 @@ final readonly class BackedEnumColumnPipe implements ColumnValuePipeInterface
         Runtime::assert(is_string($value) || is_int($value),
             "BackedEnumColumnPipe: value must be a string|int, got " . get_debug_type($value));
 
-        /** @var \BackedEnum $enum */
+        /** @var class-string<\BackedEnum> $enum */
         $enum = $context->pipeContext["enum"] ?? null;
-        if (!enum_exists($enum["enum"])) {
-            throw new \LogicException("Enum class does not exist: " . $enum["enum"]);
+        if (!enum_exists($enum)) {
+            throw new \LogicException("Enum class does not exist: " . $context->name);
         }
 
         return $enum::from($value);
@@ -43,7 +43,7 @@ final readonly class BackedEnumColumnPipe implements ColumnValuePipeInterface
     public static function validate(array $context): void
     {
         if (!isset($context["enum"]) || !enum_exists($context["enum"])) {
-            throw new \LogicException("Enum class does not exist: " . $context["enum"]);
+            throw new \LogicException("Enum class does not exist");
         }
     }
 }

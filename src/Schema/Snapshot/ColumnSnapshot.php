@@ -28,6 +28,7 @@ final readonly class ColumnSnapshot
         public ?Charset                      $charset,
         public int|float|string|null         $defaultValue,
         public ?int                          $byteLen,
+        public ?bool                         $fixedLen,
         public ?ColumnValuePipeEnumInterface $valuePipe,
         public ?array                        $pipeContext,
         public ?string                       $schemaSql,

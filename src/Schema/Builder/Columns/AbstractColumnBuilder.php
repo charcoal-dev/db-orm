@@ -67,11 +67,12 @@ abstract class AbstractColumnBuilder
      */
     public function snapshot(string $schemaSql): ColumnSnapshot
     {
-        $byteLen = match (true) {
-            $this instanceof BinaryColumn,
-                $this instanceof StringColumn => $this->length,
-            default => null,
-        };
+        $byteLen = null;
+        $fixedLen = null;
+        if ($this instanceof BinaryColumn || $this instanceof StringColumn) {
+            $byteLen = $this->length;
+            $fixedLen = $this->fixed;
+        }
 
         $pipe = $this->attributes->getPipe();
         return new ColumnSnapshot(
@@ -85,6 +86,7 @@ abstract class AbstractColumnBuilder
             $this->attributes->charset,
             $this->attributes->defaultValue,
             $byteLen,
+            $fixedLen,
             $pipe[0],
             $pipe[1],
             $schemaSql
