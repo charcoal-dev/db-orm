@@ -8,32 +8,22 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Orm\Schema\Builder\Columns;
 
-use Charcoal\Database\Orm\Enums\ColumnType;
 use Charcoal\Database\Orm\Pipes\ColumnPipes;
 
 /**
- * Class DsvColumn
+ * Class EnumObjectColumn
  * @package Charcoal\Database\Orm\Schema\Columns
  */
-class DsvColumn extends StringColumn
+class EnumObjectColumn extends EnumColumn
 {
-    public function __construct(string $name)
+    public function __construct(string $name, private readonly string $enumClass)
     {
-        parent::__construct($name, ColumnType::Dsv);
-    }
-
-    /**
-     * @param class-string<\StringBackedEnum> $enumClass
-     * @return $this
-     */
-    public function enumClass(string $enumClass): static
-    {
+        parent::__construct($name);
         if (!enum_exists($enumClass)) {
             throw new \InvalidArgumentException("Enum class does not exist: " . $enumClass);
         }
 
-        $this->attributes->setPipeContext(fqcn: $enumClass);
         $this->attributes->useValuePipe(ColumnPipes::BackedEnumColumnPipe);
-        return $this;
+        $this->attributes->setPipeContext($this->enumClass);
     }
 }
