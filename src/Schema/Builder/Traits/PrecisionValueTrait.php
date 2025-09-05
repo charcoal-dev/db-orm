@@ -6,15 +6,14 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Schema\Traits;
+namespace Charcoal\Database\Orm\Schema\Builder\Traits;
 
-/**
- * Trait PrecisionValueTrait
- * @package Charcoal\Database\Orm\Schema\Traits
- * @internal
- */
+/** @internal */
 trait PrecisionValueTrait
 {
+    protected int $digits = 0;
+    protected int $scale = 0;
+
     public function precision(int $digits, int $scale): static
     {
         // Precision digits

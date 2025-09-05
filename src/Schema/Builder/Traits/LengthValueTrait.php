@@ -6,15 +6,14 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Schema\Traits;
+namespace Charcoal\Database\Orm\Schema\Builder\Traits;
 
-/**
- * Trait LengthValueTrait
- * @package Charcoal\Database\Orm\Schema\Traits
- * @internal
- */
+/** @internal */
 trait LengthValueTrait
 {
+    protected int $length = 255;
+    protected bool $fixed = false;
+
     public function length(int $length): static
     {
         if ($length < static::LENGTH_MIN || $length > static::LENGTH_MAX) {
@@ -24,7 +23,6 @@ trait LengthValueTrait
         }
 
         $this->length = $length;
-        $this->attributesCallback();
         return $this;
     }
 
@@ -32,7 +30,6 @@ trait LengthValueTrait
     {
         $this->length($length);
         $this->fixed = true;
-        $this->attributesCallback();
         return $this;
     }
 }

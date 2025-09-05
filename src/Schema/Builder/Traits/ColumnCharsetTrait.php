@@ -6,15 +6,11 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Schema\Traits;
+namespace Charcoal\Database\Orm\Schema\Builder\Traits;
 
-use Charcoal\Base\Enums\Charset;
+use Charcoal\Contracts\Charsets\Charset;
 
-/**
- * Trait ColumnCharsetTrait
- * @package Charcoal\Database\Orm\Schema\Traits
- * @internal
- */
+/** @internal */
 trait ColumnCharsetTrait
 {
     final public function charset(Charset $charset): static

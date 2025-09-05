@@ -6,13 +6,9 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Schema\Traits;
+namespace Charcoal\Database\Orm\Schema\Builder\Traits;
 
-/**
- * Trait NumericValueTrait
- * @package Charcoal\Database\Orm\Schema\Traits
- * @internal
- */
+/** @internal */
 trait NumericValueTrait
 {
     final public function signed(): static

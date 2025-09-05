@@ -6,17 +6,15 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Schema\Traits;
+namespace Charcoal\Database\Orm\Schema\Builder\Traits;
 
-use Charcoal\Database\Orm\Concerns\LobSize;
+use Charcoal\Database\Orm\Enums\LobSize;
 
-/**
- * Trait LargeObjectSizeTrait
- * @package Charcoal\Database\Orm\Schema\Traits
- * @internal
- */
+/** @internal */
 trait LargeObjectSizeTrait
 {
+    protected LobSize $size = LobSize::DEFAULT;
+
     final public function size(LobSize $size): static
     {
         $this->size = $size;
