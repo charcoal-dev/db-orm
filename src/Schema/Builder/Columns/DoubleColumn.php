@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Schema\Columns;
+namespace Charcoal\Database\Orm\Schema\Builder\Columns;
 
 /**
  * Class DoubleColumn
@@ -17,7 +17,7 @@ class DoubleColumn extends FloatColumn
     public function __construct(string $name)
     {
         parent::__construct($name);
-        $this->type = "double";
+        $this->sqlType = "double";
     }
 }
 
