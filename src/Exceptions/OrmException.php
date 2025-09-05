@@ -11,8 +11,8 @@ namespace Charcoal\Database\Orm\Exceptions;
 use Charcoal\Database\Exceptions\DatabaseException;
 
 /**
- * Class OrmException
- * @package Charcoal\Database\Orm\Exception
+ * Represents an exception specific to issues encountered within the ORM (Object-Relational Mapping) system.
+ * Extends the base DatabaseException class to indicate that the error originates from ORM operations.
  */
 class OrmException extends DatabaseException
 {
