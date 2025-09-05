@@ -6,40 +6,23 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Schema\Columns;
+namespace Charcoal\Database\Orm\Schema\Builder\Columns;
 
-use Charcoal\Base\Enums\PrimitiveType;
 use Charcoal\Database\Enums\DbDriver;
+use Charcoal\Database\Orm\Enums\ColumnType;
+use Charcoal\Database\Orm\Schema\Builder\ColumnAttributesBuilder;
 
 /**
- * Class AbstractColumn
- * @package Charcoal\Database\Orm\Schema\Columns
+ * Class AbstractColumnBuilder
+ * @package Charcoal\Database\Orm\Schema\Builder\Columns
  */
-abstract class AbstractColumn
+abstract class AbstractColumnBuilder
 {
-    public readonly ColumnAttributes $attributes;
+    protected readonly ColumnAttributesBuilder $attributes;
 
-    public function __construct(string $name)
+    public function __construct(string $name, ColumnType $type)
     {
-        $this->attributes = new ColumnAttributes($name);
-        $this->attributesCallback();
-    }
-
-    abstract public function getPrimitiveType(): PrimitiveType;
-
-    protected function attributesCallback(): void
-    {
-    }
-
-    public function __serialize(): array
-    {
-        return ["attributes" => $this->attributes];
-    }
-
-    public function __unserialize(array $data): void
-    {
-        $this->attributes = $data["attributes"];
-        $this->attributesCallback();
+        $this->attributes = new ColumnAttributesBuilder($name, $type);
     }
 
     public function nullable(): static
@@ -61,5 +44,6 @@ abstract class AbstractColumn
         return $this;
     }
 
+    /** @internal */
     abstract public function getColumnSQL(DbDriver $driver): ?string;
 }
