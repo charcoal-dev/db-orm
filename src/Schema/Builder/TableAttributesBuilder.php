@@ -6,15 +6,18 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Schema;
+namespace Charcoal\Database\Orm\Schema\Builder;
+
+use Charcoal\Database\Orm\Enums\MySqlEngine;
+use Charcoal\Database\Orm\Schema\Snapshot\TableAttributes;
 
 /**
- * Class Attributes
- * @package Charcoal\Database\Orm\Schema
+ * A builder class for managing table attributes, allowing the user to
+ * define and retrieve arbitrary key-value pairs and set the MySQL storage engine.
  */
-class Attributes
+class TableAttributesBuilder
 {
-    public string $mysqlEngine = "InnoDB";
+    public ?MySqlEngine $mysqlEngine;
     private array $arbitrary = [];
 
     public function set(string $key, int|string $value): static
@@ -31,5 +34,10 @@ class Attributes
     public function has(string $key): bool
     {
         return isset($this->arbitrary[$key]);
+    }
+
+    public function snapshot(): TableAttributes
+    {
+        return new TableAttributes($this->mysqlEngine);
     }
 }
