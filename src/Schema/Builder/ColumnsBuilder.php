@@ -43,23 +43,35 @@ class ColumnsBuilder implements \IteratorAggregate
     use InstancedObjectsRegistry;
     use RegistryKeysLowercaseTrimmed;
 
+    /**
+     * @return array<string>
+     */
     public function names(): array
     {
         return array_keys($this->instances);
     }
 
+    /**
+     * Set the default charset for all columns.
+     */
     public function setDefaultCharset(Charset $charset = null): static
     {
         $this->defaultCharset = $charset;
         return $this;
     }
 
+    /**
+     * Append a column definition to the builder.
+     */
     public function append(AbstractColumnBuilder $column): void
     {
         $this->instances[$column->name] = $column;
         $this->count++;
     }
 
+    /**
+     * Get a column definition by its name.
+     */
     public function get(string $name): AbstractColumnBuilder
     {
         if (!isset($this->instances[$name])) {
@@ -69,11 +81,18 @@ class ColumnsBuilder implements \IteratorAggregate
         return $this->instances[$name];
     }
 
+    /**
+     * Get the number of columns in the builder.
+     */
     public function count(): int
     {
         return $this->count;
     }
 
+    /**
+     * Define a new integer column.
+     * @api
+     */
     public function int(string $name): IntegerColumn
     {
         $col = new IntegerColumn($name);
@@ -81,6 +100,10 @@ class ColumnsBuilder implements \IteratorAggregate
         return $col;
     }
 
+    /**
+     * Define a new string column.
+     * @api
+     */
     public function string(string $name): StringColumn
     {
         $col = new StringColumn($name);
@@ -88,6 +111,10 @@ class ColumnsBuilder implements \IteratorAggregate
         return $col->charset($this->defaultCharset);
     }
 
+    /**
+     * Define a new DSV column.
+     * @api
+     */
     public function dsvString(string $name, string $delimiter = ","): DsvColumn
     {
         $col = new DsvColumn($name);
@@ -96,6 +123,10 @@ class ColumnsBuilder implements \IteratorAggregate
         return $col;
     }
 
+    /**
+     * Define a new date column.
+     * @api
+     */
     public function date(string $name): DateColumn
     {
         $col = new DateColumn($name);
@@ -103,6 +134,10 @@ class ColumnsBuilder implements \IteratorAggregate
         return $col;
     }
 
+    /**
+     * Define a new binary column.
+     * @api
+     */
     public function binary(string $name, bool $plainString = true): BinaryColumn
     {
         if (!$plainString) {
@@ -114,6 +149,10 @@ class ColumnsBuilder implements \IteratorAggregate
         return $col;
     }
 
+    /**
+     * Define a new binary frame column.
+     * @api
+     */
     public function binaryFrame(string $name): FrameColumn
     {
         $col = new FrameColumn($name);
@@ -121,6 +160,10 @@ class ColumnsBuilder implements \IteratorAggregate
         return $col;
     }
 
+    /**
+     * Define a new text column.
+     * @api
+     */
     public function text(string $name): TextColumn
     {
         $col = new TextColumn($name);
@@ -128,6 +171,10 @@ class ColumnsBuilder implements \IteratorAggregate
         return $col->charset($this->defaultCharset);
     }
 
+    /**
+     * Define a new blob column.
+     * @api
+     */
     public function blob(string $name, bool $plainString = true): BlobColumn
     {
         if (!$plainString) {
@@ -139,6 +186,10 @@ class ColumnsBuilder implements \IteratorAggregate
         return $col;
     }
 
+    /**
+     * Define a new blob buffer column.
+     * @api
+     */
     public function blobBuffer(string $name): BufferColumn
     {
         $col = new BufferColumn($name);
@@ -146,6 +197,10 @@ class ColumnsBuilder implements \IteratorAggregate
         return $col;
     }
 
+    /**
+     * Define a new decimal column.
+     * @api
+     */
     public function decimal(string $name): DecimalColumn
     {
         $col = new DecimalColumn($name);
@@ -153,6 +208,10 @@ class ColumnsBuilder implements \IteratorAggregate
         return $col;
     }
 
+    /**
+     * Define a new float column.
+     * @api
+     */
     public function float(string $name): FloatColumn
     {
         $col = new FloatColumn($name);
@@ -160,6 +219,10 @@ class ColumnsBuilder implements \IteratorAggregate
         return $col;
     }
 
+    /**
+     * Define a new double column.
+     * @api
+     */
     public function double(string $name): DoubleColumn
     {
         $col = new DoubleColumn($name);
@@ -167,6 +230,10 @@ class ColumnsBuilder implements \IteratorAggregate
         return $col;
     }
 
+    /**
+     * Define a new enum column.
+     * @api
+     */
     public function enum(string $name, ?string $enumClass = null): EnumColumn
     {
         if ($enumClass) {
@@ -178,6 +245,10 @@ class ColumnsBuilder implements \IteratorAggregate
         return $col->charset($this->defaultCharset);
     }
 
+    /**
+     * Define a new enum object column.
+     * @api
+     */
     public function enumObject(string $name, string $enumClass): EnumObjectColumn
     {
         $col = new EnumObjectColumn($name, $enumClass);
@@ -185,6 +256,10 @@ class ColumnsBuilder implements \IteratorAggregate
         return $col->charset($this->defaultCharset);
     }
 
+    /**
+     * Define a new boolean column.
+     * @api
+     */
     public function bool(string $name): BoolColumn
     {
         $col = new BoolColumn($name);
@@ -192,6 +267,9 @@ class ColumnsBuilder implements \IteratorAggregate
         return $col;
     }
 
+    /**
+     * Set the primary key for the table.
+     */
     public function setPrimaryKey(string $col, bool $defaultValueCheck = true): void
     {
         $column = $this->instances[$col] ?? null;
@@ -213,6 +291,9 @@ class ColumnsBuilder implements \IteratorAggregate
         $this->primaryKey = $col;
     }
 
+    /**
+     * Get the primary key for the table.
+     */
     public function getPrimaryKey(): ?string
     {
         return $this->primaryKey;
