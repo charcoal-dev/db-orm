@@ -8,25 +8,24 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Tests\Orm\Models;
 
-use Charcoal\Base\Enums\Charset;
-use Charcoal\Base\Vectors\StringVector;
-use Charcoal\Database\DatabaseClient;
+use Charcoal\Contracts\Charsets\Charset;
 use Charcoal\Database\Orm\AbstractOrmTable;
-use Charcoal\Database\Orm\Exceptions\OrmModelMapException;
-use Charcoal\Database\Orm\Exceptions\OrmModelNotFoundException;
+use Charcoal\Database\Orm\Exceptions\OrmEntityMappingException;
+use Charcoal\Database\Orm\Exceptions\OrmEntityNotFoundException;
 use Charcoal\Database\Orm\Exceptions\OrmQueryException;
 use Charcoal\Database\Orm\Migrations;
-use Charcoal\Database\Orm\Schema\Columns;
-use Charcoal\Database\Orm\Schema\Constraints;
+use Charcoal\Database\Orm\Schema\Builder\ColumnsBuilder;
+use Charcoal\Database\Orm\Schema\Builder\ConstraintsBuilder;
 use Charcoal\Database\Orm\Schema\TableMigrations;
 use Charcoal\Database\Queries\ExecutedQuery;
+use Charcoal\Vectors\Strings\StringVector;
 
 class UsersTable extends AbstractOrmTable
 {
     public const string TABLE = "users";
     public string $modelClass = User::class;
 
-    protected function structure(Columns $cols, Constraints $constraints): void
+    protected function structure(ColumnsBuilder $cols, ConstraintsBuilder $constraints): void
     {
         $cols->setDefaultCharset(Charset::ASCII);
 
@@ -47,15 +46,15 @@ class UsersTable extends AbstractOrmTable
 
     protected function migrations(TableMigrations $migrations): void
     {
-        $migrations->add(0, function (DatabaseClient $db, self $table): array {
-            return [implode("", Migrations::createTable($db, $table, true,
+        $migrations->add(0, function (self $table): array {
+            return [implode("", Migrations::createTable($table, true,
                 new StringVector("id", "status", "role", "checksum", "username", "email",
                     "first_name", "last_name", "joined_on")
             ))];
         });
 
-        $migrations->add(7, function (DatabaseClient $db, self $table): array {
-            return [Migrations::alterTableAddColumn($db, $table, "country", previous: "last_name")];
+        $migrations->add(7, function (self $table): array {
+            return [Migrations::alterTableAddColumn($table, "country", "last_name")];
         });
     }
 
@@ -66,8 +65,9 @@ class UsersTable extends AbstractOrmTable
 
     /**
      * @throws OrmQueryException
-     * @throws OrmModelMapException
-     * @throws OrmModelNotFoundException
+     * @throws OrmEntityMappingException
+     * @throws OrmEntityNotFoundException
+     * @api
      */
     public function findById(int $userId): User
     {
@@ -77,6 +77,7 @@ class UsersTable extends AbstractOrmTable
 
     /**
      * @throws OrmQueryException
+     * @api
      */
     public function insert(User $user): ExecutedQuery
     {

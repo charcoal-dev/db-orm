@@ -8,20 +8,20 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Tests\Orm\Models;
 
-use Charcoal\Base\Enums\Charset;
-use Charcoal\Base\Vectors\StringVector;
-use Charcoal\Database\DatabaseClient;
+use Charcoal\Contracts\Charsets\Charset;
 use Charcoal\Database\Orm\AbstractOrmTable;
 use Charcoal\Database\Orm\Migrations;
-use Charcoal\Database\Orm\Schema\Columns;
-use Charcoal\Database\Orm\Schema\Constraints;
+use Charcoal\Database\Orm\Schema\Builder\ColumnsBuilder;
+use Charcoal\Database\Orm\Schema\Builder\ConstraintsBuilder;
 use Charcoal\Database\Orm\Schema\TableMigrations;
+use Charcoal\Vectors\Strings\StringVector;
 
+/**
+ * @api
+ */
 class UsersLogsTable extends AbstractOrmTable
 {
-    public const string TABLE = "users_logs";
-
-    protected function structure(Columns $cols, Constraints $constraints): void
+    protected function structure(ColumnsBuilder $cols, ConstraintsBuilder $constraints): void
     {
         $cols->setDefaultCharset(Charset::ASCII);
 
@@ -38,17 +38,17 @@ class UsersLogsTable extends AbstractOrmTable
 
     protected function migrations(TableMigrations $migrations): void
     {
-        $migrations->add(0, function (DatabaseClient $db, self $table): array {
-            return [implode("", Migrations::createTable($db, $table, true, new StringVector("id", "user", "log")))];
+        $migrations->add(0, function (self $table): array {
+            return [implode("", Migrations::createTable($table, true, new StringVector("id", "user", "log")))];
         });
 
-        $migrations->add(6, function (DatabaseClient $db, self $table): array {
-            return [Migrations::alterTableAddColumn($db, $table, "added_on", "log")];
+        $migrations->add(6, function (self $table): array {
+            return [Migrations::alterTableAddColumn($table, "added_on", "log")];
         });
 
-        $migrations->add(7, function (DatabaseClient $db, self $table): array {
-            return [Migrations::alterTableAddColumn($db, $table, "ip_address", "added_on"),
-                Migrations::alterTableAddColumn($db, $table, "baggage", "ip_address")];
+        $migrations->add(7, function (self $table): array {
+            return [Migrations::alterTableAddColumn($table, "ip_address", "added_on"),
+                Migrations::alterTableAddColumn($table, "baggage", "ip_address")];
         });
     }
 

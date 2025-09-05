@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Tests\Orm\Models;
 
-use Charcoal\Buffers\Frames\Bytes20;
+use Charcoal\Buffers\Types\Bytes20;
 
 class User
 {
