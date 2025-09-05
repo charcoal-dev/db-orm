@@ -19,7 +19,7 @@ enum ColumnType
     case Blob;
     case Bool;
     case Buffer;
-    case DateTime;
+    case Date;
     case Decimal;
     case Double;
     case Dsv;
@@ -30,13 +30,24 @@ enum ColumnType
     case String;
     case Text;
 
+    /**
+     * Get the primitive type of the column.
+     */
     public function getPrimitiveType(): PrimitiveType
     {
         return match ($this) {
-            self::Bool, self::Integer => PrimitiveType::Int,
-            self::Binary, self::Blob, self::Buffer, self::Dsv,
-            self::DateTime, self::Decimal, self::Enum, self::Frame,
-            self::String, self::Text => PrimitiveType::String,
+            self::Bool,
+            self::Integer => PrimitiveType::Int,
+            self::Binary,
+            self::Blob,
+            self::Buffer,
+            self::Date,
+            self::Dsv,
+            self::Decimal,
+            self::Enum,
+            self::Frame,
+            self::String,
+            self::Text => PrimitiveType::String,
             self::Double,
             self::Float => PrimitiveType::Float,
         };
