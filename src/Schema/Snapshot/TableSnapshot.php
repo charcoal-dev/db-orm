@@ -18,6 +18,8 @@ use Charcoal\Database\Orm\Enums\MySqlEngine;
  */
 final readonly class TableSnapshot
 {
+    public array $entityProps;
+
     public function __construct(
         public array        $columns,
         public array        $constraints,
@@ -26,5 +28,11 @@ final readonly class TableSnapshot
         public ?MySqlEngine $mySqlEngine,
     )
     {
+        $entityProps = [];
+        foreach ($columns as $column) {
+            $entityProps[$column->entityProp] = $column->name;
+        }
+
+        $this->entityProps = $entityProps;
     }
 }
