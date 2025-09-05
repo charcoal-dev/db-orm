@@ -6,18 +6,18 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Schema\Columns;
+namespace Charcoal\Database\Orm\Schema\Builder\Columns;
 
-use Charcoal\Base\Enums\PrimitiveType;
 use Charcoal\Database\Enums\DbDriver;
-use Charcoal\Database\Orm\Schema\Traits\NumericValueTrait;
-use Charcoal\Database\Orm\Schema\Traits\UniqueValueTrait;
+use Charcoal\Database\Orm\Enums\ColumnType;
+use Charcoal\Database\Orm\Schema\Builder\Traits\NumericValueTrait;
+use Charcoal\Database\Orm\Schema\Builder\Traits\UniqueValueTrait;
 
 /**
  * Class IntegerColumn
  * @package Charcoal\Database\Orm\Schema\Columns
  */
-class IntegerColumn extends AbstractColumn
+class IntegerColumn extends AbstractColumnBuilder
 {
     private int $size = 4;
 
@@ -26,32 +26,13 @@ class IntegerColumn extends AbstractColumn
 
     public function __construct(string $name)
     {
-        parent::__construct($name);
+        parent::__construct($name, ColumnType::Integer);
         $this->attributes->unSigned = true;
-    }
-
-    public function getPrimitiveType(): PrimitiveType
-    {
-        return PrimitiveType::INT;
-    }
-
-    public function __serialize(): array
-    {
-        $data = parent::__serialize();
-        $data["size"] = $this->size;
-        return $data;
-    }
-
-    public function __unserialize(array $data): void
-    {
-        $this->size = $data["size"];
-        unset($data["size"]);
-        parent::__unserialize($data);
     }
 
     public function size(int $byte): static
     {
-        if (!in_array($byte, [1, 2, 3, 4, 8])) {
+        if (!in_array($byte, [1, 2, 4, 8])) {
             throw new \OutOfBoundsException('Invalid integer size');
         }
 
