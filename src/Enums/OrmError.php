@@ -6,11 +6,10 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Concerns;
+namespace Charcoal\Database\Orm\Enums;
 
 /**
- * Class OrmError
- * @package Charcoal\Database\Orm\Concerns
+ * Represents a set of error codes for an Object-Relational Mapping (ORM) system.
  */
 enum OrmError: int
 {

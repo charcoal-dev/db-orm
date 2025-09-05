@@ -6,13 +6,12 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Concerns;
+namespace Charcoal\Database\Orm\Enums;
 
 use Charcoal\Database\Enums\DbDriver;
 
 /**
- * Class LobSize
- * @package Charcoal\Database\Orm\Concerns
+ * Represents the size of a large object (LOB) for different database systems.
  */
 enum LobSize: string
 {
@@ -33,9 +32,6 @@ enum LobSize: string
 
             DbDriver::SQLITE => $text ? "TEXT" : "BLOB",
             DbDriver::PGSQL => $text ? "TEXT" : "BYTEA",
-
-            default => throw new \RuntimeException("Unsupported database driver: " .
-                $dbDriver->value)
         };
     }
 }
