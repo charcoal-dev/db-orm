@@ -35,6 +35,7 @@ class UniqueKeyConstraint extends AbstractConstraint
         return new ConstraintSnapshot(
             $this->name,
             ConstraintType::UniqueKey,
+            $this->getConstraintSQL($driver),
             $this->columns
         );
     }

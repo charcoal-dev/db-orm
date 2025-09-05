@@ -35,6 +35,7 @@ class IndexKeyConstraint extends AbstractConstraint
         return new ConstraintSnapshot(
             $this->name,
             ConstraintType::IndexKey,
+            $this->getConstraintSQL($driver),
             $this->columns
         );
     }

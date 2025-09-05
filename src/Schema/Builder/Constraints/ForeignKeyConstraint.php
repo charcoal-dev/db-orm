@@ -43,6 +43,7 @@ class ForeignKeyConstraint extends AbstractConstraint
         return new ConstraintSnapshot(
             $this->name,
             ConstraintType::ForeignKey,
+            $this->getConstraintSQL($driver),
             [$this->col],
             $this->table,
             $this->db
