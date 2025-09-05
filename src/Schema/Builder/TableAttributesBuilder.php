@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Orm\Schema\Builder;
 
+use Charcoal\Database\Enums\DbDriver;
 use Charcoal\Database\Orm\Enums\MySqlEngine;
 
 /**
@@ -16,5 +17,12 @@ use Charcoal\Database\Orm\Enums\MySqlEngine;
  */
 class TableAttributesBuilder
 {
-    public ?MySqlEngine $mysqlEngine;
+    public ?MySqlEngine $mysqlEngine = null;
+
+    public function __construct(
+        public readonly string   $name,
+        public readonly DbDriver $driver
+    )
+    {
+    }
 }

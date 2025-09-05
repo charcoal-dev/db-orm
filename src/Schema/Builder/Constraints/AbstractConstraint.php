@@ -16,8 +16,11 @@ use Charcoal\Database\Enums\DbDriver;
  */
 abstract class AbstractConstraint
 {
-    public function __construct(protected string $name)
+    public function __construct(public readonly string $name)
     {
+        if (!$this->name || !preg_match('/^[a-zA-Z0-9_]+$/', $this->name)) {
+            throw new \InvalidArgumentException(sprintf('Constraint name "%s" is invalid', $this->name));
+        }
     }
 
     abstract public function getConstraintSQL(DbDriver $driver): ?string;
