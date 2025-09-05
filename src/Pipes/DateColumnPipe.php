@@ -10,13 +10,14 @@ namespace Charcoal\Database\Orm\Pipes;
 
 use Charcoal\Base\Support\Runtime;
 use Charcoal\Database\Orm\Contracts\ColumnValuePipeInterface;
+use Charcoal\Database\Orm\Schema\Snapshot\ColumnSnapshot;
 
 /**
  * Store/Retrieve \DateTime values from the database.
  */
 final readonly class DateColumnPipe implements ColumnValuePipeInterface
 {
-    public static function forDb(mixed $value): string
+    public static function forDb(mixed $value, ColumnSnapshot $context): string
     {
         Runtime::assert($value instanceof \DateTime,
             "DateColumnPipe: value must be a DateTime, got " . get_debug_type($value));
@@ -24,7 +25,7 @@ final readonly class DateColumnPipe implements ColumnValuePipeInterface
         return $value->format("Y-m-d");
     }
 
-    public static function forEntity(int|string|array $value): \DateTime
+    public static function forEntity(int|string|array $value, ColumnSnapshot $context): \DateTime
     {
         Runtime::assert(is_string($value),
             "DateColumnPipe: value must be a string, got " . get_debug_type($value));

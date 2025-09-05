@@ -12,13 +12,14 @@ use Charcoal\Base\Support\Runtime;
 use Charcoal\Buffers\Buffer;
 use Charcoal\Contracts\Buffers\ReadableBufferInterface;
 use Charcoal\Database\Orm\Contracts\ColumnValuePipeInterface;
+use Charcoal\Database\Orm\Schema\Snapshot\ColumnSnapshot;
 
 /**
  * Store/Retrieve Buffer values from database
  */
 final readonly class BufferColumnPipe implements ColumnValuePipeInterface
 {
-    public static function forDb(mixed $value): string
+    public static function forDb(mixed $value, ColumnSnapshot $context): string
     {
         Runtime::assert($value instanceof ReadableBufferInterface,
             "BufferColumnPipe: value must be a ReadableBufferInterface, got " . get_debug_type($value));
@@ -26,7 +27,7 @@ final readonly class BufferColumnPipe implements ColumnValuePipeInterface
         return $value->bytes();
     }
 
-    public static function forEntity(string|int|array $value): Buffer
+    public static function forEntity(string|int|array $value, ColumnSnapshot $context): Buffer
     {
         Runtime::assert(is_string($value),
             "BufferColumnPipe: value must be a string, got " . get_debug_type($value));

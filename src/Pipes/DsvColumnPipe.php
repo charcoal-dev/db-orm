@@ -9,14 +9,16 @@ declare(strict_types=1);
 namespace Charcoal\Database\Orm\Pipes;
 
 use Charcoal\Base\Support\Runtime;
+use Charcoal\Database\Orm\Contracts\ColumnValuePipeInterface;
+use Charcoal\Database\Orm\Schema\Snapshot\ColumnSnapshot;
 use Charcoal\Vectors\Support\DsvTokens;
 
 /**
  * Store/Retrieve DsvTokens from the database.
  */
-final readonly class DsvColumnPipe
+final readonly class DsvColumnPipe implements ColumnValuePipeInterface
 {
-    public static function forDb(mixed $value): string
+    public static function forDb(mixed $value, ColumnSnapshot $context): string
     {
         Runtime::assert($value instanceof DsvTokens,
             "DsvColumnPipe: value must be a DsvTokens, got " . get_debug_type($value));
@@ -25,7 +27,7 @@ final readonly class DsvColumnPipe
         return $value->join(",");
     }
 
-    public static function forEntity(string|int|array $value): DsvTokens
+    public static function forEntity(string|int|array $value, ColumnSnapshot $context): DsvTokens
     {
         Runtime::assert(is_string($value) || is_array($value),
             "DsvColumnPipe: value must be a string|Array, got " . get_debug_type($value));

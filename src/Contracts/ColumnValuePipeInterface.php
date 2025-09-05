@@ -8,12 +8,14 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Orm\Contracts;
 
+use Charcoal\Database\Orm\Schema\Snapshot\ColumnSnapshot;
+
 /**
  * Interface for resolving column values for different contexts.
  */
 interface ColumnValuePipeInterface
 {
-    public static function forDb(mixed $value): string|int;
+    public static function forDb(mixed $value, ColumnSnapshot $context): string|int;
 
-    public static function forEntity(string|int|array $value): mixed;
+    public static function forEntity(string|int|array $value, ColumnSnapshot $context): mixed;
 }

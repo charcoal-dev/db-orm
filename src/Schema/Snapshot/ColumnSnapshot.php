@@ -10,7 +10,7 @@ namespace Charcoal\Database\Orm\Schema\Snapshot;
 
 use Charcoal\Contracts\Charsets\Charset;
 use Charcoal\Database\Orm\Contracts\ColumnValuePipeEnumInterface;
-use Charcoal\Database\Orm\Enums\Columns;
+use Charcoal\Database\Orm\Enums\ColumnType;
 
 /**
  * Snapshot of column attributes
@@ -20,14 +20,16 @@ final readonly class ColumnSnapshot
     public function __construct(
         public string                        $name,
         public string                        $entityMapKey,
-        public Columns                       $type,
+        public ColumnType                    $type,
         public bool                          $nullable,
         public ?bool                         $unSigned,
         public ?bool                         $unique,
         public ?bool                         $autoIncrement,
         public ?Charset                      $charset,
         public int|float|string|null         $defaultValue,
-        public ?ColumnValuePipeEnumInterface $valuePipe = null
+        public ?ColumnValuePipeEnumInterface $valuePipe,
+        public ?string                       $pipeContextFqcn,
+        public ?string                       $schemaSql,
     )
     {
     }
