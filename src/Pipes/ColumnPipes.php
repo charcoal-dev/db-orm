@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Charcoal\Database\Orm\Pipes;
 
 use Charcoal\Database\Orm\Contracts\ColumnValuePipeEnumInterface;
+use Charcoal\Database\Orm\Schema\Snapshot\ColumnSnapshot;
 
 /**
  * Enum representing column pipe transformations.
@@ -20,24 +21,27 @@ enum ColumnPipes implements ColumnValuePipeEnumInterface
     case BoolColumnPipe;
     case DateColumnPipe;
     case DsvColumnPipe;
+    case BackedEnumColumnPipe;
 
-    public function forDb(mixed $value): string
+    public function forDb(mixed $value, ColumnSnapshot $context): string
     {
         return match ($this) {
-            self::BufferColumnPipe => BufferColumnPipe::forDb($value),
-            self::BoolColumnPipe => BoolColumnPipe::forDb($value),
-            self::DateColumnPipe => DateColumnPipe::forDb($value),
-            self::DsvColumnPipe => DsvColumnPipe::forDb($value),
+            self::BufferColumnPipe => BufferColumnPipe::forDb($value, $context),
+            self::BoolColumnPipe => BoolColumnPipe::forDb($value, $context),
+            self::DateColumnPipe => DateColumnPipe::forDb($value, $context),
+            self::DsvColumnPipe => DsvColumnPipe::forDb($value, $context),
+            self::BackedEnumColumnPipe => BackedEnumColumnPipe::forDb($value, $context),
         };
     }
 
-    public function forEntity(string|int|array $value): mixed
+    public function forEntity(string|int|array $value, ColumnSnapshot $context): mixed
     {
         return match ($this) {
-            self::BufferColumnPipe => BufferColumnPipe::forEntity($value),
-            self::BoolColumnPipe => BoolColumnPipe::forEntity($value),
-            self::DateColumnPipe => DateColumnPipe::forEntity($value),
-            self::DsvColumnPipe => DsvColumnPipe::forEntity($value),
+            self::BufferColumnPipe => BufferColumnPipe::forEntity($value, $context),
+            self::BoolColumnPipe => BoolColumnPipe::forEntity($value, $context),
+            self::DateColumnPipe => DateColumnPipe::forEntity($value, $context),
+            self::DsvColumnPipe => DsvColumnPipe::forEntity($value, $context),
+            self::BackedEnumColumnPipe => BackedEnumColumnPipe::forEntity($value, $context),
         };
     }
 }
