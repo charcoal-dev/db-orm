@@ -13,7 +13,7 @@ use Charcoal\Contracts\Types\PrimitiveType;
 /**
  * Represents a set of database column types.
  */
-enum Columns
+enum ColumnType
 {
     case Binary;
     case Blob;
