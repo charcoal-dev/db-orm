@@ -8,40 +8,43 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Orm;
 
-use Charcoal\Base\Vectors\ExceptionVector;
+use Charcoal\Contracts\Vectors\ExceptionsVectorInterface;
 use Charcoal\Database\Exceptions\DbQueryException;
-use Charcoal\Database\Orm\Concerns\OrmError;
+use Charcoal\Database\Orm\Enums\OrmError;
 use Charcoal\Database\Orm\Exceptions\OrmQueryException;
-use Charcoal\Database\Orm\Exceptions\OrmModelMapException;
-use Charcoal\Database\Orm\Exceptions\OrmModelNotFoundException;
-use Charcoal\Database\Orm\Schema\ModelMapper;
+use Charcoal\Database\Orm\Exceptions\OrmEntityMappingException;
+use Charcoal\Database\Orm\Exceptions\OrmEntityNotFoundException;
+use Charcoal\Database\Orm\Schema\EntityMapper;
 use Charcoal\Database\Queries\FetchQuery;
 
 /**
  * Class OrmFetchQuery
  * @package Charcoal\Database\Orm
  */
-class OrmFetchQuery extends ModelMapper
+final readonly class OrmFetchQuery extends EntityMapper
 {
     public function __construct(
-        private readonly FetchQuery $metaQuery,
-        AbstractOrmTable            $tableSchema
+        private FetchQuery $metaQuery,
+        AbstractOrmTable   $tableSchema
     )
     {
         parent::__construct($tableSchema);
     }
 
+    /**
+     * @api
+     */
     public function getCount(): int
     {
         return $this->metaQuery->query->rowsCount;
     }
 
     /**
-     * @throws OrmModelMapException
-     * @throws OrmModelNotFoundException
+     * @throws OrmEntityMappingException
+     * @throws OrmEntityNotFoundException
      * @throws OrmQueryException
      */
-    public function getNext(?ExceptionVector $errorLog = null): object|array
+    public function getNext(?ExceptionsVectorInterface $errorLog = null): object|array
     {
         try {
             return $this->mapSingle($this->metaQuery->getNext(), $errorLog);
@@ -51,9 +54,10 @@ class OrmFetchQuery extends ModelMapper
     }
 
     /**
-     * @throws OrmModelMapException
-     * @throws OrmModelNotFoundException
+     * @throws OrmEntityMappingException
+     * @throws OrmEntityNotFoundException
      * @throws OrmQueryException
+     * @api
      */
     public function getAll(): array
     {

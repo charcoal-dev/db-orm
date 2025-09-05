@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Orm;
 
-use Charcoal\Base\Support\Helpers\ObjectHelper;
+use Charcoal\Base\Objects\ObjectHelper;
 use Charcoal\Database\DatabaseClient;
 
 /**
@@ -43,6 +43,9 @@ class OrmDbResolver
         return static::$tableClasses[$tableClass] ?? null;
     }
 
+    /**
+     * @api
+     */
     public static function getTables(DatabaseClient $db): array
     {
         return static::$dbTables[$db->credentials->dbName] ?? [];

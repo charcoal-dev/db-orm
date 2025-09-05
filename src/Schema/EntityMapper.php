@@ -12,7 +12,7 @@ use Charcoal\Contracts\Vectors\ExceptionsVectorInterface;
 use Charcoal\Database\Orm\AbstractOrmTable;
 use Charcoal\Database\Orm\Exceptions\OrmEntityMappingException;
 use Charcoal\Database\Orm\Exceptions\OrmEntityNotFoundException;
-use Charcoal\Database\Orm\Schema\Columns\AbstractColumn;
+use Charcoal\Database\Orm\Schema\Snapshot\ColumnSnapshot;
 
 /**
  * Handles the mapping of raw database rows to entity objects or arrays, based on the schema
@@ -20,10 +20,10 @@ use Charcoal\Database\Orm\Schema\Columns\AbstractColumn;
  * and populates entity properties accordingly, adhering to the constraints and requirements
  * defined by the schema.
  */
-final readonly class EntityMapper
+readonly class EntityMapper
 {
     public function __construct(
-        private AbstractOrmTable $tableSchema
+        private AbstractOrmTable $table
     )
     {
     }
@@ -39,22 +39,21 @@ final readonly class EntityMapper
             throw new OrmEntityNotFoundException();
         }
 
-        $object = $this->tableSchema->newChildObject($row);
+        $object = $this->table->newChildObject($row);
         if (!$object) { // No new blank object given by table, return an array as-is
             return $row;
         }
 
-        /** @var AbstractColumn $column */
-        foreach ($this->tableSchema->columns as $column) {
+        foreach ($this->table->snapshot->columns as $column) {
             unset($prop, $value);
 
-            if (!property_exists($object, $column->attributes->modelMapKey)) {
+            if (!property_exists($object, $column->entityMapKey)) {
                 continue;
             }
 
-            $prop = $column->attributes->modelMapKey;
-            if (!isset($row[$column->attributes->name])) {
-                if ($column->attributes->nullable) {
+            $prop = $column->entityMapKey;
+            if (!isset($row[$column->name])) {
+                if ($column->nullable) {
                     $object->$prop = null;
                 }
 
@@ -62,7 +61,7 @@ final readonly class EntityMapper
             }
 
             try {
-                $value = $column->attributes->resolveForModelProperty($row[$column->attributes->name]);
+                $value = $this->getPipedValue($row[$column->name], $column);
             } catch (\Exception $e) {
                 if ($errorLog) {
                     $errorLog->append($e);
@@ -80,7 +79,7 @@ final readonly class EntityMapper
                         sprintf(
                             'Cannot map value of type "%s" to column "%s"',
                             gettype($value),
-                            $column->attributes->modelMapKey
+                            $column->entityMapKey
                         ),
                         previous: $t
                     );
@@ -94,7 +93,7 @@ final readonly class EntityMapper
                 throw $e;
             }
 
-            unset($row[$column->attributes->name]);
+            unset($row[$column->name]);
         }
 
         if ($row) {
@@ -104,5 +103,23 @@ final readonly class EntityMapper
         }
 
         return $object;
+    }
+
+    /**
+     * @param mixed $value
+     * @param ColumnSnapshot $snapshot
+     * @return mixed
+     */
+    public function getPipedValue(mixed $value, ColumnSnapshot $snapshot): mixed
+    {
+        if (is_null($value)) {
+            return null;
+        }
+
+        if (!$snapshot->valuePipe) {
+            return $value;
+        }
+
+        return $snapshot->valuePipe->forEntity($value, $snapshot);
     }
 }

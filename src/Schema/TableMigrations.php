@@ -8,11 +8,11 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Orm\Schema;
 
-use Charcoal\Base\Traits\NoDumpTrait;
-use Charcoal\Base\Traits\NotCloneableTrait;
-use Charcoal\Base\Traits\NotSerializableTrait;
+use Charcoal\Base\Objects\Traits\NoDumpTrait;
+use Charcoal\Base\Objects\Traits\NotCloneableTrait;
+use Charcoal\Base\Objects\Traits\NotSerializableTrait;
 use Charcoal\Database\DatabaseClient;
-use Charcoal\Database\Orm\AbstractOrmTable;
+use Charcoal\Database\Orm\Schema\Snapshot\TableSnapshot;
 
 /**
  * Class TableMigrations
@@ -26,10 +26,18 @@ class TableMigrations
     use NotSerializableTrait;
     use NotCloneableTrait;
 
-    public function __construct(public readonly AbstractOrmTable $table)
+    public function __construct(
+        public readonly string        $table,
+        public readonly TableSnapshot $snapshot,
+    )
     {
     }
 
+    /**
+     * @param int $version
+     * @param \Closure(DatabaseClient, string, TableSnapshot, int):array<string> $migrationProvider
+     * @return $this
+     */
     public function add(int $version, \Closure $migrationProvider): static
     {
         $this->migrations[strval($version)] = $migrationProvider;
@@ -37,6 +45,9 @@ class TableMigrations
         return $this;
     }
 
+    /**
+     * @internal
+     */
     public function getQueries(DatabaseClient $db, int $versionFrom = 0, int $versionTo = 0): array
     {
         $migrations = [];
@@ -51,12 +62,12 @@ class TableMigrations
             }
 
             $migrations[$version] = [];
-            $queriesSet = call_user_func_array($migration, [$db, $this->table, $version]);
+            $queriesSet = call_user_func_array($migration, [$db, $this->table, $this->snapshot, $version]);
             if (!is_array($queriesSet)) {
                 throw new \UnexpectedValueException(sprintf(
                     'Unexpected value of type "%s" from "%s" migrations version %d',
                     gettype($queriesSet),
-                    $this->table->name,
+                    $this->table,
                     $version));
             }
 
@@ -65,7 +76,7 @@ class TableMigrations
                     throw new \UnexpectedValueException(sprintf(
                         'Unexpected value of type "%s" in one of the migrations for "%s" from version %d',
                         gettype($queriesSet),
-                        $this->table->name,
+                        $this->table,
                         $version));
                 }
 

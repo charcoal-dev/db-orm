@@ -8,12 +8,15 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Orm;
 
-use Charcoal\Base\Enums\Charset;
-use Charcoal\Base\Vectors\StringVector;
+use Charcoal\Contracts\Charsets\Charset;
 use Charcoal\Database\DatabaseClient;
 use Charcoal\Database\Enums\DbDriver;
-use Charcoal\Database\Orm\Schema\Columns\AbstractColumn;
-use Charcoal\Database\Orm\Schema\Columns\IntegerColumn;
+use Charcoal\Database\Orm\Enums\MySqlEngine;
+use Charcoal\Database\Orm\Schema\Builder\Columns\AbstractColumnBuilder;
+use Charcoal\Database\Orm\Schema\Builder\Columns\IntegerColumn;
+use Charcoal\Database\Orm\Schema\Builder\ColumnsBuilder;
+use Charcoal\Database\Orm\Schema\Snapshot\TableSnapshot;
+use Charcoal\Vectors\Strings\StringVector;
 
 /**
  * Class Migrations
@@ -31,6 +34,9 @@ class Migrations
     {
     }
 
+    /**
+     * @api
+     */
     public function includeTable(AbstractOrmTable $table): static
     {
         $tables = $table->getMigrations($this->db, $this->versionFrom, $this->versionTo);
@@ -48,11 +54,17 @@ class Migrations
         return $this;
     }
 
+    /**
+     * @api
+     */
     public function getVersionedQueries(): array
     {
         return $this->migrations;
     }
 
+    /**
+     * @api
+     */
     public function getQueries(): array
     {
         $queries = [];
@@ -65,55 +77,68 @@ class Migrations
         return $queries;
     }
 
+    /**
+     * Helper method to generate an ALTER TABLE statement for adding a new column.
+     */
     public static function alterTableAddColumn(
-        DatabaseClient   $db,
-        AbstractOrmTable $table,
-        string           $column,
-        string           $previous
+        DbDriver       $driver,
+        string         $table,
+        ColumnsBuilder $columns,
+        string         $column,
+        string         $previous
     ): string
     {
-        return "ALTER TABLE `" . $table->name . "` ADD COLUMN " .
-            static::columnSpecSQL($db, $table, $table->columns->get($column)) .
-            " AFTER `" . $table->columns->get($previous)->attributes->name . "`;";
+        return "ALTER TABLE `" . $table . "` ADD COLUMN " .
+            static::columnSpecSQL($driver, $columns, $columns->get($column)) .
+            " AFTER `" . $columns->get($previous)->getAttributes()->name . "`;";
     }
 
+    /**
+     * @api
+     */
     public static function dropTableIfExists(AbstractOrmTable $table): string
     {
         return "DROP TABLE IF EXISTS `" . $table->name . "`;";
     }
 
+    /**
+     * Creates a table statement based on the provided parameters.
+     */
     public static function createTable(
-        DatabaseClient   $db,
-        AbstractOrmTable $table,
-        bool             $createIfNotExists,
-        ?StringVector    $columns = null
+        string        $name,
+        TableSnapshot $table,
+        bool          $createIfNotExists,
+        ?StringVector $useColumns = null
     ): array
     {
-        $driver = $db->credentials->driver;
         $statement = [];
         $mysqlUniqueKeys = [];
 
         // Create statement
         $statement[] = $createIfNotExists ? "CREATE TABLE IF NOT EXISTS" : "CREATE TABLE";
-        $statement[0] = $statement[0] . " `" . $table->name . "` (";
+        $statement[0] = $statement[0] . " `" . $name . "` (";
 
         $finalColumns = [];
-        if ($columns) {
-            foreach ($columns as $colName) {
-                $finalColumns[] = $table->columns->get($colName);
+        if ($useColumns) {
+            foreach ($useColumns as $colName) {
+                if (!isset($table->columns[$colName])) {
+                    throw new \RuntimeException("Column \"" . $colName . "\" not found in table");
+                }
+
+                $finalColumns[] = $table->columns[$colName];
             }
         } else {
             $finalColumns = $table->columns;
         }
 
-
         foreach ($finalColumns as $column) {
-            $columnSql = static::columnSpecSQL($db, $table, $column);
+            $columnSql = $column->schemaSql;
 
             // Unique
-            if ($column->attributes->unique) {
-                if ($db->credentials->driver === DbDriver::MYSQL) {
-                    $mysqlUniqueKeys[] = $column->attributes->name;
+            $columnAttributes = $column->getAttributes();
+            if ($columnAttributes->unique) {
+                if ($table->driver === DbDriver::MYSQL) {
+                    $mysqlUniqueKeys[] = $columnAttributes->name;
                 }
             }
 
@@ -121,23 +146,22 @@ class Migrations
         }
 
         // MySQL Unique Keys
-        if ($driver === DbDriver::MYSQL) {
+        if ($table->driver === DbDriver::MYSQL) {
             foreach ($mysqlUniqueKeys as $mysqlUniqueKey) {
                 $statement[] = "UNIQUE KEY (`" . $mysqlUniqueKey . "`),";
             }
         }
 
         // Constraints
-        /** @var \Charcoal\Database\Orm\Schema\Constraints\AbstractConstraint $constraint */
         foreach ($table->constraints as $constraint) {
-            $statement[] = $constraint->getConstraintSQL($driver) . ",";
+            $statement[] = $constraint->schemaSql . ",";
         }
 
         // Finishing
         $lastIndex = count($statement);
         $statement[$lastIndex - 1] = substr($statement[$lastIndex - 1], 0, -1);
-        $statement[] = match ($driver) {
-            DbDriver::MYSQL => sprintf(') ENGINE=%s;', $table->attributes->mysqlEngine),
+        $statement[] = match ($table->driver) {
+            DbDriver::MYSQL => sprintf(') ENGINE=%s;', $table->mySqlEngine?->value ?? MySqlEngine::InnoDb->value),
             default => ");",
         };
 
@@ -148,15 +172,20 @@ class Migrations
      * Generates the SQL string representation of a column specification based on its attributes
      * and the database driver's requirements.
      */
-    public static function columnSpecSQL(DatabaseClient $db, AbstractOrmTable $table, AbstractColumn $col): string
+    public static function columnSpecSQL(
+        DbDriver              $driver,
+        ColumnsBuilder        $columns,
+        AbstractColumnBuilder $column
+    ): string
     {
-        $columnSql = "`" . $col->attributes->name . "` " . $col->getColumnSQL($db->credentials->driver);
+        $columnAttributes = $column->getAttributes();
+        $columnSql = "`" . $columnAttributes->name . "` " . $column->getColumnSQL($driver);
 
         // Signed or Unsigned
-        if (isset($col->attributes->unSigned)) {
-            if ($col->attributes->unSigned) {
-                if ($col instanceof IntegerColumn) {
-                    $columnSql .= ($db->credentials->driver === DbDriver::SQLITE && $col->attributes->autoIncrement) ?
+        if (isset($columnAttributes->unSigned)) {
+            if ($columnAttributes->unSigned) {
+                if ($column instanceof IntegerColumn) {
+                    $columnSql .= ($driver === DbDriver::SQLITE && $columnAttributes->autoIncrement) ?
                         "" : " UNSIGNED";
                 } else {
                     $columnSql .= " UNSIGNED";
@@ -165,14 +194,14 @@ class Migrations
         }
 
         // Primary Key
-        if ($col->attributes->name === $table->columns->getPrimaryKey()) {
+        if ($columnAttributes->name === $columns->getPrimaryKey()) {
             $columnSql .= " PRIMARY KEY";
         }
 
         // Auto-increment
-        if ($col instanceof IntegerColumn) {
-            if ($col->attributes->autoIncrement) {
-                $columnSql .= match ($db->credentials->driver) {
+        if ($column instanceof IntegerColumn) {
+            if ($columnAttributes->autoIncrement) {
+                $columnSql .= match ($driver) {
                     DbDriver::SQLITE => " AUTOINCREMENT",
                     default => " auto_increment",
                 };
@@ -180,17 +209,17 @@ class Migrations
         }
 
         // Unique
-        if ($col->attributes->unique) {
-            if ($db->credentials->driver == DbDriver::SQLITE) {
+        if ($columnAttributes->unique) {
+            if ($driver == DbDriver::SQLITE) {
                 $columnSql .= " UNIQUE";
             }
         }
 
         // MySQL specific attributes
-        if ($db->credentials->driver === DbDriver::MYSQL) {
-            if ($col->attributes->charset) {
-                $columnSql .= " CHARACTER SET " . strtolower($col->attributes->charset->value);
-                $columnSql .= " COLLATE " . match ($col->attributes->charset) {
+        if ($driver === DbDriver::MYSQL) {
+            if ($columnAttributes->charset) {
+                $columnSql .= " CHARACTER SET " . strtolower($columnAttributes->charset->value);
+                $columnSql .= " COLLATE " . match ($columnAttributes->charset) {
                         Charset::ASCII => "ascii_general_ci",
                         Charset::UTF8 => "utf8mb4_unicode_ci",
                     };
@@ -198,19 +227,19 @@ class Migrations
         }
 
         // Nullable?
-        if (!$col->attributes->nullable) {
+        if (!$columnAttributes->nullable) {
             $columnSql .= " NOT NULL";
         }
 
         // Default value
-        if (is_null($col->attributes->defaultValue)) {
-            if ($col->attributes->nullable) {
+        if (is_null($columnAttributes->defaultValue)) {
+            if ($columnAttributes->nullable) {
                 $columnSql .= " default NULL";
             }
         } else {
             $columnSql .= " default ";
-            $columnSql .= is_string($col->attributes->defaultValue) ?
-                "'" . $col->attributes->defaultValue . "'" : $col->attributes->defaultValue;
+            $columnSql .= is_string($columnAttributes->defaultValue) ?
+                "'" . $columnAttributes->defaultValue . "'" : $columnAttributes->defaultValue;
         }
 
         return $columnSql;

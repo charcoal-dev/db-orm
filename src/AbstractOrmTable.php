@@ -8,21 +8,24 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Orm;
 
-use Charcoal\Base\Enums\Sort;
-use Charcoal\Base\Traits\NoDumpTrait;
-use Charcoal\Base\Traits\NotCloneableTrait;
-use Charcoal\Base\Vectors\StringVector;
+use Charcoal\Base\Objects\Traits\NoDumpTrait;
+use Charcoal\Base\Objects\Traits\NotCloneableTrait;
+use Charcoal\Contracts\Dataset\Sort;
 use Charcoal\Database\DatabaseClient;
+use Charcoal\Database\Enums\DbDriver;
 use Charcoal\Database\Enums\LockFlag;
 use Charcoal\Database\Exceptions\DbQueryException;
 use Charcoal\Database\Exceptions\QueryExecuteException;
-use Charcoal\Database\Orm\Concerns\OrmError;
+use Charcoal\Database\Orm\Enums\OrmError;
 use Charcoal\Database\Orm\Exceptions\OrmQueryException;
-use Charcoal\Database\Orm\Schema\Attributes;
-use Charcoal\Database\Orm\Schema\Columns;
-use Charcoal\Database\Orm\Schema\Constraints;
+use Charcoal\Database\Orm\Schema\Builder\TableAttributesBuilder;
+use Charcoal\Database\Orm\Schema\Builder\ColumnsBuilder;
+use Charcoal\Database\Orm\Schema\Builder\ConstraintsBuilder;
+use Charcoal\Database\Orm\Schema\Snapshot\ColumnSnapshot;
+use Charcoal\Database\Orm\Schema\Snapshot\TableSnapshot;
 use Charcoal\Database\Orm\Schema\TableMigrations;
 use Charcoal\Database\Queries\ExecutedQuery;
+use Charcoal\Vectors\Strings\StringVector;
 
 /**
  * Class AbstractOrmTable
@@ -30,53 +33,74 @@ use Charcoal\Database\Queries\ExecutedQuery;
  */
 abstract class AbstractOrmTable
 {
-    public readonly Columns $columns;
-    public readonly Constraints $constraints;
-    public readonly Attributes $attributes;
-
-    protected ?DatabaseClient $dbInstance = null;
-    protected ?TableMigrations $migrations = null;
-
     use NoDumpTrait;
     use NotCloneableTrait;
 
-    public function __construct(public readonly string $name)
+    public readonly TableSnapshot $snapshot;
+    protected ?DatabaseClient $dbInstance = null;
+    protected ?TableMigrations $migrations = null;
+
+    public function __construct(public readonly string $name, DbDriver $driver)
     {
-        $this->columns = new Columns();
-        $this->constraints = new Constraints();
-        $this->attributes = new Attributes();
+        if (!$this->name || !preg_match('/^[A-Za-z0-9_]+$/', $this->name)) {
+            throw new \InvalidArgumentException(sprintf('Table name "%s" is invalid', $this->name));
+        }
 
-        $this->structure($this->columns, $this->constraints);
+        $columns = new ColumnsBuilder();
+        $constraints = new ConstraintsBuilder();
+        $attributes = new TableAttributesBuilder($this->name, $driver);
 
-        $this->migrations = new TableMigrations($this);
+        $this->structure($columns, $constraints, $attributes);
+        $constraintSnapshots = $constraints->snapshot($this, $columns, $driver);
+        $columnSnapshots = [];
+        foreach ($columns as $column) {
+            $columnSnapshot = $column->snapshot(Migrations::columnSpecSQL($driver, $columns, $column));
+            $columnSnapshots[$column->name] = $columnSnapshot;
+        }
+
+        $this->snapshot = new TableSnapshot(
+            $columnSnapshots,
+            $constraintSnapshots,
+            $columns->getPrimaryKey(),
+            $driver,
+            $attributes->mysqlEngine
+        );
+
+        $this->migrations = new TableMigrations($this->name, $this->snapshot);
     }
 
+    /**
+     * Serialize ORM table
+     */
     public function __serialize(): array
     {
         return [
             "name" => $this->name,
-            "columns" => $this->columns,
-            "constraints" => $this->constraints,
-            "attributes" => $this->attributes,
+            "snapshot" => $this->snapshot,
             "dbInstance" => null,
             "migrations" => null,
         ];
     }
 
+    /**
+     * Unserialize ORM table
+     */
     public function __unserialize(array $object): void
     {
         $this->name = $object["name"];
-        $this->columns = $object["columns"];
-        $this->constraints = $object["constraints"];
-        $this->attributes = $object["attributes"];
+        $this->snapshot = $object["snapshot"];
         $this->dbInstance = null;
-        $this->migrations = new TableMigrations($this);
+        $this->migrations = new TableMigrations($this->name, $this->snapshot);
     }
 
     /**
      * Create table schema in this method using $cols and $constraints
      */
-    abstract protected function structure(Columns $cols, Constraints $constraints): void;
+    abstract protected function structure(
+        ColumnsBuilder         $cols,
+        ConstraintsBuilder     $constraints,
+        TableAttributesBuilder $attributes
+    ): void;
 
     /**
      * Use this method to define migrations in ascending order
@@ -90,12 +114,16 @@ abstract class AbstractOrmTable
 
     /**
      * Use this method to registration all migrations defined in "migrations" method
+     * @api
      */
     final public function generateMigrations(): void
     {
         $this->migrations($this->migrations);
     }
 
+    /**
+     * Gets migration queries for a given version
+     */
     public function getMigrations(DatabaseClient $db, int $versionFrom = 0, int $versionTo = 0): array
     {
         return $this->migrations->getQueries($db, $versionFrom, $versionTo);
@@ -160,6 +188,7 @@ abstract class AbstractOrmTable
 
     /**
      * @throws OrmQueryException
+     * @api
      */
     public function queryDeletePrimaryKey(int|string $value): ExecutedQuery
     {
@@ -185,13 +214,13 @@ abstract class AbstractOrmTable
     {
         $updates = [];
         foreach ($updateCols as $updateCol) {
-            $column = $this->columns->search($updateCol);
-            if (!$column) {
+            if (!isset($this->snapshot->columns[$updateCol])) {
                 throw new OrmQueryException(OrmError::QUERY_BUILD_ERROR,
                     'Cannot find a column in update part of query');
             }
 
-            $updates[] = "`" . $column->attributes->name . "`=:" . $column->attributes->name;
+            $column = $this->snapshot->columns[$updateCol];
+            $updates[] = "`" . $column->name . "`=:" . $column->name;
         }
 
         $data = $this->fromObjectToArray($model);
@@ -201,6 +230,7 @@ abstract class AbstractOrmTable
 
     /**
      * @throws OrmQueryException
+     * @api Execute UPDATE query with primary key
      */
     public function queryUpdate(
         array      $changes,
@@ -217,6 +247,7 @@ abstract class AbstractOrmTable
     }
 
     /**
+     * Resolves the database instance for this table
      * @throws OrmQueryException
      */
     protected function resolveDbInstance(): DatabaseClient
@@ -234,22 +265,21 @@ abstract class AbstractOrmTable
     }
 
     /**
-     * @param array $changes
-     * @return array
-     * @throws \Charcoal\Database\Orm\Exceptions\OrmQueryException
+     * Builds UPDATE query parts
+     * @throws OrmQueryException
      */
     private function buildUpdateQueryParts(array $changes): array
     {
         $updateParams = [];
         $updateBind = [];
         foreach ($changes as $key => $value) {
-            $column = $this->columns->search($key);
-            if (!$column) {
+            if (!isset($this->snapshot->columns[$key])) {
                 throw new OrmQueryException(OrmError::QUERY_BUILD_ERROR, "Cannot find a column in changes array");
             }
 
-            $updateParams[] = "`" . $column->attributes->name . "`=:" . $column->attributes->name;
-            $updateBind[$column->attributes->name] = $column->attributes->resolveValueForDb($value, $column);
+            $column = $this->snapshot->columns[$key];
+            $updateParams[] = "`" . $column->name . "`=:" . $column->name;
+            $updateBind[$column->name] = $this->pipeColumnValue($value, $column);
         }
 
         if (!$updateBind) {
@@ -259,6 +289,9 @@ abstract class AbstractOrmTable
         return [$updateParams, $updateBind];
     }
 
+    /**
+     * Prepare INSERT query
+     */
     private function buildInsertQuery(bool $ignoreDuplicate = false, ?array $data = null): string
     {
         $insertColumns = [];
@@ -269,10 +302,9 @@ abstract class AbstractOrmTable
                 $insertParams[] = ":" . $columnId;
             }
         } else {
-            /** @var \Charcoal\Database\Orm\Schema\Columns\AbstractColumn $column */
-            foreach ($this->columns as $column) {
-                $insertColumns[] = "`" . $column->attributes->name . "`";
-                $insertParams[] = ":" . $column->attributes->name;
+            foreach ($this->snapshot->columns as $column) {
+                $insertColumns[] = "`" . $column->name . "`";
+                $insertParams[] = ":" . $column->name;
             }
         }
 
@@ -285,6 +317,9 @@ abstract class AbstractOrmTable
         );
     }
 
+    /**
+     * Normalizes the WHERE clause
+     */
     private function normalizeWhereClause(string $whereClause): string
     {
         $whereClause = trim($whereClause);
@@ -296,24 +331,26 @@ abstract class AbstractOrmTable
     }
 
     /**
+     * Creates the WHERE clause from the primary key of the table
      * @throws OrmQueryException
      */
     private function whereClauseFromPrimary(?string $primaryColumn = null, ?string $bindAssocParam = null): string
     {
-        $primaryColumnId = $primaryColumn ?? $this->columns->getPrimaryKey();
+        $primaryColumnId = $primaryColumn ?? $this->snapshot->primaryKey;
         if (!$primaryColumnId) {
             throw new OrmQueryException(OrmError::NO_PRIMARY_COLUMN);
         }
 
-        $primaryColumn = $this->columns->search($primaryColumnId);
-        if (!$primaryColumn) {
+        if (!isset($this->snapshot->columns[$primaryColumn])) {
             throw new OrmQueryException(OrmError::NO_PRIMARY_COLUMN);
         }
 
-        return "WHERE `" . $primaryColumn->attributes->name . "`=" . ($bindAssocParam ? ":" . $bindAssocParam : "?");
+        $primaryColumn = $this->snapshot->columns[$primaryColumnId];
+        return "WHERE `" . $primaryColumn->name . "`=" . ($bindAssocParam ? ":" . $bindAssocParam : "?");
     }
 
     /**
+     * Executes a query and returns the result
      * @throws OrmQueryException
      */
     private function execDbQuery(string $query, array $data = []): ExecutedQuery
@@ -326,6 +363,7 @@ abstract class AbstractOrmTable
     }
 
     /**
+     * Converts an entity object to an array of values that can be used to insert into a database
      * @throws OrmQueryException
      */
     private function fromObjectToArray(array|object $model): array
@@ -335,20 +373,60 @@ abstract class AbstractOrmTable
         }
 
         $data = [];
-        /** @var \Charcoal\Database\Orm\Schema\Columns\AbstractColumn $column */
-        foreach ($this->columns as $column) {
-            $prop = $column->attributes->modelMapKey;
+        foreach ($this->snapshot->columns as $column) {
+            $prop = $column->entityMapKey;
             if (!property_exists($model, $prop) || !isset($model->$prop)) {
-                if ($column->attributes->nullable) {
-                    $data[$column->attributes->name] = null;
+                if ($column->nullable) {
+                    $data[$column->name] = null;
                 }
 
                 continue;
             }
 
-            $data[$column->attributes->name] = $column->attributes->resolveValueForDb($model->$prop, $column);
+            $data[$column->name] = $this->pipeColumnValue($model->$prop, $column);
         }
 
         return $data;
+    }
+
+    /**
+     * Pipes the value set in an entity object to be stored in a database
+     * @throws OrmQueryException
+     */
+    private function pipeColumnValue(mixed $value, ColumnSnapshot $column): mixed
+    {
+        if ($column->valuePipe) {
+            $value = $column->valuePipe->forDb($value, $column);
+        }
+
+        if (is_null($value)) {
+            if (!$column->nullable) {
+                throw new OrmQueryException(OrmError::VALUE_TYPE_ERROR,
+                    sprintf('Column "%s" is not nullable', $column->entityMapKey));
+            }
+
+            return null;
+        }
+
+        $primitiveType = $column->type->getPrimitiveType();
+        if (!$primitiveType->matches($value)) {
+            throw new OrmQueryException(OrmError::VALUE_TYPE_ERROR,
+                sprintf('Column "%s" value is expected to be of type "%s", got "%s"',
+                    $column->entityMapKey,
+                    $primitiveType->value,
+                    gettype($value)));
+        }
+
+        $valueLength = strlen($value);
+        if ($column->byteLen && $valueLength > $column->byteLen) {
+            throw new \OverflowException(sprintf(
+                'Value of %d bytes exceeds column "%s" limit of %d bytes',
+                $valueLength,
+                $column->name,
+                $column->byteLen
+            ));
+        }
+
+        return $value;
     }
 }
