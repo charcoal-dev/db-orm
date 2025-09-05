@@ -52,6 +52,7 @@ final readonly class ColumnSnapshot
             "charset" => $this->charset,
             "defaultValue" => $this->defaultValue,
             "byteLen" => $this->byteLen,
+            "fixedLen" => $this->fixedLen,
             "valuePipe" => $this->valuePipe,
             "pipeContext" => $this->pipeContext,
             "schemaSql" => $this->schemaSql,
@@ -73,6 +74,7 @@ final readonly class ColumnSnapshot
         $this->charset = $data["charset"];
         $this->defaultValue = $data["defaultValue"];
         $this->byteLen = $data["byteLen"];
+        $this->fixedLen = $data["fixedLen"];
         $this->valuePipe = $data["valuePipe"];
         $this->pipeContext = $data["pipeContext"];
         $this->schemaSql = $data["schemaSql"];

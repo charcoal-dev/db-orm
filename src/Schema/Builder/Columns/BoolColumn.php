@@ -10,6 +10,7 @@ namespace Charcoal\Database\Orm\Schema\Builder\Columns;
 
 use Charcoal\Database\Enums\DbDriver;
 use Charcoal\Database\Orm\Enums\ColumnType;
+use Charcoal\Database\Orm\Pipes\ColumnPipes;
 
 /**
  * Class BoolColumn
@@ -20,6 +21,7 @@ class BoolColumn extends AbstractColumnBuilder
     public function __construct(string $name)
     {
         parent::__construct($name, ColumnType::Bool);
+        $this->attributes->useValuePipe(ColumnPipes::BoolColumnPipe);
     }
 
     public function default(bool $defaultValue): static
