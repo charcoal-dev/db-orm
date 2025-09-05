@@ -8,25 +8,30 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Orm\Pipes;
 
+use Charcoal\Database\Orm\Contracts\ColumnValuePipeEnumInterface;
+
 /**
  * Enum representing column pipe transformations.
  * Provides methods to handle database and entity-specific value transformations.
  */
-enum ColumnPipes
+enum ColumnPipes implements ColumnValuePipeEnumInterface
 {
     case BufferColumnPipe;
+    case BoolColumnPipe;
 
     public function forDb(mixed $value): string
     {
         return match ($this) {
-            self::BufferColumnPipe => BufferColumnPipe::forDb($value)
+            self::BufferColumnPipe => BufferColumnPipe::forDb($value),
+            self::BoolColumnPipe => BoolColumnPipe::forDb($value),
         };
     }
 
     public function forEntity(string|int $value): mixed
     {
         return match ($this) {
-            self::BufferColumnPipe => BufferColumnPipe::forEntity($value)
+            self::BufferColumnPipe => BufferColumnPipe::forEntity($value),
+            self::BoolColumnPipe => BoolColumnPipe::forEntity($value),
         };
     }
 }
