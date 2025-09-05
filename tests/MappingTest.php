@@ -8,8 +8,9 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Tests\Orm;
 
-use Charcoal\Buffers\Frames\Bytes20;
-use Charcoal\Database\Orm\Schema\ModelMapper;
+use Charcoal\Buffers\Types\Bytes20;
+use Charcoal\Database\Enums\DbDriver;
+use Charcoal\Database\Orm\Schema\EntityMapper;
 use Charcoal\Database\Tests\Orm\Models\User;
 use Charcoal\Database\Tests\Orm\Models\User2;
 use Charcoal\Database\Tests\Orm\Models\UserRole;
@@ -26,15 +27,15 @@ class MappingTest extends \PHPUnit\Framework\TestCase
      */
     public function testMappings(): void
     {
-        $table = new UsersTable("users");
-        $mapper = new ModelMapper($table);
+        $table = new UsersTable("users", DbDriver::MYSQL);
+        $mapper = new EntityMapper($table);
 
         $user = $mapper->mapSingle($this->getUserRow());
         $this->assertInstanceOf(User::class, $user);
         $this->assertEquals(801, $user->id);
         /** @noinspection PhpConditionAlreadyCheckedInspection */
-        $this->assertInstanceOf(\Charcoal\Buffers\Frames\Bytes20::class, $user->checksum);
-        $this->assertEquals("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\t\ntest", $user->checksum->raw());
+        $this->assertInstanceOf(Bytes20::class, $user->checksum);
+        $this->assertEquals("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\t\ntest", $user->checksum->bytes());
         $this->assertIsString($user->status);
         $this->assertFalse($user->isDeleted);
         $this->assertTrue($user->testBool2);
@@ -52,13 +53,13 @@ class MappingTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @return void
-     * @throws \Charcoal\Database\Orm\Exceptions\OrmModelMapException
-     * @throws \Charcoal\Database\Orm\Exceptions\OrmModelNotFoundException
+     * @throws \Charcoal\Database\Orm\Exceptions\OrmEntityMappingException
+     * @throws \Charcoal\Database\Orm\Exceptions\OrmEntityNotFoundException
      */
     public function testUnmappedProps(): void
     {
-        $table = new UsersTable("users");
-        $mapper = new ModelMapper($table);
+        $table = new UsersTable("users", DbDriver::MYSQL);
+        $mapper = new EntityMapper($table);
         $table->modelClass = User2::class;
 
         $user = $mapper->mapSingle($this->getUserRow());
@@ -80,9 +81,9 @@ class MappingTest extends \PHPUnit\Framework\TestCase
      */
     public function testDissolve(): void
     {
-        $table = new UsersTable("users");
+        $table = new UsersTable("users", DbDriver::MYSQL);
         $table->modelClass = User2::class;
-        $mapper = new ModelMapper($table);
+        $mapper = new EntityMapper($table);
         $user = $mapper->mapSingle($this->getUserRow());
 
         $this->assertInstanceOf(User2::class, $user);

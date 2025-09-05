@@ -8,17 +8,17 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Tests\Orm;
 
-use Charcoal\Base\Vectors\StringVector;
 use Charcoal\Buffers\Buffer;
 use Charcoal\Database\DatabaseClient;
 use Charcoal\Database\Config\DbCredentials;
 use Charcoal\Database\Enums\DbDriver;
 use Charcoal\Database\Exceptions\QueryExecuteException;
-use Charcoal\Database\Orm\Concerns\OrmError;
+use Charcoal\Database\Orm\Enums\OrmError;
 use Charcoal\Database\Orm\Exceptions\OrmQueryException;
 use Charcoal\Database\Orm\OrmDbResolver;
 use Charcoal\Database\Tests\Orm\Models\BlobModel;
 use Charcoal\Database\Tests\Orm\Models\BlobStoreTable;
+use Charcoal\Vectors\Strings\StringVector;
 
 /**
  * Class QueryTest
@@ -39,7 +39,7 @@ class QueryTest extends \PHPUnit\Framework\TestCase
             )
         ), BlobStoreTable::class);
 
-        $blob = new BlobStoreTable("dataStore");
+        $blob = new BlobStoreTable("dataStore", DbDriver::SQLITE);
 
         try {
             $model = new BlobModel();
