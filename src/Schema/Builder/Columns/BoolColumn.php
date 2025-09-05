@@ -6,32 +6,20 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Schema\Columns;
+namespace Charcoal\Database\Orm\Schema\Builder\Columns;
 
-use Charcoal\Base\Enums\PrimitiveType;
 use Charcoal\Database\Enums\DbDriver;
+use Charcoal\Database\Orm\Enums\ColumnType;
 
 /**
  * Class BoolColumn
  * @package Charcoal\Database\Orm\Schema\Columns
  */
-class BoolColumn extends AbstractColumn
+class BoolColumn extends AbstractColumnBuilder
 {
-    public function getPrimitiveType(): PrimitiveType
+    public function __construct(string $name)
     {
-        return PrimitiveType::INT;
-    }
-
-    protected function attributesCallback(): void
-    {
-        $this->attributes->unSigned = true;
-        $this->attributes->resolveTypedValue(function (mixed $value): bool {
-            return $value === 1;
-        });
-
-        $this->attributes->resolveDbValue(function (mixed $value): int {
-            return is_bool($value) && $value ? 1 : 0;
-        });
+        parent::__construct($name, ColumnType::Bool);
     }
 
     public function default(bool $defaultValue): static
