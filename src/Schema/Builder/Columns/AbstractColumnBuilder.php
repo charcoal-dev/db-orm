@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Orm\Schema\Builder\Columns;
 
+use Charcoal\Base\Objects\Traits\NotCloneableTrait;
+use Charcoal\Base\Objects\Traits\NotSerializableTrait;
 use Charcoal\Database\Enums\DbDriver;
 use Charcoal\Database\Orm\Enums\ColumnType;
 use Charcoal\Database\Orm\Schema\Builder\ColumnAttributesBuilder;
@@ -18,6 +20,9 @@ use Charcoal\Database\Orm\Schema\Builder\ColumnAttributesBuilder;
  */
 abstract class AbstractColumnBuilder
 {
+    use NotSerializableTrait;
+    use NotCloneableTrait;
+
     protected readonly ColumnAttributesBuilder $attributes;
 
     public function __construct(string $name, ColumnType $type)
