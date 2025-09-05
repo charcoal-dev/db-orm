@@ -6,39 +6,25 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Schema\Columns;
+namespace Charcoal\Database\Orm\Schema\Builder\Columns;
 
-use Charcoal\Base\Enums\PrimitiveType;
 use Charcoal\Database\Enums\DbDriver;
-use Charcoal\Database\Orm\Schema\Traits\ColumnCharsetTrait;
+use Charcoal\Database\Orm\Enums\ColumnType;
+use Charcoal\Database\Orm\Schema\Builder\Traits\ColumnCharsetTrait;
 
 /**
  * Class EnumColumn
  * @package Charcoal\Database\Orm\Schema\Columns
  */
-class EnumColumn extends AbstractColumn
+class EnumColumn extends AbstractColumnBuilder
 {
     protected array $options = [];
 
     use ColumnCharsetTrait;
 
-    public function getPrimitiveType(): PrimitiveType
+    public function __construct(string $name)
     {
-        return PrimitiveType::STRING;
-    }
-
-    public function __serialize(): array
-    {
-        $data = parent::__serialize();
-        $data["options"] = $this->options;
-        return $data;
-    }
-
-    public function __unserialize(array $data): void
-    {
-        $this->options = $data["options"];
-        unset($data["options"]);
-        parent::__unserialize($data);
+        parent::__construct($name, ColumnType::Enum);
     }
 
     public function options(string ...$opts): static

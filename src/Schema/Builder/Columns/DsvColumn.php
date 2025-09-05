@@ -30,7 +30,12 @@ class DsvColumn extends StringColumn
      */
     public function enumClass(string $enumClass): static
     {
+        if (!enum_exists($enumClass)) {
+            throw new \InvalidArgumentException("Enum class does not exist: " . $enumClass);
+        }
+
         $this->enumClass = $enumClass;
+        $this->attributes->setPipeContext(fqcn: $enumClass);
         return $this;
     }
 }
