@@ -24,7 +24,7 @@ enum ColumnPipes implements ColumnValuePipeEnumInterface
     case BackedEnumColumnPipe;
     case FrameColumnPipe;
 
-    public function forDb(mixed $value, ColumnSnapshot $context): string
+    public function forDb(mixed $value, ColumnSnapshot $context): string|int
     {
         return match ($this) {
             self::BufferColumnPipe => BufferColumnPipe::forDb($value, $context),
@@ -36,7 +36,7 @@ enum ColumnPipes implements ColumnValuePipeEnumInterface
         };
     }
 
-    public function forEntity(string|int|array $value, ColumnSnapshot $context): mixed
+    public function forEntity(string|int|array|float|bool $value, ColumnSnapshot $context): mixed
     {
         return match ($this) {
             self::BufferColumnPipe => BufferColumnPipe::forEntity($value, $context),

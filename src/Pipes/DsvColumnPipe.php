@@ -45,7 +45,7 @@ final readonly class DsvColumnPipe implements ColumnValuePipeInterface
         return $value->join($value->delimiter);
     }
 
-    public static function forEntity(string|int|array $value, ColumnSnapshot $context): DsvTokens
+    public static function forEntity(string|int|array|float|bool $value, ColumnSnapshot $context): DsvTokens
     {
         Runtime::assert(is_string($value) || is_array($value),
             "DsvColumnPipe: value must be a string|Array, got " . get_debug_type($value));

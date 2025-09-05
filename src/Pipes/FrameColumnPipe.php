@@ -35,7 +35,7 @@ final readonly class FrameColumnPipe implements ColumnValuePipeInterface
         return $value->bytes();
     }
 
-    public static function forEntity(string|int|array $value, ColumnSnapshot $context): ByteArrayInterface
+    public static function forEntity(string|int|array|float|bool $value, ColumnSnapshot $context): ByteArrayInterface
     {
         Runtime::assert(is_string($value),
             "FrameColumnPipe: value must be a string, got " . get_debug_type($value));

@@ -26,7 +26,7 @@ final readonly class BackedEnumColumnPipe implements ColumnValuePipeInterface
         return (string)$value->value;
     }
 
-    public static function forEntity(string|int|array $value, ColumnSnapshot $context): \BackedEnum
+    public static function forEntity(string|int|array|float|bool $value, ColumnSnapshot $context): \BackedEnum
     {
         Runtime::assert(is_string($value) || is_int($value),
             "BackedEnumColumnPipe: value must be a string|int, got " . get_debug_type($value));

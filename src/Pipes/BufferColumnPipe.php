@@ -27,7 +27,7 @@ final readonly class BufferColumnPipe implements ColumnValuePipeInterface
         return $value->bytes();
     }
 
-    public static function forEntity(string|int|array $value, ColumnSnapshot $context): Buffer
+    public static function forEntity(string|int|array|float|bool $value, ColumnSnapshot $context): Buffer
     {
         Runtime::assert(is_string($value),
             "BufferColumnPipe: value must be a string, got " . get_debug_type($value));
