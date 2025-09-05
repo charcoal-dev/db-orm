@@ -32,7 +32,11 @@ final readonly class BackedEnumColumnPipe implements ColumnValuePipeInterface
             "BackedEnumColumnPipe: value must be a string|int, got " . get_debug_type($value));
 
         /** @var \BackedEnum $enum */
-        $enum = $context->pipeContextFqcn;
+        $enum = $context->pipeContext["enum"] ?? null;
+        if (!enum_exists($enum["enum"])) {
+            throw new \LogicException("Enum class does not exist: " . $enum["enum"]);
+        }
+
         return $enum::from($value);
     }
 }

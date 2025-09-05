@@ -22,6 +22,7 @@ enum ColumnPipes implements ColumnValuePipeEnumInterface
     case DateColumnPipe;
     case DsvColumnPipe;
     case BackedEnumColumnPipe;
+    case FrameColumnPipe;
 
     public function forDb(mixed $value, ColumnSnapshot $context): string
     {
@@ -31,6 +32,7 @@ enum ColumnPipes implements ColumnValuePipeEnumInterface
             self::DateColumnPipe => DateColumnPipe::forDb($value, $context),
             self::DsvColumnPipe => DsvColumnPipe::forDb($value, $context),
             self::BackedEnumColumnPipe => BackedEnumColumnPipe::forDb($value, $context),
+            self::FrameColumnPipe => FrameColumnPipe::forDb($value, $context),
         };
     }
 
@@ -42,6 +44,7 @@ enum ColumnPipes implements ColumnValuePipeEnumInterface
             self::DateColumnPipe => DateColumnPipe::forEntity($value, $context),
             self::DsvColumnPipe => DsvColumnPipe::forEntity($value, $context),
             self::BackedEnumColumnPipe => BackedEnumColumnPipe::forEntity($value, $context),
+            self::FrameColumnPipe => FrameColumnPipe::forEntity($value, $context),
         };
     }
 }
