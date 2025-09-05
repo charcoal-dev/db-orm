@@ -6,23 +6,25 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Schema\Columns;
+namespace Charcoal\Database\Orm\Schema\Builder\Columns;
 
-use Charcoal\Base\Enums\PrimitiveType;
 use Charcoal\Database\Enums\DbDriver;
-use Charcoal\Database\Orm\Schema\Traits\UniqueValueTrait;
+use Charcoal\Database\Orm\Enums\ColumnType;
+use Charcoal\Database\Orm\Pipes\ColumnPipes;
+use Charcoal\Database\Orm\Schema\Builder\Traits\UniqueValueTrait;
 
 /**
  * Class DateColumn
  * @package Charcoal\Database\Orm\Schema\Columns
  */
-class DateColumn extends AbstractColumn
+class DateColumn extends AbstractColumnBuilder
 {
     use UniqueValueTrait;
 
-    public function getPrimitiveType(): PrimitiveType
+    public function __construct(string $name)
     {
-        return PrimitiveType::STRING;
+        parent::__construct($name, ColumnType::Date);
+        $this->attributes->useValuePipe(ColumnPipes::DateColumnPipe);
     }
 
     final public function default(\DateTime|int|string $value): static
@@ -34,7 +36,7 @@ class DateColumn extends AbstractColumn
         $this->setDefaultValue(match (true) {
             is_int($value) && $value > 0 => date("Y-m-d", $value),
             $value instanceof \DateTime => $value->format("Y-m-d"),
-            default => throw new \InvalidArgumentException('Invalid type for date value'),
+            default => throw new \InvalidArgumentException("Invalid type for date value"),
         });
 
         return $this;
@@ -46,16 +48,5 @@ class DateColumn extends AbstractColumn
             DbDriver::MYSQL, DbDriver::PGSQL => "DATE",
             default => "TEXT",
         };
-    }
-
-    protected function attributesCallback(): void
-    {
-        $this->attributes->resolveTypedValue(function (?string $value): ?\DateTime {
-            return $value ? \DateTime::createFromFormat("Y-m-d", $value) : null;
-        });
-
-        $this->attributes->resolveDbValue(function (?\DateTime $date): ?string {
-            return $date?->format("Y-m-d");
-        });
     }
 }
