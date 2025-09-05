@@ -21,7 +21,7 @@ use Charcoal\Database\Orm\Schema\Builder\Constraints\UniqueKeyConstraint;
  * @use \IteratorAggregate<string,AbstractConstraint>
  * @property array<string,AbstractConstraint> $instances
  */
-class Constraints implements \IteratorAggregate
+class ConstraintsBuilder implements \IteratorAggregate
 {
     use InstancedObjectsRegistry;
     use RegistryKeysLowercaseTrimmed;
