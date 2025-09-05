@@ -11,12 +11,12 @@ namespace Charcoal\Database\Orm\Pipes;
 use Charcoal\Base\Support\Runtime;
 use Charcoal\Buffers\Buffer;
 use Charcoal\Contracts\Buffers\ReadableBufferInterface;
-use Charcoal\Database\Orm\Contracts\ColumnValueResolverInterface;
+use Charcoal\Database\Orm\Contracts\ColumnValuePipeInterface;
 
 /**
  * Store/Retrieve Buffer values from database
  */
-final readonly class BufferColumnPipe implements ColumnValueResolverInterface
+final readonly class BufferColumnPipe implements ColumnValuePipeInterface
 {
     /**
      * @param mixed $value
