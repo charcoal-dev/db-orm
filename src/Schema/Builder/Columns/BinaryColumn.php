@@ -27,9 +27,9 @@ class BinaryColumn extends AbstractColumnBuilder
     use StringValueTrait;
     use UniqueValueTrait;
 
-    public function __construct(string $name)
+    public function __construct(string $name, ColumnType $type = ColumnType::Binary)
     {
-        parent::__construct($name, ColumnType::Binary);
+        parent::__construct($name, $type);
     }
 
     public function getColumnSQL(DbDriver $driver): ?string

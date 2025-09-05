@@ -20,9 +20,9 @@ class BlobColumn extends AbstractColumnBuilder
 {
     use LargeObjectSizeTrait;
 
-    public function __construct(string $name)
+    public function __construct(string $name, ColumnType $type = ColumnType::Blob)
     {
-        parent::__construct($name, ColumnType::Blob);
+        parent::__construct($name, $type);
     }
 
     public function getColumnSQL(DbDriver $driver): ?string

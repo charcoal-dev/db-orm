@@ -13,6 +13,7 @@ use Charcoal\Base\Objects\Traits\NotSerializableTrait;
 use Charcoal\Database\Enums\DbDriver;
 use Charcoal\Database\Orm\Enums\ColumnType;
 use Charcoal\Database\Orm\Schema\Builder\ColumnAttributesBuilder;
+use Charcoal\Database\Orm\Schema\Snapshot\ColumnSnapshot;
 
 /**
  * Class AbstractColumnBuilder
@@ -47,6 +48,35 @@ abstract class AbstractColumnBuilder
 
         $this->attributes->defaultValue = $value;
         return $this;
+    }
+
+    /**
+     * @internal
+     */
+    public function snapshot(string $schemaSql): ColumnSnapshot
+    {
+        $byteLen = match (true) {
+            $this instanceof BinaryColumn,
+                $this instanceof StringColumn => $this->length,
+            default => null,
+        };
+
+        $pipe = $this->attributes->getPipe();
+        return new ColumnSnapshot(
+            $this->attributes->name,
+            $this->attributes->entityMapKey,
+            $this->attributes->type,
+            $this->attributes->nullable,
+            $this->attributes->unSigned,
+            $this->attributes->unique,
+            $this->attributes->autoIncrement,
+            $this->attributes->charset,
+            $this->attributes->defaultValue,
+            $byteLen,
+            $pipe[0],
+            $pipe[1],
+            $schemaSql
+        );
     }
 
     /** @internal */

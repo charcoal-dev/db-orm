@@ -9,17 +9,15 @@ declare(strict_types=1);
 namespace Charcoal\Database\Orm\Schema\Builder\Columns;
 
 use Charcoal\Database\Orm\Enums\ColumnType;
-use Charcoal\Database\Orm\Pipes\ColumnPipes;
 
 /**
- * Class BufferColumn
+ * Class FrameColumn
  * @package Charcoal\Database\Orm\Schema\Columns
  */
-class BufferColumn extends BlobColumn
+class FrameColumn extends BinaryColumn
 {
     public function __construct(string $name)
     {
-        parent::__construct($name, ColumnType::Buffer);
-        $this->attributes->useValuePipe(ColumnPipes::BufferColumnPipe);
+        parent::__construct($name, ColumnType::Frame);
     }
 }

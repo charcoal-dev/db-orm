@@ -22,16 +22,16 @@ use Charcoal\Database\Orm\Schema\Builder\Traits\UniqueValueTrait;
 class StringColumn extends AbstractColumnBuilder
 {
     protected const int LENGTH_MIN = 1;
-    protected const int  LENGTH_MAX = 0xffff;
+    protected const int LENGTH_MAX = 0xffff;
 
     use ColumnCharsetTrait;
     use LengthValueTrait;
     use StringValueTrait;
     use UniqueValueTrait;
 
-    public function __construct(string $name)
+    public function __construct(string $name, ColumnType $type = ColumnType::String)
     {
-        parent::__construct($name, ColumnType::String);
+        parent::__construct($name, $type);
     }
 
     public function getColumnSQL(DbDriver $driver): ?string

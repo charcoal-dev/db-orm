@@ -27,9 +27,9 @@ class FloatColumn extends AbstractColumnBuilder
     use NumericValueTrait;
     use PrecisionValueTrait;
 
-    public function __construct(string $name)
+    public function __construct(string $name, ColumnType $type = ColumnType::Float)
     {
-        parent::__construct($name, ColumnType::Float);
+        parent::__construct($name, $type);
         $this->sqlType = "float";
         $this->setDefaultValue("0");
     }
