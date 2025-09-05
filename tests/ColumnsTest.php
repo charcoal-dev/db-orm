@@ -8,17 +8,19 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Tests\Orm;
 
-use Charcoal\Buffers\AbstractFixedLenBuffer;
 use Charcoal\Buffers\Buffer;
-use Charcoal\Buffers\Frames\Bytes20;
-use Charcoal\Buffers\Frames\Bytes32P;
+use Charcoal\Buffers\Types\Bytes20;
+use Charcoal\Buffers\Types\Bytes32;
+use Charcoal\Contracts\Buffers\WritableBufferInterface;
 use Charcoal\Database\Enums\DbDriver;
-use Charcoal\Database\Orm\Schema\Columns\BinaryColumn;
-use Charcoal\Database\Orm\Schema\Columns\BoolColumn;
-use Charcoal\Database\Orm\Schema\Columns\FrameColumn;
-use Charcoal\Database\Orm\Schema\Columns\IntegerColumn;
-use Charcoal\Database\Orm\Schema\Columns\StringColumn;
-use Charcoal\Database\Orm\Schema\Columns\EnumObjectColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\AbstractColumnBuilder;
+use Charcoal\Database\Orm\Schema\Builder\Columns\BinaryColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\BoolColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\EnumObjectColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\FrameColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\IntegerColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\StringColumn;
+use Charcoal\Database\Orm\Schema\Snapshot\ColumnSnapshot;
 use Charcoal\Database\Tests\Orm\Models\TestEnum;
 use Charcoal\Database\Tests\Orm\Models\UserRole;
 
@@ -27,6 +29,30 @@ use Charcoal\Database\Tests\Orm\Models\UserRole;
  */
 class ColumnsTest extends \PHPUnit\Framework\TestCase
 {
+    /**
+     * Pipe a value from the database to the entity object.
+     */
+    private function pipeValueForEntity(ColumnSnapshot $snap, mixed $value): mixed
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return $snap->valuePipe?->forEntity($value, $snap) ?? $value;
+    }
+
+    /**
+     * Pipe a value from the entity object to the database.
+     */
+    private function pipeValueForDb(ColumnSnapshot $snap, mixed $value): mixed
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return $snap->valuePipe?->forDb($value, $snap) ?? $value;
+    }
+
     /**
      * @return void
      */
@@ -37,10 +63,10 @@ class ColumnsTest extends \PHPUnit\Framework\TestCase
         $col3 = new BinaryColumn("testColumn");
         $col4 = new BinaryColumn("TestColumn");
 
-        $this->assertEquals("test", $col1->attributes->modelMapKey);
-        $this->assertEquals("testColumnName", $col2->attributes->modelMapKey, "from snake case");
-        $this->assertEquals("testColumn", $col3->attributes->modelMapKey);
-        $this->assertEquals("TestColumn", $col4->attributes->modelMapKey);
+        $this->assertEquals("test", $col1->getAttributes()->entityMapKey);
+        $this->assertEquals("testColumnName", $col2->getAttributes()->entityMapKey, "from snake case");
+        $this->assertEquals("testColumn", $col3->getAttributes()->entityMapKey);
+        $this->assertEquals("TestColumn", $col4->getAttributes()->entityMapKey);
     }
 
     /**
@@ -61,11 +87,10 @@ class ColumnsTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @return void
-     * @throws \Charcoal\Database\Orm\Exceptions\OrmQueryException
      */
     public function testBinaryColumn(): void
     {
-        $columns = new \Charcoal\Database\Orm\Schema\Columns();
+        $columns = new \Charcoal\Database\Orm\Schema\Builder\ColumnsBuilder();
         $col1 = $columns->binary("bin1", plainString: true);
         $col2 = $columns->binary("bin2", plainString: false);
 
@@ -76,18 +101,21 @@ class ColumnsTest extends \PHPUnit\Framework\TestCase
         $this->assertNotInstanceOf(FrameColumn::class, $col1);
         $this->assertInstanceOf(FrameColumn::class, $col2);
 
+        $snap1 = $col1->snapshot($col1->getColumnSQL(DbDriver::MYSQL));
+        $snap2 = $col2->snapshot($col2->getColumnSQL(DbDriver::MYSQL));
+
         $binary = "\tcharcoal\r\n";
-        $value1 = $col1->attributes->resolveForModelProperty($binary);
+        $value1 = $snap1->valuePipe?->forEntity($binary, $snap1) ?? $binary;
         $this->assertIsString($value1);
         $this->assertEquals(strlen($binary), strlen($value1));
-        $value2 = $col2->attributes->resolveForModelProperty($binary);
+        $value2 = $snap2->valuePipe?->forEntity($binary, $snap2) ?? $binary;
         $this->assertInstanceOf(Buffer::class, $value2);
-        $this->assertEquals(strlen($binary), $value2->len());
-        $this->assertEquals($binary, $value2->raw());
+        $this->assertEquals(strlen($binary), $value2->length());
+        $this->assertEquals($binary, $value2->bytes());
 
-        $back1 = $col1->attributes->resolveValueForDb($value1, $col1);
+        $back1 = $snap1->valuePipe?->forDb($value1, $snap1) ?? $value1;
         $this->assertEquals($binary, $back1);
-        $back2 = $col2->attributes->resolveValueForDb($value2, $col2);
+        $back2 = $snap2->valuePipe?->forDb($value2, $snap2) ?? $value2;
         $this->assertEquals($binary, $back2);
     }
 
@@ -96,71 +124,79 @@ class ColumnsTest extends \PHPUnit\Framework\TestCase
      */
     public function testBinaryColumnFrames(): void
     {
-        $columns = new \Charcoal\Database\Orm\Schema\Columns();
+        $columns = new \Charcoal\Database\Orm\Schema\Builder\ColumnsBuilder();
         $col1 = $columns->binary("bin1", plainString: false)->fixed(20); // This is a frame
         $col2 = $columns->binary("bin2", plainString: false)->length(20); // This is not fixed-length frame
         $col3 = $columns->binaryFrame("bin3")->fixed(32);
+
+        $snap1 = $col1->snapshot($col1->getColumnSQL(DbDriver::MYSQL));
+        $snap2 = $col2->snapshot($col2->getColumnSQL(DbDriver::MYSQL));
+        $snap3 = $col3->snapshot($col3->getColumnSQL(DbDriver::MYSQL));
 
         $this->assertEquals("binary(20)", $col1->getColumnSQL(DbDriver::MYSQL));
         $this->assertEquals("varbinary(20)", $col2->getColumnSQL(DbDriver::MYSQL));
         $this->assertEquals("binary(32)", $col3->getColumnSQL(DbDriver::MYSQL));
         $this->assertEquals("BLOB", $col1->getColumnSQL(DbDriver::SQLITE));
 
-        $value1 = $col1->attributes->resolveForModelProperty("charcoal");
+        $value1 = $this->pipeValueForEntity($snap1, "charcoal");
         $this->assertInstanceOf(Bytes20::class, $value1);
-        $this->assertEquals(20, $value1->len());
-        $this->assertEquals("\0\0\0\0\0\0\0\0\0\0\0\0charcoal", $value1->raw());
+        $this->assertEquals(20, $value1->length());
+        $this->assertEquals("\0\0\0\0\0\0\0\0\0\0\0\0charcoal", $value1->bytes());
 
-        $value2 = $col2->attributes->resolveForModelProperty("");
+        $value2 = $this->pipeValueForEntity($snap2, "");
         $this->assertInstanceOf(Buffer::class, $value2, "Is Buffer, not Bytes20");
-        $this->assertNotInstanceOf(AbstractFixedLenBuffer::class, $col2, "Not a frame because its var-length");
+        $this->assertNotInstanceOf(WritableBufferInterface::class, $col2, "Not a frame because its var-length");
 
-        $value3 = $col3->attributes->resolveForModelProperty("");
-        $this->assertInstanceOf(Bytes32P::class, $value3);
+        $value3 = $this->pipeValueForEntity($snap3, "");
+        $this->assertInstanceOf(Bytes32::class, $value3);
+        $this->assertTrue($value3->isPadded());
+        $this->assertTrue($value3->isEmpty()); // All null bytes
 
-        $null1 = $col1->attributes->resolveForModelProperty(null);
+        $null1 = $this->pipeValueForEntity($snap1, null);
         $this->assertNull($null1);
     }
 
     /**
      * @return void
-     * @throws \Charcoal\Database\Orm\Exceptions\OrmQueryException
      */
     public function testEnum(): void
     {
-        $columns = new \Charcoal\Database\Orm\Schema\Columns();
+        $columns = new \Charcoal\Database\Orm\Schema\Builder\ColumnsBuilder();
         $enumStr = $columns->enum("role1", enumClass: null)->options("user", "mod");
         $enumClass = $columns->enum("role2", enumClass: UserRole::class)
             ->options("user", "mod")->default("user");
         $thirdEnum = $columns->enum("something", enumClass: TestEnum::class)
             ->options("case_a1", "case_b2", "case_c3");
 
-        $value1 = $enumStr->attributes->resolveForModelProperty("mod");
+        $enumStr = $enumStr->snapshot($enumStr->getColumnSQL(DbDriver::MYSQL));
+        $enumClass = $enumClass->snapshot($enumClass->getColumnSQL(DbDriver::MYSQL));
+        $thirdEnum = $thirdEnum->snapshot($thirdEnum->getColumnSQL(DbDriver::MYSQL));
+
+        $value1 = $this->pipeValueForEntity($enumStr, "mod");
         $this->assertIsString($value1);
         $this->assertEquals("mod", $value1);
 
-        $value2a = $enumClass->attributes->resolveForModelProperty("user");
-        $value2b = $enumClass->attributes->resolveForModelProperty("mod");
+        $value2a = $this->pipeValueForEntity($enumClass, "user");
+        $value2b = $this->pipeValueForEntity($enumClass, "mod");
         $this->assertInstanceOf(UserRole::class, $value2a);
         $this->assertEquals("user", $value2a->value);
         $this->assertInstanceOf(UserRole::class, $value2b);
         $this->assertEquals("mod", $value2b->value);
 
-        $back1 = $enumStr->attributes->resolveValueForDb($value1, $enumStr);
+        $back1 = $this->pipeValueForDb($enumStr, $value1);
         $this->assertEquals("mod", $back1);
-        $back2a = $enumClass->attributes->resolveValueForDb($value2a, $enumClass);
-        $back2b = $enumClass->attributes->resolveValueForDb($value2b, $enumClass);
+        $back2a = $this->pipeValueForDb($enumClass, $value2a);
+        $back2b = $this->pipeValueForDb($enumClass, $value2b);
         $this->assertEquals("user", $back2a);
         $this->assertEquals("mod", $back2b);
 
-        $value3 = $thirdEnum->attributes->resolveForModelProperty("case_b2");
+        $value3 = $this->pipeValueForEntity($thirdEnum, "case_b2");
         $this->assertInstanceOf(TestEnum::class, $value3);
         $this->assertEquals(TestEnum::CASE2, $value3);
     }
 
     /**
      * @return void
-     * @throws \Charcoal\Database\Orm\Exceptions\OrmQueryException
      */
     public function testBool(): void
     {
@@ -168,24 +204,40 @@ class ColumnsTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals("tinyint", $col1->getColumnSQL(DbDriver::MYSQL));
         $this->assertEquals("integer", $col1->getColumnSQL(DbDriver::SQLITE));
-        $this->assertFalse($col1->attributes->resolveForModelProperty("test"));
-        $this->assertFalse($col1->attributes->resolveForModelProperty("1"));
-        $this->assertFalse($col1->attributes->resolveForModelProperty("0"));
-        $this->assertFalse($col1->attributes->resolveForModelProperty(0));
-        $this->assertTrue($col1->attributes->resolveForModelProperty(1));
-        $this->assertFalse($col1->attributes->resolveForModelProperty(12314));
+        $snap1 = $col1->snapshot($col1->getColumnSQL(DbDriver::MYSQL));
+        $this->assertFalse($this->pipeValueForEntity($snap1, "test"));
+        $this->assertFalse($this->pipeValueForEntity($snap1, "1"));
+        $this->assertFalse($this->pipeValueForEntity($snap1, "0"));
+        $this->assertFalse($this->pipeValueForEntity($snap1, 0));
+        $this->assertTrue($this->pipeValueForEntity($snap1, 1));
+        $this->assertFalse($this->pipeValueForEntity($snap1, 12314));
 
-        $this->assertEquals(0, $col1->attributes->resolveValueForDb(null));
-        $this->assertEquals(0, $col1->attributes->resolveValueForDb(false));
-        $this->assertEquals(0, $col1->attributes->resolveValueForDb("charcoal"));
-        $this->assertEquals(0, $col1->attributes->resolveValueForDb(1));
-        $this->assertEquals(1, $col1->attributes->resolveValueForDb(true));
-        $this->assertEquals(0, $col1->attributes->resolveValueForDb(1312));
+        $this->assertEquals(0, $this->pipeValueForDb($snap1, null));
+        $this->assertEquals(0, $this->pipeValueForDb($snap1, false));
+
+        try {
+            $this->assertEquals(0, $this->pipeValueForDb($snap1, "charcoal"));
+            throw new \AssertionError("Should not have passed");
+        } catch (\AssertionError) {
+        }
+
+        try {
+            $this->assertEquals(0, $this->pipeValueForDb($snap1, 1));
+            throw new \AssertionError("Should not have passed");
+        } catch (\AssertionError) {
+        }
+
+        $this->assertEquals(1, $this->pipeValueForDb($snap1, true));
+
+        try {
+            $this->assertEquals(0, $this->pipeValueForDb($snap1, 1312));
+            throw new \AssertionError("Should not have passed");
+        } catch (\AssertionError) {
+        }
     }
 
     /**
      * @return void
-     * @throws \Charcoal\Database\Orm\Exceptions\OrmQueryException
      */
     public function testSerializeColumn(): void
     {
@@ -196,39 +248,41 @@ class ColumnsTest extends \PHPUnit\Framework\TestCase
         $cols[] = (new EnumObjectColumn("opt2", TestEnum::class))
             ->options("case_a1", "case_b2", "case_c3");
 
+        $cols = array_map(fn(AbstractColumnBuilder $cB) => $cB->snapshot($cB->getColumnSQL(DbDriver::MYSQL)),
+            $cols);
         $serialized = serialize($cols);
         unset($cols);
 
         $columns = unserialize($serialized);
-        /** @var IntegerColumn $intCol */
+        /** @var ColumnSnapshot $intCol */
         $intCol = $columns[0];
-        /** @var FrameColumn $frameCol */
+        /** @var ColumnSnapshot $frameCol */
         $frameCol = $columns[1];
-        /** @var EnumObjectColumn $opts1Col */
+        /** @var ColumnSnapshot $opts1Col */
         $opts1Col = $columns[2];
-        /** @var EnumObjectColumn $opts2Col */
+        /** @var ColumnSnapshot $opts2Col */
         $opts2Col = $columns[3];
 
-        $value1 = $intCol->attributes->resolveForModelProperty(0xfe);
-        $this->assertEquals(254, $intCol->attributes->resolveValueForDb($value1, $intCol));
+        $value1 = $this->pipeValueForEntity($intCol, 0xfe);
+        $this->assertEquals(254, $this->pipeValueForDb($intCol, $value1));
         unset($value1a);
 
-        $value2 = $frameCol->attributes->resolveForModelProperty("charcoal");
+        $value2 = $this->pipeValueForEntity($frameCol, "charcoal");
         $this->assertInstanceOf(Bytes20::class, $value2);
-        $this->assertEquals("\0\0\0\0\0\0\0\0\0\0\0\0charcoal", $value2->raw());
-        $this->assertEquals("charcoal", trim($frameCol->attributes->resolveValueForDb($value2, $frameCol)));
+        $this->assertEquals("\0\0\0\0\0\0\0\0\0\0\0\0charcoal", $value2->bytes());
+        $this->assertEquals("charcoal", trim($this->pipeValueForDb($frameCol, $value2)));
         unset($value2);
 
-        $value3 = $opts1Col->attributes->resolveForModelProperty("user");
+        $value3 = $this->pipeValueForEntity($opts1Col, "user");
         $this->assertInstanceOf(UserRole::class, $value3);
         $this->assertEquals(UserRole::USER, $value3);
-        $this->assertEquals("user", $opts1Col->attributes->resolveValueForDb($value3, $opts1Col));
+        $this->assertEquals("user", $this->pipeValueForDb($opts1Col, $value3));
         unset($value3);
 
-        $value4 = $opts2Col->attributes->resolveForModelProperty("case_c3");
+        $value4 = $this->pipeValueForEntity($opts2Col, "case_c3");
         $this->assertNotInstanceOf(UserRole::class, $value4);
         $this->assertInstanceOf(TestEnum::class, $value4);
         $this->assertEquals(TestEnum::CASE3, $value4);
-        $this->assertEquals(TestEnum::CASE3->value, $opts2Col->attributes->resolveValueForDb($value4, $opts2Col));
+        $this->assertEquals(TestEnum::CASE3->value, $this->pipeValueForDb($opts2Col, $value4));
     }
 }
