@@ -56,6 +56,10 @@ class ColumnsBuilder implements \IteratorAggregate
 
     public function append(AbstractColumnBuilder $column): void
     {
+        if (!$column->name || !preg_match('/^[A-Za-z0-9_]+$/', $column->name)) {
+            throw new \InvalidArgumentException(sprintf('Column name "%s" is invalid', $column->name));
+        }
+
         $this->instances[$column->name] = $column;
         $this->count++;
     }

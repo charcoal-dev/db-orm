@@ -17,11 +17,10 @@ use Charcoal\Database\Orm\Pipes\ColumnPipes;
  */
 class DsvColumn extends StringColumn
 {
-    public function __construct(string $name, string $delimiter = ",")
+    public function __construct(string $name)
     {
         parent::__construct($name, ColumnType::Dsv);
         $this->attributes->useValuePipe(ColumnPipes::DsvColumnPipe);
-        $this->delimiter($delimiter);
     }
 
     /**
