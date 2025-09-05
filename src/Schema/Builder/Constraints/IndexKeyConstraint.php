@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace Charcoal\Database\Orm\Schema\Constraints;
+namespace Charcoal\Database\Orm\Schema\Builder\Constraints;
 
 use Charcoal\Database\Enums\DbDriver;
 
