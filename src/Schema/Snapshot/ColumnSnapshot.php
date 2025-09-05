@@ -27,8 +27,9 @@ final readonly class ColumnSnapshot
         public ?bool                         $autoIncrement,
         public ?Charset                      $charset,
         public int|float|string|null         $defaultValue,
+        public ?int                          $byteLen,
         public ?ColumnValuePipeEnumInterface $valuePipe,
-        public ?string                       $pipeContextFqcn,
+        public ?array                        $pipeContext,
         public ?string                       $schemaSql,
     )
     {
@@ -49,7 +50,10 @@ final readonly class ColumnSnapshot
             "autoIncrement" => $this->autoIncrement,
             "charset" => $this->charset,
             "defaultValue" => $this->defaultValue,
+            "byteLen" => $this->byteLen,
             "valuePipe" => $this->valuePipe,
+            "pipeContext" => $this->pipeContext,
+            "schemaSql" => $this->schemaSql,
         ];
     }
 
@@ -67,6 +71,9 @@ final readonly class ColumnSnapshot
         $this->autoIncrement = $data["autoIncrement"];
         $this->charset = $data["charset"];
         $this->defaultValue = $data["defaultValue"];
+        $this->byteLen = $data["byteLen"];
         $this->valuePipe = $data["valuePipe"];
+        $this->pipeContext = $data["pipeContext"];
+        $this->schemaSql = $data["schemaSql"];
     }
 }
