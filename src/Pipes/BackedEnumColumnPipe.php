@@ -39,4 +39,11 @@ final readonly class BackedEnumColumnPipe implements ColumnValuePipeInterface
 
         return $enum::from($value);
     }
+
+    public static function validate(array $context): void
+    {
+        if (!isset($context["enum"]) || !enum_exists($context["enum"])) {
+            throw new \LogicException("Enum class does not exist: " . $context["enum"]);
+        }
+    }
 }

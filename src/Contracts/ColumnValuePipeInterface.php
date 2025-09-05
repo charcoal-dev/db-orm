@@ -18,4 +18,6 @@ interface ColumnValuePipeInterface
     public static function forDb(mixed $value, ColumnSnapshot $context): string|int;
 
     public static function forEntity(string|int|array $value, ColumnSnapshot $context): mixed;
+
+    public static function validate(array $context): void;
 }

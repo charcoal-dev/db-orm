@@ -38,4 +38,19 @@ final readonly class DsvColumnPipe implements ColumnValuePipeInterface
 
         return (new DsvTokens(changeCase: false, uniqueTokensOnly: true))->add(...$value);
     }
+
+    public static function validate(array $context): void
+    {
+        if (!isset($context["delimiter"])
+            || !is_string($context["delimiter"])
+            || strlen($context["delimiter"]) !== 1) {
+            throw new \LogicException("DsvColumnPipe: delimiter was not stored");
+        }
+
+        if (isset($context["enum"])) {
+            if (!enum_exists($context["enum"])) {
+                throw new \LogicException("Enum class does not exist: " . $context["enum"]);
+            }
+        }
+    }
 }

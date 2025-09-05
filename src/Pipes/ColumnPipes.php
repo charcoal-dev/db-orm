@@ -47,4 +47,16 @@ enum ColumnPipes implements ColumnValuePipeEnumInterface
             self::FrameColumnPipe => FrameColumnPipe::forEntity($value, $context),
         };
     }
+
+    public function validate(array $context): void
+    {
+        match ($this) {
+            self::BufferColumnPipe => BufferColumnPipe::validate($context),
+            self::BoolColumnPipe => BoolColumnPipe::validate($context),
+            self::DateColumnPipe => DateColumnPipe::validate($context),
+            self::DsvColumnPipe => DsvColumnPipe::validate($context),
+            self::BackedEnumColumnPipe => BackedEnumColumnPipe::validate($context),
+            self::FrameColumnPipe => FrameColumnPipe::validate($context),
+        };
+    }
 }

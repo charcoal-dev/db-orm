@@ -32,4 +32,8 @@ final readonly class DateColumnPipe implements ColumnValuePipeInterface
 
         return \DateTime::createFromFormat("Y-m-d", $value);
     }
+
+    public static function validate(array $context): void
+    {
+    }
 }

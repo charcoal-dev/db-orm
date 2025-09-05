@@ -18,4 +18,6 @@ interface ColumnValuePipeEnumInterface
     public function forDb(mixed $value, ColumnSnapshot $context): string;
 
     public function forEntity(string|int|array $value, ColumnSnapshot $context): mixed;
+
+    public function validate(array $context): void;
 }

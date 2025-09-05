@@ -55,4 +55,8 @@ final readonly class FrameColumnPipe implements ColumnValuePipeInterface
 
         return new $fqcn($value);
     }
+
+    public static function validate(array $context): void
+    {
+    }
 }

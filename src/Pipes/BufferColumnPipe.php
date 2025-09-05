@@ -34,4 +34,8 @@ final readonly class BufferColumnPipe implements ColumnValuePipeInterface
 
         return new Buffer($value);
     }
+
+    public static function validate(array $context): void
+    {
+    }
 }

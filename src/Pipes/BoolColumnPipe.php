@@ -32,4 +32,8 @@ final readonly class BoolColumnPipe implements ColumnValuePipeInterface
 
         return $value === 1;
     }
+
+    public static function validate(array $context): void
+    {
+    }
 }
