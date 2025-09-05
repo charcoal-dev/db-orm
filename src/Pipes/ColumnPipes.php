@@ -18,12 +18,16 @@ enum ColumnPipes implements ColumnValuePipeEnumInterface
 {
     case BufferColumnPipe;
     case BoolColumnPipe;
+    case DateColumnPipe;
+    case DsvColumnPipe;
 
     public function forDb(mixed $value): string
     {
         return match ($this) {
             self::BufferColumnPipe => BufferColumnPipe::forDb($value),
             self::BoolColumnPipe => BoolColumnPipe::forDb($value),
+            self::DateColumnPipe => DateColumnPipe::forDb($value),
+            self::DsvColumnPipe => DsvColumnPipe::forDb($value),
         };
     }
 
@@ -32,6 +36,8 @@ enum ColumnPipes implements ColumnValuePipeEnumInterface
         return match ($this) {
             self::BufferColumnPipe => BufferColumnPipe::forEntity($value),
             self::BoolColumnPipe => BoolColumnPipe::forEntity($value),
+            self::DateColumnPipe => DateColumnPipe::forEntity($value),
+            self::DsvColumnPipe => DsvColumnPipe::forEntity($value),
         };
     }
 }
