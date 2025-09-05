@@ -13,13 +13,15 @@ use Charcoal\Database\Orm\Enums\MySqlEngine;
 
 /**
  * Snapshot of table attributes.
- * @property ColumnSnapshot[] $columns
- * @property ConstraintSnapshot[] $constraints
  */
 final readonly class TableSnapshot
 {
     public array $entityProps;
 
+    /**
+     * @param ColumnSnapshot[] $columns
+     * @param ConstraintSnapshot[] $constraints
+     */
     public function __construct(
         public array        $columns,
         public array        $constraints,
@@ -30,9 +32,25 @@ final readonly class TableSnapshot
     {
         $entityProps = [];
         foreach ($columns as $column) {
-            $entityProps[$column->entityProp] = $column->name;
+            $entityProps[$column->entityMapKey] = $column->name;
         }
 
         $this->entityProps = $entityProps;
+    }
+
+    /**
+     * Find a column by its name or normalized property name.
+     */
+    public function findColumn(string $name): ?ColumnSnapshot
+    {
+        if (!$name) {
+            return null;
+        }
+
+        if (isset($this->entityProps[$name])) {
+            return $this->columns[$this->entityProps[$name]];
+        }
+
+        return $this->columns[$name] ?? null;
     }
 }

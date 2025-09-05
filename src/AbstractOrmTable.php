@@ -217,12 +217,13 @@ abstract class AbstractOrmTable
     {
         $updates = [];
         foreach ($updateCols as $updateCol) {
-            if (!isset($this->snapshot->columns[$updateCol])) {
+            $updateCol  =   $this->snapshot->findColumn($updateCol);
+            if (!$updateCol) {
                 throw new OrmQueryException(OrmError::QUERY_BUILD_ERROR,
                     'Cannot find a column in update part of query');
             }
 
-            $column = $this->snapshot->columns[$updateCol];
+            $column = $this->snapshot->columns[$updateCol->name];
             $updates[] = "`" . $column->name . "`=:" . $column->name;
         }
 
@@ -276,11 +277,11 @@ abstract class AbstractOrmTable
         $updateParams = [];
         $updateBind = [];
         foreach ($changes as $key => $value) {
-            if (!isset($this->snapshot->columns[$key])) {
+            $column = $this->snapshot->findColumn($key);
+            if (!$column) {
                 throw new OrmQueryException(OrmError::QUERY_BUILD_ERROR, "Cannot find a column in changes array");
             }
 
-            $column = $this->snapshot->columns[$key];
             $updateParams[] = "`" . $column->name . "`=:" . $column->name;
             $updateBind[$column->name] = $this->pipeColumnValue($value, $column);
         }
@@ -344,11 +345,11 @@ abstract class AbstractOrmTable
             throw new OrmQueryException(OrmError::NO_PRIMARY_COLUMN);
         }
 
-        if (!isset($this->snapshot->columns[$primaryColumn])) {
+        $primaryColumn  =   $this->snapshot->findColumn($primaryColumnId);
+        if (!$primaryColumn) {
             throw new OrmQueryException(OrmError::NO_PRIMARY_COLUMN);
         }
 
-        $primaryColumn = $this->snapshot->columns[$primaryColumnId];
         return "WHERE `" . $primaryColumn->name . "`=" . ($bindAssocParam ? ":" . $bindAssocParam : "?");
     }
 
@@ -420,14 +421,16 @@ abstract class AbstractOrmTable
                     gettype($value)));
         }
 
-        $valueLength = strlen($value);
-        if ($column->byteLen && $valueLength > $column->byteLen) {
-            throw new \OverflowException(sprintf(
-                'Value of %d bytes exceeds column "%s" limit of %d bytes',
-                $valueLength,
-                $column->name,
-                $column->byteLen
-            ));
+        if (is_string($value)) {
+            $valueLength = strlen($value);
+            if ($column->byteLen && $valueLength > $column->byteLen) {
+                throw new \OverflowException(sprintf(
+                    'Value of %d bytes exceeds column "%s" limit of %d bytes',
+                    $valueLength,
+                    $column->name,
+                    $column->byteLen
+                ));
+            }
         }
 
         return $value;
