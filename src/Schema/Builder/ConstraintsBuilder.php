@@ -10,6 +10,8 @@ namespace Charcoal\Database\Orm\Schema\Builder;
 
 use Charcoal\Base\Registry\Traits\InstancedObjectsRegistry;
 use Charcoal\Base\Registry\Traits\RegistryKeysLowercaseTrimmed;
+use Charcoal\Database\Enums\DbDriver;
+use Charcoal\Database\Orm\AbstractOrmTable;
 use Charcoal\Database\Orm\Schema\Builder\Constraints\AbstractConstraint;
 use Charcoal\Database\Orm\Schema\Builder\Constraints\ForeignKeyConstraint;
 use Charcoal\Database\Orm\Schema\Builder\Constraints\IndexKeyConstraint;
@@ -53,6 +55,39 @@ class ConstraintsBuilder implements \IteratorAggregate
         return $constraint;
     }
 
+    /**
+     * @internal
+     */
+    public function snapshot(AbstractOrmTable $table, ColumnsBuilder $columns, DbDriver $driver): array
+    {
+        $constraintSnapshots = [];
+        foreach ($this->instances as $constraint) {
+            $constraintSnapshot = $constraint->snapshot($driver);
+            if (!$constraintSnapshot->table) {
+                foreach ($constraintSnapshot->columns as $column) {
+                    try {
+                        $columns->get($column);
+                    } catch (\Exception) {
+                        throw new \InvalidArgumentException(
+                            sprintf('Constraint [%s]: Column "%s" is not defined in table "%s"',
+                                $constraint->name,
+                                $column,
+                                $table->name
+                            )
+                        );
+                    }
+                }
+            }
+
+            $constraintSnapshots[$constraint->name] = $constraintSnapshot;
+        }
+
+        return $constraintSnapshots;
+    }
+
+    /**
+     * @return \Traversable<string,AbstractConstraint>
+     */
     public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->instances);
