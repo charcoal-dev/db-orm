@@ -24,7 +24,7 @@ final readonly class BoolColumnPipe implements ColumnValuePipeInterface
         return $value ? 1 : 0;
     }
 
-    public static function forEntity(string|int $value): bool
+    public static function forEntity(string|int|array $value): bool
     {
         Runtime::assert(is_int($value),
             "BoolColumnPipe: value must be a integer, got " . get_debug_type($value));

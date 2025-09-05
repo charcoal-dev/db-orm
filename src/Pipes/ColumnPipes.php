@@ -31,7 +31,7 @@ enum ColumnPipes implements ColumnValuePipeEnumInterface
         };
     }
 
-    public function forEntity(string|int $value): mixed
+    public function forEntity(string|int|array $value): mixed
     {
         return match ($this) {
             self::BufferColumnPipe => BufferColumnPipe::forEntity($value),

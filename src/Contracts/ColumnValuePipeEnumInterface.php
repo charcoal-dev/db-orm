@@ -11,9 +11,9 @@ namespace Charcoal\Database\Orm\Contracts;
 /**
  * Interface for resolving column values for different contexts.
  */
-interface ColumnValuePipeInterface
+interface ColumnValuePipeEnumInterface
 {
-    public static function forDb(mixed $value): string|int;
+    public function forDb(mixed $value): string;
 
-    public static function forEntity(string|int|array $value): mixed;
+    public function forEntity(string|int|array $value): mixed;
 }

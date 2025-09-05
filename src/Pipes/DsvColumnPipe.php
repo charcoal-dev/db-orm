@@ -25,11 +25,15 @@ final readonly class DsvColumnPipe
         return $value->join(",");
     }
 
-    public static function forEntity(string|int $value): DsvTokens
+    public static function forEntity(string|int|array $value): DsvTokens
     {
-        Runtime::assert(is_string($value),
-            "DsvColumnPipe: value must be a string, got " . get_debug_type($value));
+        Runtime::assert(is_string($value) || is_array($value),
+            "DsvColumnPipe: value must be a string|Array, got " . get_debug_type($value));
 
-        return (new DsvTokens(changeCase: false, uniqueTokensOnly: true))->add(...explode(",", $value));
+        if (!is_array($value)) {
+            $value = explode(",", $value);
+        }
+
+        return (new DsvTokens(changeCase: false, uniqueTokensOnly: true))->add(...$value);
     }
 }

@@ -24,7 +24,7 @@ final readonly class DateColumnPipe implements ColumnValuePipeInterface
         return $value->format("Y-m-d");
     }
 
-    public static function forEntity(int|string $value): \DateTime
+    public static function forEntity(int|string|array $value): \DateTime
     {
         Runtime::assert(is_string($value),
             "DateColumnPipe: value must be a string, got " . get_debug_type($value));
