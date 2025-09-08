@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Orm;
 
+use Charcoal\Base\Objects\Traits\ControlledSerializableTrait;
 use Charcoal\Base\Objects\Traits\NoDumpTrait;
 use Charcoal\Base\Objects\Traits\NotCloneableTrait;
 use Charcoal\Contracts\Dataset\Sort;
@@ -35,6 +36,7 @@ abstract class AbstractOrmTable
 {
     use NoDumpTrait;
     use NotCloneableTrait;
+    use ControlledSerializableTrait;
 
     public readonly TableSnapshot $snapshot;
     protected ?DatabaseClient $dbInstance = null;
@@ -76,7 +78,7 @@ abstract class AbstractOrmTable
     /**
      * Serialize ORM table
      */
-    public function __serialize(): array
+    protected function collectSerializableData(): array
     {
         return [
             "name" => $this->name,
