@@ -114,4 +114,7 @@ abstract class AbstractColumnBuilder
 
     /** @internal */
     abstract public function getColumnSQL(DbDriver $driver): ?string;
+
+    /** @internal */
+    abstract public function getCheckConstraint(): ?string;
 }
