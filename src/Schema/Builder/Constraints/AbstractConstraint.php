@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Charcoal\Database\Orm\Schema\Builder\Constraints;
 
 use Charcoal\Database\Enums\DbDriver;
+use Charcoal\Database\Orm\CharcoalOrm;
 use Charcoal\Database\Orm\Schema\Snapshot\ConstraintSnapshot;
 
 /**
@@ -19,7 +20,7 @@ abstract class AbstractConstraint
 {
     public function __construct(public readonly string $name)
     {
-        if (!$this->name || !preg_match('/^[a-z0-9_]+$/', $this->name)) {
+        if (!$this->name || !preg_match(CharcoalOrm::NAME_REGEXP, $this->name)) {
             throw new \InvalidArgumentException(sprintf('Constraint name "%s" is invalid', $this->name));
         }
     }
