@@ -17,10 +17,13 @@ use Charcoal\Database\Orm\Pipes\ColumnPipes;
  */
 class DsvColumn extends StringColumn
 {
-    public function __construct(string $name)
+    public function __construct(string $name, ?string $delimiter = null)
     {
         parent::__construct($name, ColumnType::Dsv);
         $this->attributes->useValuePipe(ColumnPipes::DsvColumnPipe);
+        if (!is_null($delimiter)) {
+            $this->delimiter($delimiter);
+        }
     }
 
     /**
@@ -38,8 +41,11 @@ class DsvColumn extends StringColumn
     }
 
     /**
+     * Define the enum class for the column;
+     * Validates that value is one of the cases declared in enum, when storing in DB.
      * @param class-string<\StringBackedEnum> $enumClass
      * @return $this
+     * @api
      */
     public function enumClass(string $enumClass): static
     {
