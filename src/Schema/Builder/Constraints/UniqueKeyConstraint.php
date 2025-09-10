@@ -45,14 +45,11 @@ class UniqueKeyConstraint extends AbstractConstraint
      */
     public function getConstraintSQL(DbDriver $driver): ?string
     {
-        $columns = implode(",", array_map(function ($col) {
-            return sprintf('`%s`', $col);
-        }, $this->columns));
-
+        $columns = implode(",", $this->columns);
         return match ($driver) {
-            DbDriver::MYSQL => sprintf('UNIQUE KEY `%s` (%s)', $this->name, $columns),
-            DbDriver::SQLITE => sprintf('CONSTRAINT `%s` UNIQUE (%s)', $this->name, $columns),
-            default => null,
+            DbDriver::MYSQL => sprintf('UNIQUE KEY %s (%s)', $this->name, $columns),
+            DbDriver::PGSQL,
+            DbDriver::SQLITE => sprintf('CONSTRAINT %s UNIQUE (%s)', $this->name, $columns),
         };
     }
 }
