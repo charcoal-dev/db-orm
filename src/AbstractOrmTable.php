@@ -47,6 +47,8 @@ abstract class AbstractOrmTable
     {
         if (!$this->name || !preg_match('/^[A-Za-z0-9_]+$/', $this->name)) {
             throw new \InvalidArgumentException(sprintf('Table name "%s" is invalid', $this->name));
+        } elseif (CharcoalOrm::isReserved($this->name)) {
+            throw new \InvalidArgumentException(sprintf('Table name "%s" is reserved', $this->name));
         }
 
         $columns = new ColumnsBuilder();
@@ -220,7 +222,7 @@ abstract class AbstractOrmTable
     {
         $updates = [];
         foreach ($updateCols as $updateCol) {
-            $updateCol  =   $this->snapshot->findColumn($updateCol);
+            $updateCol = $this->snapshot->findColumn($updateCol);
             if (!$updateCol) {
                 throw new OrmQueryException(OrmError::QUERY_BUILD_ERROR,
                     'Cannot find a column in update part of query');
@@ -348,7 +350,7 @@ abstract class AbstractOrmTable
             throw new OrmQueryException(OrmError::NO_PRIMARY_COLUMN);
         }
 
-        $primaryColumn  =   $this->snapshot->findColumn($primaryColumnId);
+        $primaryColumn = $this->snapshot->findColumn($primaryColumnId);
         if (!$primaryColumn) {
             throw new OrmQueryException(OrmError::NO_PRIMARY_COLUMN);
         }
