@@ -74,7 +74,7 @@ class ColumnsBuilder implements \IteratorAggregate
     public function get(string $name): AbstractColumnBuilder
     {
         if (!isset($this->instances[$name])) {
-            throw new \OutOfBoundsException(sprintf('No definition exists for column `%s`', $name));
+            throw new \OutOfBoundsException("Undefined column:" . $name);
         }
 
         return $this->instances[$name];
