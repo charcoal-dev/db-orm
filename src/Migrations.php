@@ -93,8 +93,8 @@ class Migrations
             throw new \RuntimeException("Column \"" . $previousId . "\" not found in table");
         }
 
-        return "ALTER TABLE `" . $table->name . "` ADD COLUMN " . $column->schemaSql .
-            " AFTER `" . $previous->name . "`;";
+        return "ALTER TABLE " . $table->name . " ADD COLUMN " . $column->schemaSql .
+            " AFTER " . $previous->name . ";";
     }
 
     /**
@@ -102,7 +102,7 @@ class Migrations
      */
     public static function dropTableIfExists(AbstractOrmTable $table): string
     {
-        return "DROP TABLE IF EXISTS `" . $table->name . "`;";
+        return "DROP TABLE IF EXISTS " . $table->name . ";";
     }
 
     /**
@@ -119,7 +119,7 @@ class Migrations
 
         // Create statement
         $statement[] = $createIfNotExists ? "CREATE TABLE IF NOT EXISTS" : "CREATE TABLE";
-        $statement[0] = $statement[0] . " `" . $table->name . "` (";
+        $statement[0] = $statement[0] . " " . $table->name . " (";
 
         $finalColumns = [];
         if ($useColumns) {
@@ -150,7 +150,7 @@ class Migrations
         // MySQL Unique Keys
         if ($table->snapshot->driver === DbDriver::MYSQL) {
             foreach ($mysqlUniqueKeys as $mysqlUniqueKey) {
-                $statement[] = "UNIQUE KEY (`" . $mysqlUniqueKey . "`),";
+                $statement[] = "UNIQUE KEY (" . $mysqlUniqueKey . "),";
             }
         }
 
@@ -181,7 +181,7 @@ class Migrations
     ): string
     {
         $columnAttributes = $column->getAttributes();
-        $columnSql = "`" . $columnAttributes->name . "` " . $column->getColumnSQL($driver);
+        $columnSql = $columnAttributes->name . " " . $column->getColumnSQL($driver);
 
         // Signed or Unsigned
         if (isset($columnAttributes->unSigned)) {
