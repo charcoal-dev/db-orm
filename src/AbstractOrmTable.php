@@ -29,8 +29,9 @@ use Charcoal\Database\Queries\ExecutedQuery;
 use Charcoal\Vectors\Strings\StringVector;
 
 /**
- * Class AbstractOrmTable
- * @package Charcoal\Database\Orm
+ * Abstract class representing an Object-Relational Mapping (ORM) table.
+ * This class serves as a base implementation for defining table schema, migrations,
+ * and database CRUD operations within a custom ORM layer.
  */
 abstract class AbstractOrmTable
 {
