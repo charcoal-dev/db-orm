@@ -16,8 +16,7 @@ use Charcoal\Database\Orm\Contracts\ColumnValuePipeEnumInterface;
 use Charcoal\Database\Orm\Enums\ColumnType;
 
 /**
- * Class ColumnAttributesBuilder
- * @package Charcoal\Database\Orm\Schema\Builder
+ * Column attributes builder class.
  */
 class ColumnAttributesBuilder
 {
@@ -25,6 +24,7 @@ class ColumnAttributesBuilder
     use NotSerializableTrait;
 
     public readonly string $entityMapKey;
+    public bool $enforceChecks = true;
     public bool $nullable = false;
     public ?bool $unSigned = null;
     public ?bool $unique = null;

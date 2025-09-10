@@ -26,6 +26,9 @@ abstract class AbstractColumnBuilder
 
     protected readonly ColumnAttributesBuilder $attributes;
 
+    /**
+     * Column builder constructor.
+     */
     public function __construct(public readonly string $name, ColumnType $type)
     {
         if (!$this->name || !preg_match('/^[A-Za-z0-9_]+$/', $this->name)) {
@@ -35,12 +38,28 @@ abstract class AbstractColumnBuilder
         $this->attributes = new ColumnAttributesBuilder($name, $type);
     }
 
+    /**
+     * Implement/enforce data integrity checks for this column when generating SQL?
+     */
+    public function enforceChecks(bool $enforce = true): static
+    {
+        $this->attributes->enforceChecks = $enforce;
+        return $this;
+
+    }
+
+    /**
+     * Make this column nullable?
+     */
     public function nullable(): static
     {
         $this->attributes->nullable = true;
         return $this;
     }
 
+    /**
+     * Sets the default value for this column.
+     */
     protected function setDefaultValue(null|int|string|float $value): static
     {
         if (is_null($value) && !$this->attributes->nullable) {
