@@ -8,14 +8,14 @@ declare(strict_types=1);
 
 namespace Charcoal\Database\Orm\Schema\Builder\Columns;
 
+use Charcoal\Database\Orm\CharcoalOrm;
 use Charcoal\Database\Orm\Enums\ColumnType;
 use Charcoal\Database\Orm\Pipes\ColumnPipes;
 
 /**
- * Class DsvColumn
- * @package Charcoal\Database\Orm\Schema\Columns
+ * String-based, delimiter separated values
  */
-class DsvColumn extends StringColumn
+class DsvColumn extends AbstractStringColumn
 {
     public function __construct(string $name, ?string $delimiter = null)
     {
@@ -32,7 +32,7 @@ class DsvColumn extends StringColumn
      */
     public function delimiter(string $delimiter): static
     {
-        if (!in_array($delimiter, [" ", ",", "\t", "|", ";", ":"])) {
+        if (!in_array($delimiter, CharcoalOrm::DSV_DELIMITERS)) {
             throw new \InvalidArgumentException("Invalid delimiter");
         }
 
