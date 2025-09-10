@@ -190,7 +190,7 @@ abstract class AbstractOrmTable
         array  $whereData = []
     ): ExecutedQuery
     {
-        $stmt = "DELETE FROM `" . $this->name . "` WHERE " . $this->normalizeWhereClause($whereQuery);
+        $stmt = "DELETE FROM " . $this->name . " WHERE " . $this->normalizeWhereClause($whereQuery);
         return $this->execDbQuery($stmt, $whereData);
     }
 
@@ -229,7 +229,7 @@ abstract class AbstractOrmTable
             }
 
             $column = $this->snapshot->columns[$updateCol->name];
-            $updates[] = "`" . $column->name . "`=:" . $column->name;
+            $updates[] = $column->name . "=:" . $column->name;
         }
 
         $data = $this->fromObjectToArray($model);
@@ -250,7 +250,7 @@ abstract class AbstractOrmTable
         $updateQuery = $this->buildUpdateQueryParts($changes);
         $updateBind = $updateQuery[1];
         $updateBind["update_Primary_Key"] = $primaryValue;
-        $stmt = "UPDATE `" . $this->name . "` SET " . implode(", ", $updateQuery[0]) . " " .
+        $stmt = "UPDATE " . $this->name . " SET " . implode(", ", $updateQuery[0]) . " " .
             $this->whereClauseFromPrimary($primaryColumn, "update_Primary_Key");
         return $this->execDbQuery($stmt, $updateBind);
     }
@@ -287,7 +287,7 @@ abstract class AbstractOrmTable
                 throw new OrmQueryException(OrmError::QUERY_BUILD_ERROR, "Cannot find a column in changes array");
             }
 
-            $updateParams[] = "`" . $column->name . "`=:" . $column->name;
+            $updateParams[] = $column->name . "=:" . $column->name;
             $updateBind[$column->name] = $this->pipeColumnValue($value, $column);
         }
 
@@ -307,18 +307,18 @@ abstract class AbstractOrmTable
         $insertParams = [];
         if ($data) {
             foreach ($data as $columnId => $value) {
-                $insertColumns[] = "`" . $columnId . "`";
+                $insertColumns[] = $columnId;
                 $insertParams[] = ":" . $columnId;
             }
         } else {
             foreach ($this->snapshot->columns as $column) {
-                $insertColumns[] = "`" . $column->name . "`";
+                $insertColumns[] = $column->name;
                 $insertParams[] = ":" . $column->name;
             }
         }
 
         return sprintf(
-            'INSERT%s INTO `%s` (%s) VALUES (%s)',
+            'INSERT%s INTO %s (%s) VALUES (%s)',
             $ignoreDuplicate ? " IGNORE" : "",
             $this->name,
             implode(", ", $insertColumns),
@@ -355,7 +355,7 @@ abstract class AbstractOrmTable
             throw new OrmQueryException(OrmError::NO_PRIMARY_COLUMN);
         }
 
-        return "WHERE `" . $primaryColumn->name . "`=" . ($bindAssocParam ? ":" . $bindAssocParam : "?");
+        return "WHERE " . $primaryColumn->name . "=" . ($bindAssocParam ? ":" . $bindAssocParam : "?");
     }
 
     /**
