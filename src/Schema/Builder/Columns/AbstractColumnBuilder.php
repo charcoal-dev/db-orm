@@ -45,7 +45,6 @@ abstract class AbstractColumnBuilder
     {
         $this->attributes->enforceChecks = $enforce;
         return $this;
-
     }
 
     /**
@@ -94,6 +93,7 @@ abstract class AbstractColumnBuilder
         }
 
         $pipe = $this->attributes->getPipe();
+
         return new ColumnSnapshot(
             $this->attributes->name,
             $this->attributes->entityMapKey,
