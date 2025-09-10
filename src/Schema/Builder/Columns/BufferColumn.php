@@ -12,8 +12,7 @@ use Charcoal\Database\Orm\Enums\ColumnType;
 use Charcoal\Database\Orm\Pipes\ColumnPipes;
 
 /**
- * Class BufferColumn
- * @package Charcoal\Database\Orm\Schema\Columns
+ * Buffer column (backed by BLOB) - pipes to/from Buffer objects
  */
 class BufferColumn extends BlobColumn
 {

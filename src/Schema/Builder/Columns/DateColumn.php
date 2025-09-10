@@ -14,8 +14,7 @@ use Charcoal\Database\Orm\Pipes\ColumnPipes;
 use Charcoal\Database\Orm\Schema\Builder\Traits\UniqueValueTrait;
 
 /**
- * Class DateColumn
- * @package Charcoal\Database\Orm\Schema\Columns
+ * Date column (format Y-m-d) - pipes values to/from \DateTime object.
  */
 class DateColumn extends AbstractColumnBuilder
 {
@@ -27,6 +26,9 @@ class DateColumn extends AbstractColumnBuilder
         $this->attributes->useValuePipe(ColumnPipes::DateColumnPipe);
     }
 
+    /**
+     * Set the default value from \DateTime or timestamp (int)
+     */
     final public function default(\DateTime|int|string $value): static
     {
         if (is_string($value)) {
@@ -42,11 +44,22 @@ class DateColumn extends AbstractColumnBuilder
         return $this;
     }
 
+    /**
+     * SQL definition for this column.
+     */
     public function getColumnSQL(DbDriver $driver): ?string
     {
         return match ($driver) {
             DbDriver::MYSQL, DbDriver::PGSQL => "DATE",
             default => "TEXT",
         };
+    }
+
+    /**
+     * No CHECK constraint for dates.
+     */
+    public function getCheckConstraintSQL(DbDriver $driver): ?string
+    {
+        return null;
     }
 }
