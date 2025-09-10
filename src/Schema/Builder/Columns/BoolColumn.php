@@ -13,8 +13,7 @@ use Charcoal\Database\Orm\Enums\ColumnType;
 use Charcoal\Database\Orm\Pipes\ColumnPipes;
 
 /**
- * Class BoolColumn
- * @package Charcoal\Database\Orm\Schema\Columns
+ * Boolean column (backed by tinyint)
  */
 class BoolColumn extends AbstractColumnBuilder
 {
@@ -25,6 +24,9 @@ class BoolColumn extends AbstractColumnBuilder
         $this->attributes->useValuePipe(ColumnPipes::BoolColumnPipe);
     }
 
+    /**
+     * Set the default value (boolean).
+     */
     public function default(bool $defaultValue): static
     {
         $this->setDefaultValue($defaultValue ? 1 : 0);

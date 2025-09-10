@@ -13,8 +13,7 @@ use Charcoal\Database\Orm\Enums\ColumnType;
 use Charcoal\Database\Orm\Schema\Builder\Traits\LargeObjectSizeTrait;
 
 /**
- * Class BlobColumn
- * @package Charcoal\Database\Orm\Schema\Columns
+ * Column for Binary Large Objects (BLOBs)
  */
 class BlobColumn extends AbstractColumnBuilder
 {
@@ -25,11 +24,23 @@ class BlobColumn extends AbstractColumnBuilder
         parent::__construct($name, $type);
     }
 
+    /**
+     * SQL declaration for BLOBs
+     */
     public function getColumnSQL(DbDriver $driver): ?string
     {
         return match ($driver) {
             DbDriver::MYSQL => $this->size->getColumn($driver, text: false),
+            DbDriver::PGSQL => "BYTEA",
             default => "BLOB",
         };
+    }
+
+    /**
+     * No CHECK constraint for LOBs.
+     */
+    public function getCheckConstraintSQL(DbDriver $driver): ?string
+    {
+        return null;
     }
 }
