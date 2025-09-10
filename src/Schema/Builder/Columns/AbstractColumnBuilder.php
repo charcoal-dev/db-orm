@@ -32,7 +32,7 @@ abstract class AbstractColumnBuilder
      */
     public function __construct(public readonly string $name, ColumnType $type)
     {
-        if (!$this->name || !preg_match('/^[A-Za-z0-9_]+$/', $this->name)) {
+        if (!$this->name || !preg_match('/^[a-z0-9_]+$/', $this->name)) {
             throw new \InvalidArgumentException(sprintf('Column name "%s" is invalid', $this->name));
         } elseif (CharcoalOrm::isReserved($this->name)) {
             throw new \InvalidArgumentException(sprintf('Column name "%s" is reserved', $this->name));
