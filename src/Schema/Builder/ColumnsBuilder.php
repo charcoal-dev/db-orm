@@ -18,7 +18,6 @@ use Charcoal\Database\Orm\Schema\Builder\Columns\BoolColumn;
 use Charcoal\Database\Orm\Schema\Builder\Columns\BufferColumn;
 use Charcoal\Database\Orm\Schema\Builder\Columns\DateColumn;
 use Charcoal\Database\Orm\Schema\Builder\Columns\DecimalColumn;
-use Charcoal\Database\Orm\Schema\Builder\Columns\DoubleColumn;
 use Charcoal\Database\Orm\Schema\Builder\Columns\DsvColumn;
 use Charcoal\Database\Orm\Schema\Builder\Columns\EnumColumn;
 use Charcoal\Database\Orm\Schema\Builder\Columns\EnumObjectColumn;
@@ -215,17 +214,6 @@ class ColumnsBuilder implements \IteratorAggregate
     public function float(string $name): FloatColumn
     {
         $col = new FloatColumn($name);
-        $this->append($col);
-        return $col;
-    }
-
-    /**
-     * Define a new double column.
-     * @api
-     */
-    public function double(string $name): DoubleColumn
-    {
-        $col = new DoubleColumn($name);
         $this->append($col);
         return $col;
     }
