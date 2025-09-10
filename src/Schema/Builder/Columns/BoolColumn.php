@@ -21,6 +21,7 @@ class BoolColumn extends AbstractColumnBuilder
     public function __construct(string $name)
     {
         parent::__construct($name, ColumnType::Bool);
+        $this->attributes->unSigned = true;
         $this->attributes->useValuePipe(ColumnPipes::BoolColumnPipe);
     }
 
@@ -30,12 +31,23 @@ class BoolColumn extends AbstractColumnBuilder
         return $this;
     }
 
+    /**
+     * Bool columns are based on primitive type unsigned-integer.
+     */
     public function getColumnSQL(DbDriver $driver): ?string
     {
         return match ($driver) {
             DbDriver::MYSQL => "tinyint",
             default => "integer",
         };
+    }
+
+    /**
+     * The check constraint for the column.
+     */
+    public function getCheckConstraint(): ?string
+    {
+        return "CHECK `" . $this->attributes->name . "` IN (0,1)";
     }
 }
 
