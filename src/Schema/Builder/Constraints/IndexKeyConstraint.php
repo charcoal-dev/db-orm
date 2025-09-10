@@ -45,13 +45,10 @@ class IndexKeyConstraint extends AbstractConstraint
      */
     public function getConstraintSQL(DbDriver $driver): ?string
     {
-        $columns = implode(",", array_map(function ($col) {
-            return sprintf('`%s`', $col);
-        }, $this->columns));
-
         return match ($driver) {
-            DbDriver::MYSQL => sprintf('INDEX `%s` (%s)', $this->name, $columns),
-            default => null,
+            DbDriver::SQLITE,
+            DbDriver::PGSQL,
+            DbDriver::MYSQL => sprintf("INDEX %s (%s)", $this->name, implode(",", $this->columns)),
         };
     }
 }

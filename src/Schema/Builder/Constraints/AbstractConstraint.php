@@ -19,7 +19,7 @@ abstract class AbstractConstraint
 {
     public function __construct(public readonly string $name)
     {
-        if (!$this->name || !preg_match('/^[a-zA-Z0-9_]+$/', $this->name)) {
+        if (!$this->name || !preg_match('/^[a-z0-9_]+$/', $this->name)) {
             throw new \InvalidArgumentException(sprintf('Constraint name "%s" is invalid', $this->name));
         }
     }

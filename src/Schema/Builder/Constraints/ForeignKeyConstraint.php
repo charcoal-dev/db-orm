@@ -55,17 +55,16 @@ class ForeignKeyConstraint extends AbstractConstraint
      */
     public function getConstraintSQL(DbDriver $driver): ?string
     {
-        $tableReference = $this->db ? sprintf('`%s`.`%s`', $this->db, $this->table) : sprintf('`%s`', $this->table);
         return match ($driver) {
-            DbDriver::MYSQL => sprintf('FOREIGN KEY (`%s`) REFERENCES %s(`%s`)', $this->name, $tableReference, $this->col),
-            DbDriver::SQLITE => sprintf(
-                'CONSTRAINT `%s` FOREIGN KEY (`%s`) REFERENCES %s(`%s`)',
-                sprintf('cnstrnt_%s_frgn', $this->name),
+            DbDriver::SQLITE,
+            DbDriver::PGSQL,
+            DbDriver::MYSQL => sprintf(
+                "CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s)",
+                sprintf("constraint_%s_foreign", $this->name),
                 $this->name,
-                $tableReference,
+                $this->db ? sprintf("%s.%s", $this->db, $this->table) : $this->table,
                 $this->col
-            ),
-            default => null,
+            )
         };
     }
 }
