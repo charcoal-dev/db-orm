@@ -11,6 +11,7 @@ namespace Charcoal\Database\Orm\Schema\Builder\Columns;
 use Charcoal\Base\Objects\Traits\NotCloneableTrait;
 use Charcoal\Base\Objects\Traits\NotSerializableTrait;
 use Charcoal\Database\Enums\DbDriver;
+use Charcoal\Database\Orm\CharcoalOrm;
 use Charcoal\Database\Orm\Enums\ColumnType;
 use Charcoal\Database\Orm\Schema\Builder\ColumnAttributesBuilder;
 use Charcoal\Database\Orm\Schema\Snapshot\ColumnSnapshot;
@@ -33,6 +34,8 @@ abstract class AbstractColumnBuilder
     {
         if (!$this->name || !preg_match('/^[A-Za-z0-9_]+$/', $this->name)) {
             throw new \InvalidArgumentException(sprintf('Column name "%s" is invalid', $this->name));
+        } elseif (CharcoalOrm::isReserved($this->name)) {
+            throw new \InvalidArgumentException(sprintf('Column name "%s" is reserved', $this->name));
         }
 
         $this->attributes = new ColumnAttributesBuilder($name, $type);
