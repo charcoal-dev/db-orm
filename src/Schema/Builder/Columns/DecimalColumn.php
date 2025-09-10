@@ -126,7 +126,7 @@ class DecimalColumn extends AbstractColumnBuilder
      * The CHECK constraint for the column (only if range was set).
      * Emits a simple min/max check; precision is enforced by the type in MySQL/PG, and by affinity+checks in SQLite.
      */
-    public function getCheckConstraint(): ?string
+    public function getCheckConstraintSQL(DbDriver $driver): ?string
     {
         if (!isset($this->min, $this->max)) {
             return null;

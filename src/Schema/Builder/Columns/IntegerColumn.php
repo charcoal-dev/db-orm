@@ -168,7 +168,7 @@ class IntegerColumn extends AbstractColumnBuilder
     /**
      * The check constraint for the column.
      */
-    public function getCheckConstraint(): ?string
+    public function getCheckConstraintSQL(DbDriver $driver): ?string
     {
         if (!isset($this->min, $this->max)) {
             return null;
