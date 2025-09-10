@@ -18,6 +18,7 @@ use Charcoal\Database\Orm\Enums\MySqlEngine;
 class TableAttributesBuilder
 {
     public ?MySqlEngine $mysqlEngine = null;
+    public bool $enforceChecks = true;
 
     public function __construct(
         public readonly string   $name,
