@@ -132,9 +132,9 @@ class DecimalColumn extends AbstractColumnBuilder
             return null;
         }
 
-        return "CHECK (`"
+        return "CHECK ("
             . $this->attributes->name
-            . "` BETWEEN "
+            . " BETWEEN "
             . $this->min . " AND " . $this->max
             . ")";
     }

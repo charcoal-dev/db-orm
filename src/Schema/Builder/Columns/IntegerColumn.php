@@ -174,6 +174,6 @@ class IntegerColumn extends AbstractColumnBuilder
             return null;
         }
 
-        return "CHECK (`" . $this->attributes->name . "` BETWEEN " . $this->min . " AND " . $this->max . ")";
+        return "CHECK (" . $this->attributes->name . " BETWEEN " . $this->min . " AND " . $this->max . ")";
     }
 }
