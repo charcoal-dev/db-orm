@@ -40,7 +40,7 @@ class UsersTable extends AbstractOrmTable
         $cols->string("first_name")->charset(Charset::UTF8)->length(32)->nullable();
         $cols->string("last_name")->charset(Charset::UTF8)->length(32)->nullable();
         $cols->string("country")->fixed(3)->nullable();
-        $cols->int("joined_on")->bytes(4)->unSigned();
+        $cols->int("joined_on")->size(4)->unSigned()->enforceChecks();
         $cols->setPrimaryKey("id");
     }
 
