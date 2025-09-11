@@ -29,7 +29,7 @@ class UsersTable extends AbstractOrmTable
     {
         $cols->setDefaultCharset(Charset::ASCII);
 
-        $cols->int("id")->size(4)->unSigned()->autoIncrement();
+        $cols->int("id")->range(1, 10000)->unSigned()->autoIncrement();
         $cols->enum("status")->options("active", "frozen", "disabled")->default("active");
         $cols->enum("role", enumClass: UserRole::class)->options("user", "mod")->default("user");
         $cols->bool("is_deleted")->default(false);

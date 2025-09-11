@@ -185,19 +185,13 @@ class Migrations
         $columnSql = $columnAttributes->name . " " . $column->getColumnSQL($attributes->driver);
 
         // Signed or Unsigned
-        if (isset($columnAttributes->unSigned)) {
-            if ($columnAttributes->unSigned) {
-                if ($column instanceof IntegerColumn) {
-                    $columnSql .= ($attributes->driver === DbDriver::SQLITE && $columnAttributes->autoIncrement) ?
-                        "" : " UNSIGNED";
-                } else {
-                    $columnSql .= " UNSIGNED";
-                }
-            }
+        if ($columnAttributes->unSigned && $attributes->driver === DbDriver::MYSQL) {
+            $columnSql .= " UNSIGNED";
         }
 
         // Primary Key
-        if ($columnAttributes->name === $columns->getPrimaryKey()) {
+        $columnIsPrimary = $columnAttributes->name === $columns->getPrimaryKey();
+        if ($columnIsPrimary) {
             $columnSql .= " PRIMARY KEY";
         }
 
@@ -205,23 +199,30 @@ class Migrations
         if ($column instanceof IntegerColumn) {
             if ($columnAttributes->autoIncrement) {
                 $columnSql .= match ($attributes->driver) {
-                    DbDriver::SQLITE => " AUTOINCREMENT",
-                    default => " auto_increment",
+                    DbDriver::SQLITE => $columnIsPrimary ? " AUTOINCREMENT" :
+                        throw new \LogicException("Auto-increment not allowed for non-primary keys in SQLite"),
+                    DbDriver::MYSQL => " auto_increment",
+                    DbDriver::PGSQL => " GENERATED ALWAYS AS IDENTITY",
                 };
             }
         }
 
         // Unique
         if ($columnAttributes->unique) {
-            if ($attributes->driver == DbDriver::SQLITE) {
-                $columnSql .= " UNIQUE";
-            }
+            $columnSql .= match ($attributes->driver) {
+                DbDriver::SQLITE,
+                DbDriver::PGSQL => " UNIQUE",
+                default => ""
+            };
         }
 
         // MySQL specific attributes
         if ($attributes->driver === DbDriver::MYSQL) {
             if ($columnAttributes->charset) {
-                $columnSql .= " CHARACTER SET " . strtolower($columnAttributes->charset->value);
+                $columnSql .= " CHARACTER SET " . match ($columnAttributes->charset) {
+                        Charset::ASCII => "ascii",
+                        Charset::UTF8 => "utf8mb4",
+                    };
                 $columnSql .= " COLLATE " . match ($columnAttributes->charset) {
                         Charset::ASCII => "ascii_general_ci",
                         Charset::UTF8 => "utf8mb4_unicode_ci",

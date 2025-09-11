@@ -49,7 +49,7 @@ final class BoolColumn extends AbstractColumnBuilder
      */
     public function getCheckConstraintSQL(DbDriver $driver): ?string
     {
-        return "CHECK " . $this->attributes->name . " IN (0,1)";
+        return "CHECK (" . $this->attributes->name . " IN (0,1))";
     }
 }
 

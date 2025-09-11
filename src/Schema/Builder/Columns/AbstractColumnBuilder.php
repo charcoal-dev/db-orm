@@ -70,6 +70,12 @@ abstract class AbstractColumnBuilder
             );
         }
 
+        if (is_string($value) && str_contains($value, "'")) {
+            throw new \InvalidArgumentException(
+                sprintf('Default value for col "%s" cannot contain single quotes', $this->attributes->name)
+            );
+        }
+
         $this->attributes->defaultValue = $value;
         return $this;
     }
