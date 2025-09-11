@@ -36,7 +36,7 @@ final class IntegerColumn extends AbstractColumnBuilder
      * Define integer column using a range for storable values;
      * Automatically determines the size of the column based on the range, and implements CHECK too.
      */
-    public function range(int|string $min, int|string $max): static
+    public function range(int|string $min, int|string $max): self
     {
         if (isset($this->size) || isset($this->attributes->unSigned)) {
             throw new \InvalidArgumentException("Cannot set range for integer column with size defined; " .
@@ -75,7 +75,7 @@ final class IntegerColumn extends AbstractColumnBuilder
     /**
      * Not deprecated, but prefer using range() instead.
      */
-    public function size(int $byteLen): static
+    public function size(int $byteLen): self
     {
         if (isset($this->min) || isset($this->max)) {
             throw new \InvalidArgumentException("Cannot set size for integer column with range defined; " .
@@ -97,7 +97,7 @@ final class IntegerColumn extends AbstractColumnBuilder
     /**
      * Set default value for integer column.
      */
-    public function default(int $value): static
+    public function default(int $value): self
     {
         if (!isset($this->size) && !isset($this->min, $this->max)) {
             throw new \LogicException("Cannot set default value without size or range for column: " .
@@ -136,7 +136,7 @@ final class IntegerColumn extends AbstractColumnBuilder
     /**
      * @api auto_increment
      */
-    public function autoIncrement(): static
+    public function autoIncrement(): self
     {
         $this->attributes->autoIncrement = true;
         return $this;

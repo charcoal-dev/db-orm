@@ -37,7 +37,7 @@ final class DecimalColumn extends AbstractColumnBuilder
     /**
      * Set the default value (string, base-10).
      */
-    public function default(string $value = "0"): static
+    public function default(string $value = "0"): self
     {
         if (!preg_match("/^-?[0-9]+(?:\.[0-9]+)?$/", $value)) {
             throw new \InvalidArgumentException(sprintf("Bad default decimal value for col \"%s\"",
@@ -70,7 +70,7 @@ final class DecimalColumn extends AbstractColumnBuilder
      * Define an inclusive range for values. Uses BCMath for comparison.
      * Accepts strings in base-10. Precision checks are applied if digits/scale are already known.
      */
-    public function range(string $min, string $max): static
+    public function range(string $min, string $max): self
     {
         if (!preg_match("/^-?[0-9]+(?:\.[0-9]+)?$/", $min)
             || !preg_match("/^-?[0-9]+(?:\.[0-9]+)?$/", $max)) {

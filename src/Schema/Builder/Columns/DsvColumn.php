@@ -30,7 +30,7 @@ final class DsvColumn extends AbstractStringColumn
      * @param string $delimiter
      * @return $this
      */
-    public function delimiter(string $delimiter): static
+    public function delimiter(string $delimiter): self
     {
         if (!in_array($delimiter, CharcoalOrm::DSV_DELIMITERS)) {
             throw new \InvalidArgumentException("Invalid delimiter");
@@ -47,7 +47,7 @@ final class DsvColumn extends AbstractStringColumn
      * @return $this
      * @api
      */
-    public function enumClass(string $enumClass): static
+    public function enumClass(string $enumClass): self
     {
         if (!enum_exists($enumClass)) {
             throw new \InvalidArgumentException("Enum class does not exist: " . $enumClass);

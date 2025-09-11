@@ -27,7 +27,7 @@ final class BoolColumn extends AbstractColumnBuilder
     /**
      * Set the default value (boolean).
      */
-    public function default(bool $defaultValue): static
+    public function default(bool $defaultValue): self
     {
         $this->setDefaultValue($defaultValue ? 1 : 0);
         return $this;

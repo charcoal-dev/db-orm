@@ -29,7 +29,7 @@ final class DateColumn extends AbstractColumnBuilder
     /**
      * Set the default value from \DateTime or timestamp (int)
      */
-    final public function default(\DateTime|int|string $value): static
+    final public function default(\DateTime|int|string $value): self
     {
         if (is_string($value)) {
             $value = strtotime($value);
