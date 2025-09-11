@@ -75,13 +75,13 @@ class ColumnsTest extends \PHPUnit\Framework\TestCase
     public function testIntegerColumnMySql(): void
     {
         $col = new IntegerColumn("test_column");
-        $col->bytes(1);
+        $col->size(1);
         $this->assertEquals("tinyint", $col->getColumnSQL(DbDriver::MYSQL));
-        $col->bytes(2);
+        $col->size(2);
         $this->assertEquals("smallint", $col->getColumnSQL(DbDriver::MYSQL));
-        $col->bytes(4);
+        $col->size(4);
         $this->assertEquals("int", $col->getColumnSQL(DbDriver::MYSQL));
-        $col->bytes(8);
+        $col->size(8);
         $this->assertEquals("bigint", $col->getColumnSQL(DbDriver::MYSQL));
     }
 
@@ -241,7 +241,7 @@ class ColumnsTest extends \PHPUnit\Framework\TestCase
      */
     public function testSerializeColumn(): void
     {
-        $cols[] = (new IntegerColumn("id"))->bytes(2)->unSigned();
+        $cols[] = (new IntegerColumn("id"))->size(2)->unSigned();
         $cols[] = (new FrameColumn("frame1"))->fixed(20);
         $cols[] = (new EnumObjectColumn("opt1", UserRole::class))
             ->options("user", "mod");

@@ -25,10 +25,10 @@ class UsersLogsTable extends AbstractOrmTable
     {
         $cols->setDefaultCharset(Charset::ASCII);
 
-        $cols->int("id")->bytes(8)->unSigned()->autoIncrement();
-        $cols->int("user")->bytes(4)->unSigned();
+        $cols->int("id")->size(8)->unSigned()->autoIncrement();
+        $cols->int("user")->size(4)->unSigned();
         $cols->string("log")->length(512);
-        $cols->int("added_on")->bytes(4)->unSigned();
+        $cols->int("added_on")->size(4)->unSigned();
         $cols->string("ip_address")->length(45);
         $cols->string("baggage")->length(100)->nullable();
         $cols->setPrimaryKey("id");

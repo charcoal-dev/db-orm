@@ -23,7 +23,7 @@ class BlobStoreTable extends AbstractOrmTable
         $cols->string("key")->length(40)->unique();
         $cols->binaryFrame("object")->length(1024);
         $cols->string("match_exp")->length(128)->nullable();
-        $cols->int("timestamp")->bytes(4)->unSigned();
+        $cols->int("timestamp")->size(4)->unSigned();
     }
 
     protected function migrations(TableMigrations $migrations): void
