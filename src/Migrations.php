@@ -35,7 +35,7 @@ final class Migrations
     /**
      * @api
      */
-    public function includeTable(AbstractOrmTable $table): static
+    public function includeTable(AbstractOrmTable $table): self
     {
         $tables = $table->getMigrations($this->versionFrom, $this->versionTo);
         foreach ($tables as $version => $queries) {

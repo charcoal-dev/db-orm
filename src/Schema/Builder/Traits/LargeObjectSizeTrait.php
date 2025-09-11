@@ -15,6 +15,7 @@ trait LargeObjectSizeTrait
 {
     protected LobSize $size = LobSize::DEFAULT;
 
+    /** @api */
     final public function size(LobSize $size): static
     {
         $this->size = $size;

@@ -11,12 +11,14 @@ namespace Charcoal\Database\Orm\Schema\Builder\Traits;
 /** @internal */
 trait NumericValueTrait
 {
+    /** @api */
     final public function signed(): static
     {
         $this->attributes->unSigned = false;
         return $this;
     }
 
+    /** @api */
     final public function unSigned(): static
     {
         $this->attributes->unSigned = true;

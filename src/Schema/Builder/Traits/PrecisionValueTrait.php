@@ -14,6 +14,7 @@ trait PrecisionValueTrait
     protected int $digits = 0;
     protected int $scale = 0;
 
+    /** @api */
     public function precision(int $digits, int $scale): static
     {
         // Precision digits

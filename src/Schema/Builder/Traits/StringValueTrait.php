@@ -11,6 +11,7 @@ namespace Charcoal\Database\Orm\Schema\Builder\Traits;
 /** @internal */
 trait StringValueTrait
 {
+    /** @api */
     final public function default(string $value): static
     {
         $this->setDefaultValue($value);
