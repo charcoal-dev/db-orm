@@ -17,8 +17,7 @@ use Charcoal\Database\Orm\Schema\Builder\ColumnAttributesBuilder;
 use Charcoal\Database\Orm\Schema\Snapshot\ColumnSnapshot;
 
 /**
- * Class AbstractColumnBuilder
- * @package Charcoal\Database\Orm\Schema\Builder\Columns
+ * Abstraction for column snapshot builders.
  */
 abstract class AbstractColumnBuilder
 {
@@ -42,7 +41,7 @@ abstract class AbstractColumnBuilder
     }
 
     /**
-     * Implement/enforce data integrity checks for this column when generating SQL?
+     * @api Implement data-integrity CHECK constraints for this column when generating SQL?
      */
     public function enforceChecks(bool $enforce = true): static
     {
@@ -51,7 +50,7 @@ abstract class AbstractColumnBuilder
     }
 
     /**
-     * Make this column nullable?
+     * @api Make this column nullable?
      */
     public function nullable(): static
     {
