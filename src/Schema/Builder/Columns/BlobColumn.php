@@ -29,11 +29,7 @@ class BlobColumn extends AbstractColumnBuilder
      */
     public function getColumnSQL(DbDriver $driver): ?string
     {
-        return match ($driver) {
-            DbDriver::MYSQL => $this->size->getColumn($driver, text: false),
-            DbDriver::PGSQL => "BYTEA",
-            default => "BLOB",
-        };
+        return $this->size->getColumnSQL($driver, text: false);
     }
 
     /**

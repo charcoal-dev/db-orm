@@ -15,8 +15,7 @@ use Charcoal\Database\Orm\Schema\Builder\Traits\ColumnCharsetTrait;
 use Charcoal\Database\Orm\Schema\Builder\Traits\LargeObjectSizeTrait;
 
 /**
- * Class TextColumn
- * @package Charcoal\Database\Orm\Schema\Columns
+ * Column for Textual Data (CLOBs)
  */
 class TextColumn extends AbstractColumnBuilder
 {
@@ -25,16 +24,25 @@ class TextColumn extends AbstractColumnBuilder
     use ColumnCharsetTrait;
     use LargeObjectSizeTrait;
 
+
     public function __construct(string $name)
     {
         parent::__construct($name, ColumnType::Text);
     }
 
+    /**
+     * SQL declaration for CLOBs
+     */
     public function getColumnSQL(DbDriver $driver): ?string
     {
-        return match ($driver) {
-            DbDriver::MYSQL => $this->size->getColumn($driver, text: true),
-            default => "TEXT",
-        };
+        return $this->size->getColumnSQL($driver, text: true);
+    }
+
+    /**
+     * No CHECK constraint for LOBs.
+     */
+    public function getCheckConstraintSQL(DbDriver $driver): ?string
+    {
+        return null;
     }
 }

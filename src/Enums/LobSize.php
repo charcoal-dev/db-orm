@@ -20,7 +20,10 @@ enum LobSize: string
     case MEDIUM = "medium";
     case LONG = "long";
 
-    public function getColumn(DbDriver $dbDriver, bool $text): string
+    /**
+     * Get the SQL column definition based on the LOB size.
+     */
+    final public function getColumnSQL(DbDriver $dbDriver, bool $text): string
     {
         return match ($dbDriver) {
             DbDriver::MYSQL => match ($this) {
