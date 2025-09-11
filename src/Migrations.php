@@ -18,10 +18,10 @@ use Charcoal\Database\Orm\Schema\Builder\TableAttributesBuilder;
 use Charcoal\Vectors\Strings\StringVector;
 
 /**
- * Class Migrations
- * @package Charcoal\Database\Orm
+ * Manages database migrations by tracking versioned queries and
+ * generating SQL statements for schema changes.
  */
-class Migrations
+final class Migrations
 {
     private array $migrations = [];
 
