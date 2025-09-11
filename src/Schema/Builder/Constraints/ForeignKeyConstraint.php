@@ -16,20 +16,20 @@ use Charcoal\Database\Orm\Schema\Snapshot\ConstraintSnapshot;
  * Class ForeignKeyConstraint
  * @package Charcoal\Database\Orm\Schema\Constraints
  */
-class ForeignKeyConstraint extends AbstractConstraint
+final class ForeignKeyConstraint extends AbstractConstraint
 {
     private string $table;
     private string $col;
     private ?string $db = null;
 
-    public function table(string $table, string $column): static
+    public function table(string $table, string $column): self
     {
         $this->table = $table;
         $this->col = $column;
         return $this;
     }
 
-    public function database(string $db): static
+    public function database(string $db): self
     {
         $this->db = $db;
         return $this;

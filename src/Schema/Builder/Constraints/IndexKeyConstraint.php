@@ -17,11 +17,11 @@ use Charcoal\Database\Orm\Schema\Snapshot\ConstraintSnapshot;
  * @package Charcoal\Database\Orm\Schema\Constraints
  * @property array<string> $columns
  */
-class IndexKeyConstraint extends AbstractConstraint
+final class IndexKeyConstraint extends AbstractConstraint
 {
     private array $columns = [];
 
-    public function columns(string ...$cols): static
+    public function columns(string ...$cols): self
     {
         $this->columns = $cols;
         return $this;
