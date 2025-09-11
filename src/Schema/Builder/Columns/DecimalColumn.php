@@ -106,7 +106,7 @@ final class DecimalColumn extends AbstractColumnBuilder
     }
 
     /**
-     * Column SQL.
+     * @internal
      */
     public function getColumnSQL(DbDriver $driver): ?string
     {
@@ -125,6 +125,7 @@ final class DecimalColumn extends AbstractColumnBuilder
     /**
      * The CHECK constraint for the column (only if range was set).
      * Emits a simple min/max check; precision is enforced by the type in MySQL/PG, and by affinity+checks in SQLite.
+     * @internal
      */
     public function getCheckConstraintSQL(DbDriver $driver): ?string
     {

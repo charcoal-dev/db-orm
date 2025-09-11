@@ -25,7 +25,7 @@ class BlobColumn extends AbstractColumnBuilder
     }
 
     /**
-     * SQL declaration for BLOBs
+     * @internal SQL declaration for BLOBs
      */
     public function getColumnSQL(DbDriver $driver): ?string
     {
@@ -33,7 +33,7 @@ class BlobColumn extends AbstractColumnBuilder
     }
 
     /**
-     * No CHECK constraint for LOBs.
+     * @internal No CHECK constraint for LOBs.
      */
     public function getCheckConstraintSQL(DbDriver $driver): ?string
     {

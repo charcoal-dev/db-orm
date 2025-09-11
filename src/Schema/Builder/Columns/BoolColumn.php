@@ -34,7 +34,7 @@ final class BoolColumn extends AbstractColumnBuilder
     }
 
     /**
-     * Bool columns are based on primitive type unsigned-integer.
+     * @internal Bool columns are based on primitive type unsigned-integer.
      */
     public function getColumnSQL(DbDriver $driver): ?string
     {
@@ -45,7 +45,7 @@ final class BoolColumn extends AbstractColumnBuilder
     }
 
     /**
-     * The check constraint for the column.
+     * @internal The check constraint for the column.
      */
     public function getCheckConstraintSQL(DbDriver $driver): ?string
     {

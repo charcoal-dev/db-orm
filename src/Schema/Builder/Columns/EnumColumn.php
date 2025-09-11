@@ -52,7 +52,7 @@ class EnumColumn extends AbstractColumnBuilder
     }
 
     /**
-     * Get the column SQL definition.
+     * @internal Get the column SQL definition.
      */
     public function getColumnSQL(DbDriver $driver): ?string
     {
@@ -72,7 +72,7 @@ class EnumColumn extends AbstractColumnBuilder
     }
 
     /**
-     * No CHECK constraint for enums.
+     * @internal No CHECK constraint for enums.
      */
     public function getCheckConstraintSQL(DbDriver $driver): ?string
     {

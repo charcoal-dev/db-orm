@@ -73,8 +73,10 @@ abstract class AbstractStringColumn extends AbstractColumnBuilder
 
         if ($min > $this->length) {
             throw new \InvalidArgumentException("Minimum length must be less than or equal to column length: " .
-                "(" . $this->length . " bytes) " .
-                $this->attributes->name);
+                "(" . $this->length . " bytes) " . $this->attributes->name);
+        } else if ($max && $max > $this->length) {
+            throw new \InvalidArgumentException("Maximum length must not exceed column length: " .
+                "(" . $this->length . " bytes) " . $this->attributes->name);
         }
 
         $this->minLength = $min;

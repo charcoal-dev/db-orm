@@ -15,7 +15,7 @@ use Charcoal\Database\Orm\Pipes\ColumnPipes;
  * Class FrameColumn
  * @package Charcoal\Database\Orm\Schema\Columns
  */
-class FrameColumn extends BinaryColumn
+final class FrameColumn extends BinaryColumn
 {
     public function __construct(string $name)
     {

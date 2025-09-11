@@ -45,8 +45,10 @@ class FloatColumn extends AbstractColumnBuilder
     public function range(float|int $min, float|int $max): static
     {
         if ($this->attributes->unSigned && ($min < 0 || $max < 0)) {
-            throw new \InvalidArgumentException("Unsigned float cannot have negative range: " . $this->attributes->name);
+            throw new \InvalidArgumentException("Unsigned float cannot have negative range: " .
+                $this->attributes->name);
         }
+
         if ($min > $max) {
             throw new \InvalidArgumentException("Minimum must be <= maximum: " . $this->attributes->name);
         }
@@ -56,7 +58,9 @@ class FloatColumn extends AbstractColumnBuilder
         return $this;
     }
 
-
+    /**
+     * @internal
+     */
     public function getColumnSQL(DbDriver $driver): ?string
     {
         return match ($driver) {
@@ -69,6 +73,9 @@ class FloatColumn extends AbstractColumnBuilder
         };
     }
 
+    /**
+     * @internal
+     */
     public function getCheckConstraintSQL(DbDriver $driver): ?string
     {
         if (!isset($this->min, $this->max)) {

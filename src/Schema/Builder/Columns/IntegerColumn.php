@@ -143,8 +143,7 @@ final class IntegerColumn extends AbstractColumnBuilder
     }
 
     /**
-     * @param DbDriver $driver
-     * @return string|null
+     * @internal
      */
     public function getColumnSQL(DbDriver $driver): ?string
     {
@@ -166,7 +165,7 @@ final class IntegerColumn extends AbstractColumnBuilder
     }
 
     /**
-     * The check constraint for the column.
+     * @internal The check constraint for the column.
      */
     public function getCheckConstraintSQL(DbDriver $driver): ?string
     {

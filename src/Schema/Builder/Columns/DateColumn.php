@@ -45,7 +45,7 @@ final class DateColumn extends AbstractColumnBuilder
     }
 
     /**
-     * SQL definition for this column.
+     * @internal SQL definition for this column.
      */
     public function getColumnSQL(DbDriver $driver): ?string
     {
@@ -56,7 +56,7 @@ final class DateColumn extends AbstractColumnBuilder
     }
 
     /**
-     * No CHECK constraint for dates.
+     * @internal No CHECK constraint for dates.
      */
     public function getCheckConstraintSQL(DbDriver $driver): ?string
     {

@@ -31,7 +31,7 @@ final class TextColumn extends AbstractColumnBuilder
     }
 
     /**
-     * SQL declaration for CLOBs
+     * @internal SQL declaration for CLOBs
      */
     public function getColumnSQL(DbDriver $driver): ?string
     {
@@ -39,7 +39,7 @@ final class TextColumn extends AbstractColumnBuilder
     }
 
     /**
-     * No CHECK constraint for LOBs.
+     * @internal No CHECK constraint for LOBs.
      */
     public function getCheckConstraintSQL(DbDriver $driver): ?string
     {
