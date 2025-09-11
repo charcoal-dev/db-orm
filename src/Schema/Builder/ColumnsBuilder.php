@@ -33,7 +33,7 @@ use Charcoal\Database\Orm\Schema\Builder\Columns\TextColumn;
  * @use InstancedObjectsRegistry<AbstractColumnBuilder>
  * @property array<string,AbstractColumnBuilder> $instances
  */
-class ColumnsBuilder implements \IteratorAggregate
+final class ColumnsBuilder implements \IteratorAggregate
 {
     private int $count = 0;
     private Charset $defaultCharset = Charset::ASCII;
@@ -53,7 +53,7 @@ class ColumnsBuilder implements \IteratorAggregate
     /**
      * Set the default charset for all columns.
      */
-    public function setDefaultCharset(Charset $charset = null): static
+    public function setDefaultCharset(Charset $charset = null): self
     {
         $this->defaultCharset = $charset;
         return $this;

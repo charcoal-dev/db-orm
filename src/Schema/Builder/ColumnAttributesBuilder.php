@@ -18,7 +18,7 @@ use Charcoal\Database\Orm\Enums\ColumnType;
 /**
  * Column attributes builder class.
  */
-class ColumnAttributesBuilder
+final class ColumnAttributesBuilder
 {
     use NotCloneableTrait;
     use NotSerializableTrait;

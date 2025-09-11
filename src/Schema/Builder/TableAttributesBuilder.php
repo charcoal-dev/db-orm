@@ -15,7 +15,7 @@ use Charcoal\Database\Orm\Enums\MySqlEngine;
  * A builder class for managing table attributes, allowing the user to
  * define and retrieve arbitrary key-value pairs and set the MySQL storage engine.
  */
-class TableAttributesBuilder
+final class TableAttributesBuilder
 {
     public ?MySqlEngine $mysqlEngine = null;
     public bool $enforceChecks = true;

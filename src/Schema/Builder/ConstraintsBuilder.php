@@ -23,11 +23,14 @@ use Charcoal\Database\Orm\Schema\Builder\Constraints\UniqueKeyConstraint;
  * @use \IteratorAggregate<string,AbstractConstraint>
  * @property array<string,AbstractConstraint> $instances
  */
-class ConstraintsBuilder implements \IteratorAggregate
+final class ConstraintsBuilder implements \IteratorAggregate
 {
     use InstancedObjectsRegistry;
     use RegistryKeysLowercaseTrimmed;
 
+    /**
+     * @api Creates a new unique key constraint for the table.
+     */
     public function uniqueKey(string $key): UniqueKeyConstraint
     {
         $constraint = new UniqueKeyConstraint($key);
@@ -35,6 +38,9 @@ class ConstraintsBuilder implements \IteratorAggregate
         return $constraint;
     }
 
+    /**
+     * @api Creates a new foreign key constraint for the table.
+     */
     public function foreignKey(string $key): ForeignKeyConstraint
     {
         $constraint = new ForeignKeyConstraint($key);
@@ -42,12 +48,18 @@ class ConstraintsBuilder implements \IteratorAggregate
         return $constraint;
     }
 
+    /**
+     * @api Creates a new index constraint for the table.
+     */
     public function addIndex(string $column, string $prefix = "idx_"): void
     {
         $key = $prefix . $column;
         $this->instances[$key] = (new IndexKeyConstraint($key))->columns($column);
     }
 
+    /**
+     * @api Adds a new composite index constraint for the table.
+     */
     public function addIndexComposite(string $key): IndexKeyConstraint
     {
         $constraint = new IndexKeyConstraint($key);
