@@ -18,7 +18,10 @@
     "charcoal-dev/base": "^0.2.1",
     "charcoal-dev/buffers": "^0.2.4",
     "charcoal-dev/vectors": "^0.2.1",
-    "charcoal-dev/database": "^0.2.8"
+    "charcoal-dev/database": "^0.2.9",
+    "charcoal-dev/gmp-adapter": "^0.1.3",
+    "ext-gmp": "*",
+    "ext-bcmath": "*"
   },
   "autoload": {
     "psr-4": {
