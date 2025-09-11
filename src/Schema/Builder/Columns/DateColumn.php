@@ -16,7 +16,7 @@ use Charcoal\Database\Orm\Schema\Builder\Traits\UniqueValueTrait;
 /**
  * Date column (format Y-m-d) - pipes values to/from \DateTime object.
  */
-class DateColumn extends AbstractColumnBuilder
+final class DateColumn extends AbstractColumnBuilder
 {
     use UniqueValueTrait;
 

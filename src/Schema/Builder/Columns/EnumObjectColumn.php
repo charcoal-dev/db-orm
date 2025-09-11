@@ -13,7 +13,7 @@ use Charcoal\Database\Orm\Pipes\ColumnPipes;
 /**
  * Enum that pipes value to/from actual PHP enums for entity classes.
  */
-class EnumObjectColumn extends EnumColumn
+final class EnumObjectColumn extends EnumColumn
 {
     public function __construct(string $name, string $enumClass)
     {

@@ -17,7 +17,7 @@ use Charcoal\Database\Orm\Schema\Builder\Traits\PrecisionValueTrait;
  * Class DecimalColumn
  * @package Charcoal\Database\Orm\Schema\Columns
  */
-class DecimalColumn extends AbstractColumnBuilder
+final class DecimalColumn extends AbstractColumnBuilder
 {
     protected const int MAX_DIGITS = 65;
     protected const int MAX_SCALE = 30;

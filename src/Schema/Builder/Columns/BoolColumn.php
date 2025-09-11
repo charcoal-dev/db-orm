@@ -15,7 +15,7 @@ use Charcoal\Database\Orm\Pipes\ColumnPipes;
 /**
  * Boolean column (backed by tinyint)
  */
-class BoolColumn extends AbstractColumnBuilder
+final class BoolColumn extends AbstractColumnBuilder
 {
     public function __construct(string $name)
     {

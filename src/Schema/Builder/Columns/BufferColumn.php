@@ -14,7 +14,7 @@ use Charcoal\Database\Orm\Pipes\ColumnPipes;
 /**
  * Buffer column (backed by BLOB) - pipes to/from Buffer objects
  */
-class BufferColumn extends BlobColumn
+final class BufferColumn extends BlobColumn
 {
     public function __construct(string $name)
     {

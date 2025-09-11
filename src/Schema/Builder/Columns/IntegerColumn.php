@@ -18,7 +18,7 @@ use Charcoal\Database\Orm\Schema\Builder\Traits\UniqueValueTrait;
  * Class IntegerColumn
  * @package Charcoal\Database\Orm\Schema\Columns
  */
-class IntegerColumn extends AbstractColumnBuilder
+final class IntegerColumn extends AbstractColumnBuilder
 {
     private ?int $size = null;
     private ?string $min = null;

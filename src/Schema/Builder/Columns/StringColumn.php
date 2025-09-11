@@ -13,7 +13,7 @@ use Charcoal\Database\Orm\Enums\ColumnType;
 /**
  * CHAR/VARCHAR column definition
  */
-class StringColumn extends AbstractStringColumn
+final class StringColumn extends AbstractStringColumn
 {
     public function __construct(string $name)
     {

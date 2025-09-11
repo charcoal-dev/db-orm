@@ -23,6 +23,8 @@ class FloatColumn extends AbstractColumnBuilder
     protected const int MAX_SCALE = 30;
 
     protected string $sqlType;
+    private ?string $min = null;
+    private ?string $max = null;
 
     use NumericValueTrait;
     use PrecisionValueTrait;
@@ -40,12 +42,44 @@ class FloatColumn extends AbstractColumnBuilder
         return $this;
     }
 
+    public function range(float|int $min, float|int $max): static
+    {
+        if ($this->attributes->unSigned && ($min < 0 || $max < 0)) {
+            throw new \InvalidArgumentException("Unsigned float cannot have negative range: " . $this->attributes->name);
+        }
+        if ($min > $max) {
+            throw new \InvalidArgumentException("Minimum must be <= maximum: " . $this->attributes->name);
+        }
+
+        $this->min = (string)$min;
+        $this->max = (string)$max;
+        return $this;
+    }
+
+
     public function getColumnSQL(DbDriver $driver): ?string
     {
         return match ($driver) {
-            DbDriver::MYSQL => sprintf("%s(%d,%d)", $this->sqlType, $this->digits, $this->scale),
-            DbDriver::PGSQL => "REAL",
-            default => null,
+            DbDriver::MYSQL => (isset($this->digits, $this->scale)
+                    ? sprintf("%s(%d,%d)", $this->sqlType, $this->digits, $this->scale)
+                    : $this->sqlType)
+                . ($this->attributes->unSigned ? " UNSIGNED" : ""),
+            DbDriver::PGSQL,
+            DbDriver::SQLITE => "REAL",
         };
+    }
+
+    public function getCheckConstraintSQL(DbDriver $driver): ?string
+    {
+        if (!isset($this->min, $this->max)) {
+            return null;
+        }
+
+        return sprintf(
+            "CHECK (%s BETWEEN %s AND %s)",
+            $this->attributes->name,
+            $this->min,
+            $this->max
+        );
     }
 }

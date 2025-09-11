@@ -15,7 +15,7 @@ use Charcoal\Database\Orm\Schema\Builder\Traits\LargeObjectSizeTrait;
 /**
  * Column for Binary Large Objects (BLOBs)
  */
-class BlobColumn extends AbstractColumnBuilder
+final class BlobColumn extends AbstractColumnBuilder
 {
     use LargeObjectSizeTrait;
 

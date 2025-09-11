@@ -17,7 +17,7 @@ use Charcoal\Database\Orm\Schema\Builder\Traits\LargeObjectSizeTrait;
 /**
  * Column for Textual Data (CLOBs)
  */
-class TextColumn extends AbstractColumnBuilder
+final class TextColumn extends AbstractColumnBuilder
 {
     protected LobSize $size = LobSize::DEFAULT;
 

@@ -15,7 +15,7 @@ use Charcoal\Database\Orm\Pipes\ColumnPipes;
 /**
  * String-based, delimiter separated values
  */
-class DsvColumn extends AbstractStringColumn
+final class DsvColumn extends AbstractStringColumn
 {
     public function __construct(string $name, ?string $delimiter = null)
     {
