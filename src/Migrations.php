@@ -14,6 +14,7 @@ use Charcoal\Database\Orm\Enums\MySqlEngine;
 use Charcoal\Database\Orm\Schema\Builder\Columns\AbstractColumnBuilder;
 use Charcoal\Database\Orm\Schema\Builder\Columns\IntegerColumn;
 use Charcoal\Database\Orm\Schema\Builder\ColumnsBuilder;
+use Charcoal\Database\Orm\Schema\Builder\TableAttributesBuilder;
 use Charcoal\Vectors\Strings\StringVector;
 
 /**
@@ -175,19 +176,19 @@ class Migrations
      * and the database driver's requirements.
      */
     public static function columnSpecSQL(
-        DbDriver              $driver,
-        ColumnsBuilder        $columns,
-        AbstractColumnBuilder $column
+        TableAttributesBuilder $attributes,
+        ColumnsBuilder         $columns,
+        AbstractColumnBuilder  $column
     ): string
     {
         $columnAttributes = $column->getAttributes();
-        $columnSql = $columnAttributes->name . " " . $column->getColumnSQL($driver);
+        $columnSql = $columnAttributes->name . " " . $column->getColumnSQL($attributes->driver);
 
         // Signed or Unsigned
         if (isset($columnAttributes->unSigned)) {
             if ($columnAttributes->unSigned) {
                 if ($column instanceof IntegerColumn) {
-                    $columnSql .= ($driver === DbDriver::SQLITE && $columnAttributes->autoIncrement) ?
+                    $columnSql .= ($attributes->driver === DbDriver::SQLITE && $columnAttributes->autoIncrement) ?
                         "" : " UNSIGNED";
                 } else {
                     $columnSql .= " UNSIGNED";
@@ -203,7 +204,7 @@ class Migrations
         // Auto-increment
         if ($column instanceof IntegerColumn) {
             if ($columnAttributes->autoIncrement) {
-                $columnSql .= match ($driver) {
+                $columnSql .= match ($attributes->driver) {
                     DbDriver::SQLITE => " AUTOINCREMENT",
                     default => " auto_increment",
                 };
@@ -212,13 +213,13 @@ class Migrations
 
         // Unique
         if ($columnAttributes->unique) {
-            if ($driver == DbDriver::SQLITE) {
+            if ($attributes->driver == DbDriver::SQLITE) {
                 $columnSql .= " UNIQUE";
             }
         }
 
         // MySQL specific attributes
-        if ($driver === DbDriver::MYSQL) {
+        if ($attributes->driver === DbDriver::MYSQL) {
             if ($columnAttributes->charset) {
                 $columnSql .= " CHARACTER SET " . strtolower($columnAttributes->charset->value);
                 $columnSql .= " COLLATE " . match ($columnAttributes->charset) {
@@ -242,6 +243,13 @@ class Migrations
             $columnSql .= " default ";
             $columnSql .= is_string($columnAttributes->defaultValue) ?
                 "'" . $columnAttributes->defaultValue . "'" : $columnAttributes->defaultValue;
+        }
+
+        if ($attributes->enforceChecks && $columnAttributes->enforceChecks) {
+            $checkConstraintSql = $column->getCheckConstraintSQL($attributes->driver);
+            if ($checkConstraintSql) {
+                $columnSql .= " " . $checkConstraintSql;
+            }
         }
 
         return $columnSql;

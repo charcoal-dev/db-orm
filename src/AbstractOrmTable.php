@@ -63,7 +63,7 @@ abstract class AbstractOrmTable
         $constraintSnapshots = $constraints->snapshot($this, $columns, $driver);
         $columnSnapshots = [];
         foreach ($columns as $column) {
-            $columnSnapshot = $column->snapshot(Migrations::columnSpecSQL($driver, $columns, $column));
+            $columnSnapshot = $column->snapshot(Migrations::columnSpecSQL($attributes, $columns, $column));
             $columnSnapshots[$column->name] = $columnSnapshot;
         }
 
@@ -221,11 +221,11 @@ abstract class AbstractOrmTable
     ): ExecutedQuery
     {
         $updates = [];
-        foreach ($updateCols as $updateCol) {
-            $updateCol = $this->snapshot->findColumn($updateCol);
+        foreach ($updateCols as $colId) {
+            $updateCol = $this->snapshot->findColumn($colId);
             if (!$updateCol) {
                 throw new OrmQueryException(OrmError::QUERY_BUILD_ERROR,
-                    'Cannot find a column in update part of query');
+                    "Cannot find a column in update part of query: " . $colId);
             }
 
             $column = $this->snapshot->columns[$updateCol->name];
