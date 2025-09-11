@@ -20,10 +20,10 @@ class BlobStoreTable extends AbstractOrmTable
     {
         $cols->setDefaultCharset(Charset::ASCII);
 
-        $cols->string("key")->length(40)->unique();
-        $cols->binaryFrame("object")->length(1024);
+        $cols->string("object_id")->length(40)->unique();
+        $cols->binaryFrame("bytes")->length(1024);
         $cols->string("match_exp")->length(128)->nullable();
-        $cols->int("timestamp")->size(4)->unSigned();
+        $cols->int("updated_on")->size(4)->unSigned();
     }
 
     protected function migrations(TableMigrations $migrations): void

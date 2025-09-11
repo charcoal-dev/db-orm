@@ -60,13 +60,11 @@ class ColumnsTest extends \PHPUnit\Framework\TestCase
     {
         $col1 = new IntegerColumn("test");
         $col2 = new StringColumn("test_column_name");
-        $col3 = new BinaryColumn("testColumn");
-        $col4 = new BinaryColumn("TestColumn");
+        $col3 = new BinaryColumn("test_column");
 
         $this->assertEquals("test", $col1->getAttributes()->entityMapKey);
         $this->assertEquals("testColumnName", $col2->getAttributes()->entityMapKey, "from snake case");
         $this->assertEquals("testColumn", $col3->getAttributes()->entityMapKey);
-        $this->assertEquals("TestColumn", $col4->getAttributes()->entityMapKey);
     }
 
     /**

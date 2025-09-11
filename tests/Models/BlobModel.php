@@ -12,8 +12,8 @@ use Charcoal\Buffers\Buffer;
 
 class BlobModel
 {
-    public string $key;
-    public Buffer $object;
+    public string $objectId;
+    public Buffer $bytes;
     public ?string $matchExp;
-    public int $timestamp;
+    public int $updatedOn;
 }

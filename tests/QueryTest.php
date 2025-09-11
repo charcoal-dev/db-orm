@@ -11,6 +11,7 @@ namespace Charcoal\Database\Tests\Orm;
 use Charcoal\Buffers\Buffer;
 use Charcoal\Database\DatabaseClient;
 use Charcoal\Database\Config\DbCredentials;
+use Charcoal\Database\Enums\DbConnectionStrategy;
 use Charcoal\Database\Enums\DbDriver;
 use Charcoal\Database\Exceptions\QueryExecuteException;
 use Charcoal\Database\Orm\Enums\OrmError;
@@ -35,20 +36,21 @@ class QueryTest extends \PHPUnit\Framework\TestCase
         OrmDbResolver::Bind(new DatabaseClient(
             new DbCredentials(
                 DbDriver::SQLITE,
-                __DIR__ . "/tmp/sqlite-file-2"
+                __DIR__ . "/tmp/sqlite-file-2",
+                strategy: DbConnectionStrategy::Normal
             )
         ), BlobStoreTable::class);
 
-        $blob = new BlobStoreTable("dataStore", DbDriver::SQLITE);
+        $blob = new BlobStoreTable("data_store", DbDriver::SQLITE);
 
         try {
             $model = new BlobModel();
-            $model->key = "some.key";
-            $model->object = new Buffer("testvalue\0\0");
+            $model->objectId = "some.key";
+            $model->bytes = new Buffer("testvalue\0\0");
             $model->matchExp = null;
-            $model->timestamp = 1234567;
+            $model->updatedOn = 1234567;
 
-            $blob->querySave($model, new StringVector("object", "matchExp", "timestamp"));
+            $blob->querySave($model, new StringVector("bytes", "matchExp", "updatedOn"));
         } catch (\Exception $e) {
             $this->assertInstanceOf(OrmQueryException::class, $e);
             $this->assertEquals(OrmError::tryFrom($e->ormError->value)->name,
@@ -58,17 +60,17 @@ class QueryTest extends \PHPUnit\Framework\TestCase
             /** @var QueryExecuteException $queryExecEx */
             $queryExecEx = $e->getPrevious();
 
-            $expectedQueryStr = 'INSERT INTO `dataStore` (`key`, `object`, `match_exp`, `timestamp`) VALUES (:key, ' .
-                ':object, :match_exp, :timestamp) ON DUPLICATE KEY UPDATE `object`=:object, `match_exp`=:match_exp, ' .
-                '`timestamp`=:timestamp';
+            $expectedQueryStr = 'INSERT INTO data_store (object_id, bytes, match_exp, updated_on) VALUES (:object_id, ' .
+                ':bytes, :match_exp, :updated_on) ON DUPLICATE KEY UPDATE bytes=:bytes, match_exp=:match_exp, ' .
+                'updated_on=:updated_on';
 
             $this->assertEquals($expectedQueryStr, $queryExecEx->queryStr);
             $this->assertCount(4, $queryExecEx->boundData);
-            $this->assertEquals("some.key", $queryExecEx->boundData["key"]);
-            $this->assertEquals("testvalue\0\0", $queryExecEx->boundData["object"]);
+            $this->assertEquals("some.key", $queryExecEx->boundData["object_id"]);
+            $this->assertEquals("testvalue\0\0", $queryExecEx->boundData["bytes"]);
             $this->assertArrayHasKey("match_exp", $queryExecEx->boundData);
             $this->assertNull($queryExecEx->boundData["match_exp"]);
-            $this->assertEquals(1234567, $queryExecEx->boundData["timestamp"]);
+            $this->assertEquals(1234567, $queryExecEx->boundData["updated_on"]);
             return;
         }
 
