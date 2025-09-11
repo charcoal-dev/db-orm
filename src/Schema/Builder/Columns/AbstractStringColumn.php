@@ -128,8 +128,9 @@ abstract class AbstractStringColumn extends AbstractColumnBuilder
                 goto allChecksCollected;
             }
 
-            $regExp = $driver === DbDriver::PGSQL ? " ~" : " REGEXP";
-            $checks[] = $this->attributes->name . $regExp . " '" . $this->matchRegExp . "'";
+            $matchRegExp = CharcoalOrm::getConstraintRegExp($this->attributes->name, $this->matchRegExp);
+            $checks[] = "REGEXP_LIKE(" . $this->attributes->name . ", '"
+                . $matchRegExp[0] . "'" . ($matchRegExp[1] ? ", '" . $matchRegExp[1] . "'" : "") . ")";
         }
 
         allChecksCollected:
