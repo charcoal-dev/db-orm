@@ -11,8 +11,7 @@ namespace Charcoal\Database\Orm\Schema\Builder\Columns;
 use Charcoal\Database\Orm\Pipes\ColumnPipes;
 
 /**
- * Class EnumObjectColumn
- * @package Charcoal\Database\Orm\Schema\Columns
+ * Enum that pipes value to/from actual PHP enums for entity classes.
  */
 class EnumObjectColumn extends EnumColumn
 {
