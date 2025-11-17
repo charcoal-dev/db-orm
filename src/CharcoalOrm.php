@@ -23,6 +23,7 @@ final class CharcoalOrm
     /** CHECK RegExp behavior control */
     public static bool $constraintRegExpEscapeQuotes = true;
     public static bool $constraintRegExpTrimSlashes = true;
+    public static bool $constraintRegExpEscapeSlashes = true;
 
     /** language=RegExp Global RegExp for table, column and constraint names  */
     public const string NAME_REGEXP = "/^[a-z][a-z0-9_]{1,62}$/";
@@ -66,6 +67,7 @@ final class CharcoalOrm
 
         if (self::$constraintRegExpTrimSlashes) $regExp = substr($regExp, 1, -1 * (strlen($flags) + 1));
         if (self::$constraintRegExpEscapeQuotes) $regExp = str_replace("'", "''", $regExp);
+        if (self::$constraintRegExpEscapeSlashes) $regExp = str_replace("\\", "\\\\", $regExp);
         return [$regExp, $flags ?: null];
     }
 }
