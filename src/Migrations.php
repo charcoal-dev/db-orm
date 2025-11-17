@@ -184,9 +184,21 @@ final class Migrations
         $columnAttributes = $column->getAttributes();
         $columnSql = $columnAttributes->name . " " . $column->getColumnSQL($attributes->driver);
 
-        // Signed or Unsigned
+        // Signed or Unsigned (MySQL only)
         if ($columnAttributes->unSigned && $attributes->driver === DbDriver::MYSQL) {
             $columnSql .= " UNSIGNED";
+        }
+
+        // MySQL specific attributes (charset/collation MUST come before PRIMARY KEY)
+        if ($attributes->driver === DbDriver::MYSQL && $columnAttributes->charset) {
+            $columnSql .= " CHARACTER SET " . match ($columnAttributes->charset) {
+                    Charset::ASCII => "ascii",
+                    Charset::UTF8 => "utf8mb4",
+                };
+            $columnSql .= " COLLATE " . match ($columnAttributes->charset) {
+                    Charset::ASCII => "ascii_general_ci",
+                    Charset::UTF8 => "utf8mb4_unicode_ci",
+                };
         }
 
         // Primary Key
@@ -196,38 +208,23 @@ final class Migrations
         }
 
         // Auto-increment
-        if ($column instanceof IntegerColumn) {
-            if ($columnAttributes->autoIncrement) {
-                $columnSql .= match ($attributes->driver) {
-                    DbDriver::SQLITE => $columnIsPrimary ? " AUTOINCREMENT" :
-                        throw new \LogicException("Auto-increment not allowed for non-primary keys in SQLite"),
-                    DbDriver::MYSQL => " auto_increment",
-                    DbDriver::PGSQL => " GENERATED ALWAYS AS IDENTITY",
-                };
-            }
+        if ($column instanceof IntegerColumn && $columnAttributes->autoIncrement) {
+            $columnSql .= match ($attributes->driver) {
+                DbDriver::SQLITE => $columnIsPrimary
+                    ? " AUTOINCREMENT"
+                    : throw new \LogicException("Auto-increment not allowed for non-primary keys in SQLite"),
+                DbDriver::MYSQL => " auto_increment",
+                DbDriver::PGSQL => " GENERATED ALWAYS AS IDENTITY",
+            };
         }
 
-        // Unique
+        // Unique (column-level)
         if ($columnAttributes->unique) {
             $columnSql .= match ($attributes->driver) {
                 DbDriver::SQLITE,
                 DbDriver::PGSQL => " UNIQUE",
                 default => ""
             };
-        }
-
-        // MySQL specific attributes
-        if ($attributes->driver === DbDriver::MYSQL) {
-            if ($columnAttributes->charset) {
-                $columnSql .= " CHARACTER SET " . match ($columnAttributes->charset) {
-                        Charset::ASCII => "ascii",
-                        Charset::UTF8 => "utf8mb4",
-                    };
-                $columnSql .= " COLLATE " . match ($columnAttributes->charset) {
-                        Charset::ASCII => "ascii_general_ci",
-                        Charset::UTF8 => "utf8mb4_unicode_ci",
-                    };
-            }
         }
 
         // Nullable?
@@ -242,10 +239,12 @@ final class Migrations
             }
         } else {
             $columnSql .= " default ";
-            $columnSql .= is_string($columnAttributes->defaultValue) ?
-                "'" . $columnAttributes->defaultValue . "'" : $columnAttributes->defaultValue;
+            $columnSql .= is_string($columnAttributes->defaultValue)
+                ? "'" . $columnAttributes->defaultValue . "'"
+                : $columnAttributes->defaultValue;
         }
 
+        // CHECK constraints
         if ($attributes->enforceChecks && $columnAttributes->enforceChecks) {
             $checkConstraintSql = $column->getCheckConstraintSQL($attributes->driver);
             if ($checkConstraintSql) {

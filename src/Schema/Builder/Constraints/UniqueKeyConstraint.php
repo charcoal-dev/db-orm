@@ -20,10 +20,25 @@ use Charcoal\Database\Orm\Schema\Snapshot\ConstraintSnapshot;
 final class UniqueKeyConstraint extends AbstractConstraint
 {
     private array $columns = [];
+    private bool $isPrimary = false;
 
+    /**
+     * @param string ...$cols
+     * @return $this
+     */
     public function columns(string ...$cols): self
     {
         $this->columns = $cols;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     * @api
+     */
+    public function isPrimary(): self
+    {
+        $this->isPrimary = true;
         return $this;
     }
 
@@ -48,8 +63,12 @@ final class UniqueKeyConstraint extends AbstractConstraint
         $columns = implode(",", $this->columns);
         return match ($driver) {
             DbDriver::PGSQL,
-            DbDriver::SQLITE => sprintf("CONSTRAINT %s UNIQUE (%s)", $this->name, $columns),
-            DbDriver::MYSQL => sprintf("UNIQUE KEY %s (%s)", $this->name, $columns),
+            DbDriver::SQLITE => $this->isPrimary
+                ? sprintf("CONSTRAINT %s PRIMARY KEY (%s)", $this->name, $columns)
+                : sprintf("CONSTRAINT %s UNIQUE (%s)", $this->name, $columns),
+            DbDriver::MYSQL => $this->isPrimary
+                ? sprintf("CONSTRAINT %s PRIMARY KEY (%s)", $this->name, $columns)
+                : sprintf("UNIQUE KEY %s (%s)", $this->name, $columns),
         };
     }
 }
