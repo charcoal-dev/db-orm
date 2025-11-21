@@ -24,6 +24,7 @@ use Charcoal\Database\Orm\Schema\Builder\Columns\EnumObjectColumn;
 use Charcoal\Database\Orm\Schema\Builder\Columns\FloatColumn;
 use Charcoal\Database\Orm\Schema\Builder\Columns\FrameColumn;
 use Charcoal\Database\Orm\Schema\Builder\Columns\IntegerColumn;
+use Charcoal\Database\Orm\Schema\Builder\Columns\JsonColumn;
 use Charcoal\Database\Orm\Schema\Builder\Columns\StringColumn;
 use Charcoal\Database\Orm\Schema\Builder\Columns\TextColumn;
 
@@ -251,6 +252,17 @@ final class ColumnsBuilder implements \IteratorAggregate
     public function bool(string $name): BoolColumn
     {
         $col = new BoolColumn($name);
+        $this->append($col);
+        return $col;
+    }
+
+    /**
+     * Define a new JSON column.
+     * @api
+     */
+    public function json(string $name): JsonColumn
+    {
+        $col = new JsonColumn($name);
         $this->append($col);
         return $col;
     }

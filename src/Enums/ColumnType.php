@@ -29,6 +29,7 @@ enum ColumnType
     case Integer;
     case String;
     case Text;
+    case Json;
 
     /**
      * Get the primitive type of the column.
@@ -47,6 +48,7 @@ enum ColumnType
             self::Enum,
             self::Frame,
             self::String,
+            self::Json,
             self::Text => PrimitiveType::String,
             self::Double,
             self::Float => PrimitiveType::Float,
