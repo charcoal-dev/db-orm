@@ -21,7 +21,23 @@ final class ForeignKeyConstraint extends AbstractConstraint
     private string $table;
     private string $col;
     private ?string $db = null;
+    private ?int $num = null;
 
+    /**
+     * @param int $num
+     * @return $this
+     */
+    public function suffix(int $num): self
+    {
+        $this->num = max(0, $num);
+        return $this;
+    }
+
+    /**
+     * @param string $table
+     * @param string $column
+     * @return $this
+     */
     public function table(string $table, string $column): self
     {
         $this->table = $table;
@@ -29,6 +45,10 @@ final class ForeignKeyConstraint extends AbstractConstraint
         return $this;
     }
 
+    /**
+     * @param string $db
+     * @return $this
+     */
     public function database(string $db): self
     {
         $this->db = $db;
@@ -60,7 +80,7 @@ final class ForeignKeyConstraint extends AbstractConstraint
             DbDriver::PGSQL,
             DbDriver::MYSQL => sprintf(
                 "CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s)",
-                sprintf("constraint_%s_foreign", $this->name),
+                sprintf("constraint_%s_foreign%s", $this->name, $this->num > 0 ? (string)$this->num : ""),
                 $this->name,
                 $this->db ? sprintf("%s.%s", $this->db, $this->table) : $this->table,
                 $this->col
