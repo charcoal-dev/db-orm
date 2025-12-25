@@ -34,6 +34,9 @@ final readonly class ColumnSnapshot
         public ?string                       $schemaSql,
     )
     {
+        if ($this->valuePipe && $this->pipeContext) {
+            $this->valuePipe->validate($this->pipeContext);
+        }
     }
 
     /**

@@ -404,10 +404,6 @@ abstract class AbstractOrmTable
      */
     private function pipeColumnValue(mixed $value, ColumnSnapshot $column): mixed
     {
-        if ($column->valuePipe) {
-            $value = $column->valuePipe->forDb($value, $column);
-        }
-
         if (is_null($value)) {
             if (!$column->nullable) {
                 throw new OrmQueryException(OrmError::VALUE_TYPE_ERROR,
@@ -415,6 +411,10 @@ abstract class AbstractOrmTable
             }
 
             return null;
+        }
+
+        if ($column->valuePipe) {
+            $value = $column->valuePipe->forDb($value, $column);
         }
 
         $primitiveType = $column->type->getPrimitiveType();
