@@ -413,6 +413,7 @@ abstract class AbstractOrmTable
             return null;
         }
 
+        // Nullable check first, so pipes will always get a defined value
         if ($column->valuePipe) {
             $value = $column->valuePipe->forDb($value, $column);
         }
