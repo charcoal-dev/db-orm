@@ -54,7 +54,7 @@ final class ColumnsBuilder implements \IteratorAggregate
     /**
      * Set the default charset for all columns.
      */
-    public function setDefaultCharset(Charset $charset = null): self
+    public function setDefaultCharset(?Charset $charset = null): self
     {
         $this->defaultCharset = $charset;
         return $this;
